@@ -301,10 +301,11 @@ h2.rh .btn{margin-left:auto}
         <button data-m="csvScenes">Scene breakdown, CSV<small>One row per scene with eighths and every element</small></button>
         <button data-m="sides">Make sides…<small>Pick a day’s scenes and download the pages as a PDF</small></button>
         <button data-m="editor">Editor’s package…<small>Lined script with facing pages, takes log, shoot-day changes</small></button>
-        <button data-m="link">Send to the Lighting Plot…<small>Scenes, sides and setups in one file</small></button>
-        <button data-m="csvSetups">Setup list, CSV</button>
+        <button data-m="link">Send to the Lighting Plot…<small>Scenes, sides and camera setups in one file</small></button>
+        <button data-m="csvSetups">Camera setup list, CSV</button>
         <hr>
         <button data-m="csvEls">Element list, CSV<small>Every tagged element with its scenes</small></button>
+        <button data-m="annotated">Annotated script, PDF…<small>The pages with your highlights and notes in the margin</small></button>
         <button data-m="notes">Notes summary…<small>Every note by page, scene or type; copy or download</small></button>
         <hr>
         <button data-m="cats">Tag categories…</button>
@@ -746,6 +747,7 @@ function menuAct(m){if(m==='scripts')openLibrary();else if(m==='csvScenes')saveF
   else if(m==='editor')openEditorPack();
   else if(m==='sides')openSides();
   else if(m==='csvSetups')saveFile(`${slug(S.title)}-setups.csv`,setupsCSV());
+  else if(m==='annotated')openAnnotated();
   else if(m==='cats')openCats();
   else if(m==='help')openHelp();}
 $('#bMore').onclick=e=>{e.stopPropagation();$('#moreMenu').classList.toggle('open');};
@@ -1257,6 +1259,59 @@ function openLink(){if(!SC.length){toast('Import a script with scenes first');re
     const mb=$('#modalBox');mb.onchange=e=>{if(e.target.id==='lkScope'){scope=e.target.value;draw();}if(e.target.id==='lkText'){withText=e.target.checked;draw();}};
     mb.onclick=e=>{if(e.target.id==='lkCopy')copyText(json,'Copied. Paste it into the Lighting Plot’s import box.');if(e.target.id==='lkFile')saveFile(`${slug(S.title)}-for-lighting-plot.json`,json);};};
   draw();}
+/* ============================================================
+   Annotated script: the pages with highlights, tags and notes in the margin
+   ============================================================ */
+const HLRGB=[[255,232,110],[178,236,190],[255,192,214],[186,216,255]];
+function annotatedPDF(opt){const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:'pt',format:'letter'});const E=S.els;const byPg={};E.forEach((e,i)=>(byPg[e.pg]||(byPg[e.pg]=[])).push(i));
+  const SCL=.8,X=x=>28+(x-72)*SCL,CW=7.2*SCL,NX=418,NW=166;const lyOn=a=>opt.layers[lyOf(a)]!==false;
+  const marks=S.an.filter(a=>(a.k==='hl'||a.k==='note')&&lyOn(a)).sort((a,b)=>a.s[0]-b.s[0]||a.s[1]-b.s[1]);const tags=opt.tags?S.an.filter(a=>a.k==='tag'):[];const cuts=S.an.filter(a=>a.k==='cut');
+  const gns=opt.scene?S.gn.filter(n=>n.x&&n.x.trim()&&lyOn(n)):[];const scNotes=i=>{const k=elSc[i];if(k<0||SC[k].i!==i)return [];return gns.filter(n=>n.scope==='scene'&&n.key===SC[k].key);};
+  const hasMark=pg=>byPg[pg].some(i=>marks.some(a=>a.s[0]<=i&&a.t[0]>=i)||(opt.tags&&tags.some(a=>a.s[0]<=i&&a.t[0]>=i))||scNotes(i).length);
+  let pages=Object.keys(byPg).map(Number).sort((a,b)=>a-b);if(opt.only)pages=pages.filter(hasMark);
+  const label=pdfSafe(`${S.title}${S.draft?' · '+S.draft:''} · annotated`);let first=true,nNotes=0;const newPage=()=>{if(!first)doc.addPage();first=false;};
+  const tyLab=t=>{const r=NT.find(q=>q[0]===t);return r?[r[1],rgbOf(r[2])]:['Note',[110,110,110]];};
+  const head=(t,r)=>{doc.setFont('courier','normal');doc.setFontSize(8);doc.setTextColor(120);doc.text(t,X(108),34);doc.text(r,584,34,{align:'right'});};
+  const script=gns.filter(n=>n.scope==='script');
+  if(script.length&&!opt.only){newPage();head(label,'script notes');let y=72;doc.setFont('helvetica','bold');doc.setFontSize(13);doc.setTextColor(0);doc.text('Notes on the whole script',56,y);y+=22;
+    script.forEach(n=>{const [tl,tc]=tyLab(tyOf(n));doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(tc[0],tc[1],tc[2]);if(y>740){doc.addPage();head(label,'script notes');y=72;}doc.text(pdfSafe(tl.toUpperCase()),56,y);y+=12;doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(20);doc.splitTextToSize(pdfSafe(n.x.trim()),500).forEach(l=>{if(y>750){doc.addPage();head(label,'script notes');y=72;}doc.text(l,56,y);y+=13;});y+=8;});}
+  pages.forEach(pg=>{const list=byPg[pg];newPage();let curRow=0;const lay=list.map(i=>{const e=E[i];const lines=wrapTok(e.x,WRAP[e.t]||60);const row=Math.max(e.row,curRow);curRow=row+lines.length;return {i,e,lines,row};});const lh=Math.min(12,(792-72-40)/Math.max(1,curRow));const Y=r=>72+r*lh+9;
+    head(label,pg+'.');doc.setDrawColor(215);doc.setLineWidth(.5);doc.line(NX-8,60,NX-8,756);
+    const span=(o,ln,c0,c1)=>{const hit=ln.toks.filter(t=>t.o<c1&&t.o+t.l>c0);if(!hit.length)return null;const bx=X(PX[o.e.t]||108);if(o.e.t==='tr'){const x1=X(PX.tr);return [x1-ln.len*CW,x1];}const a0=hit[0],a1=hit[hit.length-1];return [bx+a0.col*CW,bx+(a1.col+pdfSafe(o.e.x.substr(a1.o,a1.l)).length)*CW];};
+    const rng=(a,i)=>[a.s[0]<i?0:a.s[1],a.t[0]>i?1e9:a.t[1]];const boxes=[];
+    lay.forEach(o=>{marks.forEach(a=>{if(a.k!=='hl'||a.s[0]>o.i||a.t[0]<o.i)return;const [c0,c1]=rng(a,o.i);const col=HLRGB[a.c||0]||HLRGB[0];doc.setFillColor(col[0],col[1],col[2]);o.lines.forEach((ln,j)=>{const sp=span(o,ln,c0,c1);if(sp)doc.rect(sp[0]-1,Y(o.row+j)-lh*.72,sp[1]-sp[0]+2,lh*.98,'F');});});});
+    lay.forEach(o=>{const k=elSc[o.i];const start=k>=0&&SC[k].i===o.i?SC[k]:null;doc.setFontSize(12*SCL);doc.setTextColor(0);doc.setFont('courier',o.e.t==='h'?'bold':'normal');const bx=X(PX[o.e.t]||108);
+      o.lines.forEach((ln,j)=>{if(o.e.t==='tr')doc.text(ln.text,X(PX.tr),Y(o.row+j),{align:'right'});else doc.text(ln.text,bx,Y(o.row+j));});
+      if(start){doc.setFont('courier','normal');doc.setFontSize(o.e.t==='h'?12*SCL:8);doc.text(pdfSafe(start.num),X(96),Y(o.row),{align:'right'});}
+      tags.forEach(a=>{if(a.s[0]>o.i||a.t[0]<o.i)return;const [c0,c1]=rng(a,o.i);const c=rgbOf((CAT[a.cat]||{}).color||'#868e96');doc.setDrawColor(c[0],c[1],c[2]);doc.setLineWidth(1.1);o.lines.forEach((ln,j)=>{const sp=span(o,ln,c0,c1);if(sp)doc.line(sp[0],Y(o.row+j)+2.2,sp[1],Y(o.row+j)+2.2);});});
+      cuts.forEach(a=>{if(a.s[0]>o.i||a.t[0]<o.i)return;const [c0,c1]=rng(a,o.i);doc.setDrawColor(200,40,40);doc.setLineWidth(.9);o.lines.forEach((ln,j)=>{const sp=span(o,ln,c0,c1);if(sp)doc.line(sp[0]-1,Y(o.row+j)-2.6,sp[1]+1,Y(o.row+j)-2.6);});});
+      scNotes(o.i).forEach(n=>boxes.push({y:Y(o.row),ty:tyOf(n),x:n.x.trim(),sc:start?start.num:''}));
+      marks.forEach(a=>{if(a.k!=='note'||a.s[0]>o.i||a.t[0]<o.i)return;const [c0,c1]=rng(a,o.i);doc.setDrawColor(194,65,12);doc.setLineWidth(.8);doc.setLineDashPattern([1.4,1.4],0);let lastSp=null,lastJ=0;o.lines.forEach((ln,j)=>{const sp=span(o,ln,c0,c1);if(sp){doc.line(sp[0],Y(o.row+j)+2.2,sp[1],Y(o.row+j)+2.2);lastSp=sp;lastJ=j;}});doc.setLineDashPattern([],0);
+        if(a.t[0]===o.i||(a.t[0]>o.i&&o===lay[lay.length-1])){if(a.t[0]===o.i&&lastSp){boxes.push({y:Y(o.row+lastJ),ty:tyOf(a),x:(a.x||'').trim(),ax:lastSp[1],a});}else if(lastSp)boxes.push({y:Y(o.row+lastJ),ty:tyOf(a),x:(a.x||'').trim(),ax:lastSp[1],a,cont:true});}});});
+    /* notes that began on an earlier page and end here are listed once, where they end */
+    const seen=new Set();const mine=boxes.filter(b=>{if(b.cont)return false;if(b.a){if(seen.has(b.a))return false;seen.add(b.a);}return true;}).sort((a,b)=>a.y-b.y);
+    let y=64,over=[];mine.forEach(b=>{nNotes++;b.n=nNotes;const [tl,tc]=tyLab(b.ty);doc.setFont('helvetica','normal');doc.setFontSize(7.6);const ls=doc.splitTextToSize(pdfSafe(b.x||'(no text)'),NW-4);const h=11+ls.length*9.2+5;
+      if(b.ax!=null){doc.setFont('helvetica','bold');doc.setFontSize(6.4);doc.setTextColor(194,65,12);doc.text(String(b.n),b.ax+1.5,b.y-4);}
+      const top=Math.max(y,b.y-9);if(top+h>756){over.push({b,ls,tl,tc});return;}
+      doc.setFillColor(tc[0],tc[1],tc[2]);doc.rect(NX-3,top,1.6,h-4,'F');doc.setFont('helvetica','bold');doc.setFontSize(6.8);doc.setTextColor(194,65,12);doc.text(String(b.n),NX+2,top+7.5);doc.setTextColor(tc[0],tc[1],tc[2]);doc.text(pdfSafe((b.sc?'SCENE '+b.sc+' · ':'')+tl).toUpperCase(),NX+4+doc.getTextWidth(String(b.n)+' '),top+7.5);
+      doc.setFont('helvetica','normal');doc.setFontSize(7.6);doc.setTextColor(25);ls.forEach((l,q)=>doc.text(l,NX+2,top+18+q*9.2));
+      if(b.ax!=null&&top>b.y+4){doc.setDrawColor(200);doc.setLineWidth(.4);doc.line(NX-8,b.y-2,NX-3,top+4);}
+      y=top+h;});
+    if(over.length){doc.addPage();head(label,`notes for page ${pg}, continued`);let yy=72;doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(0);doc.text(`Notes for script page ${pg}, continued`,56,yy);yy+=22;
+      over.forEach(({b,tl,tc})=>{doc.setFont('helvetica','normal');doc.setFontSize(10);const ls=doc.splitTextToSize(pdfSafe(b.x||'(no text)'),500);if(yy+14+ls.length*13>750){doc.addPage();head(label,`notes for page ${pg}, continued`);yy=72;}
+        doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(194,65,12);doc.text(String(b.n),56,yy);doc.setTextColor(tc[0],tc[1],tc[2]);doc.text(pdfSafe((b.sc?'SCENE '+b.sc+' · ':'')+tl).toUpperCase(),60+doc.getTextWidth(String(b.n)),yy);yy+=13;doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(20);ls.forEach(l=>{doc.text(l,56,yy);yy+=13;});yy+=8;});}});
+  if(first){doc.setFont('helvetica','normal');doc.setFontSize(12);doc.text(opt.only?'No pages have highlights or notes on the chosen layers.':'Nothing to print yet.',72,96);}
+  return {blob:doc.output('blob'),sheets:doc.getNumberOfPages(),notes:nNotes};}
+function openAnnotated(){if(!S||!S.els.length){toast('Import a script first');return;}const opt={layers:{},tags:false,scene:true,only:false};LY.forEach(l=>opt.layers[l[0]]=!S.lyHidden[l[0]]);
+  const cnt=id=>S.an.filter(a=>(a.k==='hl'||a.k==='note')&&lyOf(a)===id).length+S.gn.filter(n=>n.x&&n.x.trim()&&lyOf(n)===id).length;
+  openModal(`<h3>Annotated script (PDF)</h3><div class="pSub">The script pages with your highlights in their colours and each note printed in the margin beside its line. Notes are numbered; any that don’t fit beside the page continue on a sheet right after it.</div>
+   <div class="f"><label>Layers to print</label>${LY.map(l=>`<label class="chk"><input type="checkbox" data-aly="${l[0]}" ${opt.layers[l[0]]?'checked':''}><i style="width:9px;height:9px;border-radius:2px;background:${l[2]};display:inline-block"></i> ${esc(l[1])} <span style="color:var(--sub)">· ${cnt(l[0])}</span></label>`).join('')}</div>
+   <label class="chk"><input type="checkbox" id="anScene" checked> Scene notes and whole-script notes</label>
+   <label class="chk"><input type="checkbox" id="anTags"> Underline tagged elements in their category colours</label>
+   <label class="chk"><input type="checkbox" id="anOnly"> Only pages that have highlights or notes</label>
+   <div class="mFoot"><button class="btn" data-close>Cancel</button><button class="btn pri" id="anGo">Download PDF</button></div>`);
+  $('#modalBox').onclick=async ev=>{if(ev.target.id!=='anGo')return;document.querySelectorAll('#modalBox [data-aly]').forEach(c=>opt.layers[c.dataset.aly]=c.checked);opt.scene=$('#anScene').checked;opt.tags=$('#anTags').checked;opt.only=$('#anOnly').checked;
+    if(!(await ensureJsPDF0())){toast('The PDF maker did not load. Check your connection and try again.',5000);return;}const r=annotatedPDF(opt);saveFile(`${slug(S.title)}-annotated.pdf`,r.blob);closeModal();};}
 /* ============================================================
    Sample + init
    ============================================================ */
