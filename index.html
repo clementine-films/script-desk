@@ -136,6 +136,9 @@ body.narrow #scriptWrap{padding:8px 6px 170px}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--paper);border-radius:99px;padding:4px 10px 4px 8px;white-space:nowrap;font-size:12px;flex:none}
 .chip i{width:9px;height:9px;border-radius:2px;background:var(--tc);flex:none}
 .chip:hover{border-color:var(--dim)}
+.minTag{font:700 9px var(--sans);letter-spacing:.4px;text-transform:uppercase;background:#bd5103;color:#fff;border-radius:3px;padding:1px 4px;margin-left:2px}
+.cpRow{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.cpRow .mono{font-family:var(--mono)}
 .chip .x{border:0;background:transparent;padding:0 0 0 2px;color:var(--dim);font-size:14px;line-height:1}
 .chip.auto{border-style:dashed}
 .in{width:100%;border:1px solid var(--line);background:var(--paper);border-radius:7px;padding:6px 8px}
@@ -331,6 +334,7 @@ h2.rh .btn{margin-left:auto;font:500 12px var(--sans)}
         <button data-m="compare">Compare side by side with the earlier draft</button>
         <button data-m="scripts">My scripts…<small>Open or delete saved scripts</small></button>
         <hr>
+        <button data-m="sheetCopy">Copy for your sheets…<small>Scene Data, Full Script Breakdown, call sheet Elements</small></button>
         <button data-m="csvScenes">Scene breakdown, CSV<small>One row per scene with eighths and every element</small></button>
         <button data-m="sides">Make sides…<small>Pick a day’s scenes and download the pages as a PDF</small></button>
         <button data-m="editor">Editor’s package…<small>Lined script with facing pages, takes log, shoot-day changes</small></button>
@@ -578,13 +582,16 @@ function todPill(t){const u=(t||'').toUpperCase();const c=/NIGHT|EVENING|DUSK|MI
 function renderNav(){const q=($('#navQ').value||'').toLowerCase();const rows=SC.map((s,k)=>({s,k})).filter(({s})=>!q||(s.num+' '+s.slug).toLowerCase().includes(q));
   $('#navCount').textContent=SC.length?fmt8(sceneTotal())+' pgs':'';
   $('#sceneList').innerHTML=rows.map(({s,k})=>`<button class="sRow ${k===cur?'cur':''}" data-k="${k}"><span class="n">${esc(s.num)}</span><span class="s">${esc((s.ie?s.ie+'. ':'')+s.set)}<small>${s.split?'continues · ':''}${esc(s.tod||'')}${s.syn?' · '+esc(s.syn.slice(0,60)):''}</small></span><span class="e">${(S.sc[s.key]||{}).status==='shot'?'✓ ':''}${fmt8(s.e8)}</span></button>`).join('')||`<div class="pSub" style="padding:10px">${SC.length?'No scene matches.':'No scene headings found yet. Headings start with INT. or EXT.'}</div>`;}
-function chipHTML(cat,o,k){return `<span class="chip ${o.auto&&!o.tagged?'auto':''}" style="--tc:${CAT[cat].color}" title="${o.auto?'Speaks in this scene':''}"><i></i>${esc(o.name)}${`<button class="x" data-rm="${cat}|${esc(keyOf(o.name))}" aria-label="Remove ${esc(o.name)}">×</button>`}</span>`;}
+const isMinor=n=>!!(S.minors&&S.minors[keyOf(n)]);
+const sdayOf=s=>((S.sc[s.key]||{}).sday)||'';
+function chipHTML(cat,o,k){return `<span class="chip ${o.auto&&!o.tagged?'auto':''}" style="--tc:${CAT[cat].color}" title="${o.auto?'Speaks in this scene':''}"><i></i><span data-el="${cat}|${esc(keyOf(o.name))}" style="cursor:pointer" title="Rename, merge${cat==='cast'?' or mark as a minor':''}">${esc(o.name)}</span>${cat==='cast'&&isMinor(o.name)?'<b class="minTag" title="Minor (under 18)">minor</b>':''}${`<button class="x" data-rm="${cat}|${esc(keyOf(o.name))}" aria-label="Remove ${esc(o.name)}">×</button>`}</span>`;}
 function panelScene(){const s=SC[cur];if(!s)return `<div class="pSub">Import a script, or open one from <b>More → My scripts</b>.</div>`;const st=S.sc[s.key]||{};
   let h=`<div class="pTitle">${esc(s.num)} &nbsp;${esc(s.slug)}</div><div class="pSub">Breakdown sheet · script page ${s.pg}${s.split?' · a part split from scene '+esc(s.base):s.manual?' · a scene you marked by hand':''}</div>${s.manual?`
    <div class="f"><label for="fSlug">Scene heading</label><input class="in" id="fSlug" data-sf="slug" value="${esc(s.slug)}" placeholder="INT. KITCHEN - NIGHT"></div>`:''}
    <div class="f"><label for="fNum">Scene number</label><div style="display:flex;gap:8px;align-items:center"><input class="in" id="fNum" data-sf="num" value="${esc(s.num)}" style="width:90px;font-family:var(--mono)">${s.split?'<button class="btn sm" data-act="unsplit">Join with the part above</button>':s.manual?'<button class="btn sm" data-act="unsplit">Remove this scene start</button>':'<button class="btn sm" data-act="unhead" title="Use this if a line was wrongly read as a scene heading">Not a scene heading</button>'}</div></div>
    <div class="f"><label for="fLen">Length in eighths of a page</label><div style="display:flex;gap:8px;align-items:center"><input class="in" id="fLen" data-sf="ov" value="${fmt8(s.e8)}" style="width:90px;font-family:var(--mono)"><span class="pSub" style="margin:0">${st.ov?`measured ${fmt8(s.meas)} · <button class="btn sm" data-act="resetLen">use measured</button>`:'measured from the page'}</span></div></div>
-   <div class="f"><label for="fSyn">One-line synopsis</label><textarea class="in" id="fSyn" data-sf="syn" rows="2" placeholder="What happens in this scene">${esc(s.syn)}</textarea></div>`;
+   <div class="f"><label for="fSyn">One-line synopsis</label><textarea class="in" id="fSyn" data-sf="syn" rows="2" placeholder="What happens in this scene">${esc(s.syn)}</textarea></div>
+   <div class="f"><label for="fSday">Script day</label><div style="display:flex;gap:8px;align-items:center"><input class="in" id="fSday" data-sf="sday" value="${esc(st.sday||'')}" placeholder="1" style="width:90px;font-family:var(--mono)"><span class="pSub" style="margin:0">Story day for continuity (1, 2, D3, Flashback…)${!st.sday&&cur>0&&(S.sc[SC[cur-1].key]||{}).sday?` · <button class="btn sm" data-act="sdayPrev">same as scene ${esc(SC[cur-1].num)}</button>`:''}</span></div></div>`;
   {const gl=gnList('scene',s.key);h+=`<div class="cat"><h4>Scene notes <span>${gl.length||''}</span></h4>${gl.map(gnRow).join('')}<button class="btn sm" data-act="addSceneNote">Add a note on this scene</button> <button class="btn sm" data-act="addSceneText" title="Text shown on the script under this scene heading">Add text on the script</button></div>`;}
   h+='<!--prod-->';
   CATS.forEach(([c,n])=>{const list=sceneEls(s,c);if(!list.length&&c!=='cast')return;h+=`<div class="cat" style="--tc:${CAT[c].color}"><h4><i></i>${esc(n)} <span>${list.length||''}</span></h4><div class="chips">${list.map(o=>chipHTML(c,o)).join('')||'<span class="pSub" style="margin:0">Nobody speaks in this scene.</span>'}</div>${c==='cast'?castHiddenHTML(s):''}</div>`;});
@@ -699,7 +706,7 @@ $('#page').addEventListener('click',e=>{const sel=window.getSelection();if(sel&&
    ============================================================ */
 function scState(s){return S.sc[s.key]||(S.sc[s.key]={});}
 $('#tabs').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(b){V.tab=b.dataset.t;saveUI();renderSide();}});
-$('#panel').addEventListener('input',e=>{const t=e.target,s=SC[cur];if(t.dataset.gx){const n=S.gn.find(x=>x.id===t.dataset.gx);if(n){if(!t._u){pushUndo();t._u=1;}n.x=t.value;scheduleSave();}return;}if(t.dataset.sf==='dayNote'&&s){if(!t._u){pushUndo();t._u=1;}const st=scState(s);if(t.value)st.dayNote=t.value;else delete st.dayNote;scheduleSave();return;}if(t.dataset.sf==='syn'&&s){if(!t._u){pushUndo();t._u=1;}scState(s).syn=t.value;s.syn=t.value;scheduleSave();}});
+$('#panel').addEventListener('input',e=>{const t=e.target,s=SC[cur];if(t.dataset.gx){const n=S.gn.find(x=>x.id===t.dataset.gx);if(n){if(!t._u){pushUndo();t._u=1;}n.x=t.value;scheduleSave();}return;}if(t.dataset.sf==='dayNote'&&s){if(!t._u){pushUndo();t._u=1;}const st=scState(s);if(t.value)st.dayNote=t.value;else delete st.dayNote;scheduleSave();return;}if(t.dataset.sf==='sday'&&s){if(!t._u){pushUndo();t._u=1;}const st=scState(s);const v=t.value.trim();if(v)st.sday=v;else delete st.sday;scheduleSave();return;}if(t.dataset.sf==='syn'&&s){if(!t._u){pushUndo();t._u=1;}scState(s).syn=t.value;s.syn=t.value;scheduleSave();}});
 $('#panel').addEventListener('change',e=>{const t=e.target,s=SC[cur];
   if(t.dataset.gt){const n=S.gn.find(x=>x.id===t.dataset.gt);if(n){pushUndo();n.ty=t.value;V.lastTy=t.value;saveUI();scheduleSave();}return;}
   if(t.dataset.ntf){V.noteTy=t.value;renderSide();return;}
@@ -730,17 +737,18 @@ $('#panel').addEventListener('click',e=>{const s=SC[cur];
   if(act==='summary')openSummary();
   if(act==='noteTypes')openNoteTypes();
   if(act==='addScriptNote')addGn('script');
+  if(act==='sdayPrev'&&s&&cur>0){const p=(S.sc[SC[cur-1].key]||{}).sday;if(p){pushUndo();scState(s).sday=p;renderSide();scheduleSave();}return;}
   if(act==='addSceneNote'&&s)addGn('scene',s.key);
   if(act==='cats')openCats();});
 function elementDialog(c,k){const o=allEls()[c]&&allEls()[c].get(k);if(!o)return;openModal(`<h3>${esc(CAT[c].name)}: ${esc(o.name)}</h3><div class="pSub">Appears in ${o.scenes.length} scene${o.scenes.length===1?'':'s'}: ${esc(o.scenes.join(', '))}</div>
   <div class="f"><label for="elName">Name</label><input class="in" id="elName" value="${esc(o.name)}"></div><div class="f"><label for="elCat">Category</label><select class="in" id="elCat">${CATS.map(([cc,n])=>`<option value="${cc}" ${cc===c?'selected':''}>${esc(n)}</option>`).join('')}</select></div>
-  <div class="pSub">${c==='cast'?'Renaming changes it in every scene, list and export. The script text stays as written. If this isn’t a character at all, use <b>Not a character</b>.':'Renaming or moving it changes every tag of this element.'}</div>
+  ${c==='cast'?`<label class="chk" style="margin:4px 0 8px"><input type="checkbox" id="elMinor" ${isMinor(o.name)?'checked':''}> Minor (under 18)<span class="pSub" style="margin:0 0 0 6px">flags child-performer paperwork and shows on breakdowns and exports</span></label>`:''}<div class="pSub">${c==='cast'?'Renaming changes it in every scene, list and export. The script text stays as written. If this isn’t a character at all, use <b>Not a character</b>.':'Renaming or moving it changes every tag of this element.'}</div>
   ${(()=>{const mg=mergedInto(c,k);const others=[...allEls()[c].values()].filter(x=>keyOf(x.name)!==k).sort((a,b)=>a.name.localeCompare(b.name));return `<div class="f" style="border-top:1px solid var(--line);padding-top:10px;margin-top:10px"><label for="elInto">Same thing, written differently?</label>${others.length?`<div style="display:flex;gap:6px"><select class="in" id="elInto" style="flex:1;min-width:0"><option value="">Merge into…</option>${others.map(x=>`<option value="${esc(x.name)}">${esc(x.name)} (${x.scenes.length} sc)</option>`).join('')}</select><button class="btn" id="elMerge">Merge</button></div><div class="pSub" style="margin-top:6px">“${esc(o.name)}” will be counted as the one you pick, in every scene, list and export. The script text and your tags stay as written, and you can separate them again.</div>`:`<div class="pSub">There is no other ${esc(CAT[c].name.toLowerCase())} element to merge with yet.</div>`}${mg.length?`<div class="pSub" style="margin-top:8px">Also counted as “${esc(o.name)}”:</div>${mg.map(m=>`<div class="eRow"><b style="cursor:default">${esc(m.from)}</b><button class="btn sm" data-unmerge="${esc(m.q)}">Separate</button></div>`).join('')}`:''}</div>`;})()}
   <div class="mFoot"><button class="btn danger" id="elDel">${c==='cast'?'Not a character':'Remove everywhere'}</button><button class="btn" data-close>Cancel</button><button class="btn pri" id="elSave">Save</button></div>`);
   const each=fn=>{S.an.forEach(a=>{if(a.k==='tag'&&a.cat===c&&keyOf(a.name)===k)fn(a);});Object.values(S.sc).forEach(st=>(st.els||[]).forEach(x=>{if(x.cat===c&&keyOf(x.name)===k)fn(x);}));};
   const mb=$('#elMerge');if(mb)mb.onclick=()=>{const to=$('#elInto').value;if(!to){toast('Pick the element to merge into');return;}pushUndo();S.alias[c+'|'+k]={to,from:o.name};delete S.alias[c+'|'+keyOf(to)];closeModal();renderAll(true);scheduleSave();toast(`“${o.name}” now counts as “${to}”`);};
   $('#modalBox').querySelectorAll('[data-unmerge]').forEach(b=>b.onclick=()=>{pushUndo();const from=S.alias[b.dataset.unmerge]&&S.alias[b.dataset.unmerge].from;delete S.alias[b.dataset.unmerge];closeModal();renderAll(true);scheduleSave();toast(`“${from||'Element'}” is counted separately again`);});
-  $('#elSave').onclick=()=>{const nc=$('#elCat').value,nn=cleanName($('#elName').value,nc);if(!nn)return;pushUndo();if(c==='cast'){const autoIn=SC.filter(x=>x.autoCast.has(k));if(nc==='cast'){if(keyOf(nn)!==k)S.alias['cast|'+k]={to:nn,from:o.name};}else if(autoIn.length){S.notCast[k]=o.name;autoIn.forEach(x=>{const st=scState(x);(st.els||(st.els=[])).push({cat:nc,name:nn});});}}each(x=>{x.name=nn;x.cat=nc;});Object.entries(S.alias).forEach(([q,a])=>{if(q.startsWith(c+'|')&&keyOf(a.to)===k){if(nc===c)a.to=nn;else delete S.alias[q];}});if(nc!==c||keyOf(nn)!==k)delete S.alias[nc+'|'+keyOf(nn)];closeModal();renderAll(true);scheduleSave();};
+  $('#elSave').onclick=()=>{const nc=$('#elCat').value,nn=cleanName($('#elName').value,nc);if(!nn)return;pushUndo();if(c==='cast'){S.minors=S.minors||{};const mi=$('#elMinor');delete S.minors[k];if(mi&&mi.checked&&nc==='cast')S.minors[keyOf(nn)]=true;}if(c==='cast'){const autoIn=SC.filter(x=>x.autoCast.has(k));if(nc==='cast'){if(keyOf(nn)!==k)S.alias['cast|'+k]={to:nn,from:o.name};}else if(autoIn.length){S.notCast[k]=o.name;autoIn.forEach(x=>{const st=scState(x);(st.els||(st.els=[])).push({cat:nc,name:nn});});}}each(x=>{x.name=nn;x.cat=nc;});Object.entries(S.alias).forEach(([q,a])=>{if(q.startsWith(c+'|')&&keyOf(a.to)===k){if(nc===c)a.to=nn;else delete S.alias[q];}});if(nc!==c||keyOf(nn)!==k)delete S.alias[nc+'|'+keyOf(nn)];closeModal();renderAll(true);scheduleSave();};
   $('#elDel').onclick=()=>{pushUndo();if(c==='cast')S.notCast[k]=o.name;S.an=S.an.filter(a=>!(a.k==='tag'&&a.cat===c&&keyOf(a.name)===k));Object.values(S.sc).forEach(st=>{if(st.els)st.els=st.els.filter(x=>!(x.cat===c&&keyOf(x.name)===k));});Object.entries(S.alias).forEach(([q,a])=>{if(q.startsWith(c+'|')&&keyOf(a.to)===k)delete S.alias[q];});closeModal();renderAll(true);scheduleSave();};}
 $('#navQ').addEventListener('input',renderNav);
 $('#sceneList').addEventListener('click',e=>{const r=e.target.closest('[data-k]');if(!r)return;setCur(+r.dataset.k,true);if(V.narrow){V.nav=false;applyUI();}});
@@ -756,8 +764,8 @@ $('#title').addEventListener('input',e=>{S.title=e.target.value;scheduleSave();}
    Undo
    ============================================================ */
 let undoStack=[];
-function pushUndo(){undoStack.push(JSON.stringify({an:S.an,sc:S.sc,splits:S.splits,unhead:S.unhead,gn:S.gn,beats:S.beats,setups:S.setups,lost:S.lost,alias:S.alias,notCast:S.notCast,locNeeds:S.locNeeds,bdEdit:S.bdEdit}));if(undoStack.length>60)undoStack.shift();$('#bUndo').disabled=false;}
-function undo(){if(!undoStack.length)return;const o=JSON.parse(undoStack.pop());S.an=o.an;S.sc=o.sc;S.splits=o.splits||{};S.unhead=o.unhead||{};S.gn=o.gn||[];S.beats=o.beats||[];S.setups=o.setups||[];S.lost=o.lost||[];S.alias=o.alias||{};S.notCast=o.notCast||{};S.locNeeds=o.locNeeds||{};S.bdEdit=o.bdEdit||S.bdEdit||{};$('#bUndo').disabled=!undoStack.length;hideDock();renderAll(true);scheduleSave();}
+function pushUndo(){undoStack.push(JSON.stringify({an:S.an,sc:S.sc,splits:S.splits,unhead:S.unhead,gn:S.gn,beats:S.beats,setups:S.setups,lost:S.lost,alias:S.alias,notCast:S.notCast,locNeeds:S.locNeeds,bdEdit:S.bdEdit,minors:S.minors}));if(undoStack.length>60)undoStack.shift();$('#bUndo').disabled=false;}
+function undo(){if(!undoStack.length)return;const o=JSON.parse(undoStack.pop());S.an=o.an;S.sc=o.sc;S.splits=o.splits||{};S.unhead=o.unhead||{};S.gn=o.gn||[];S.beats=o.beats||[];S.setups=o.setups||[];S.lost=o.lost||[];S.alias=o.alias||{};S.notCast=o.notCast||{};S.minors=o.minors||S.minors||{};S.locNeeds=o.locNeeds||{};S.bdEdit=o.bdEdit||S.bdEdit||{};$('#bUndo').disabled=!undoStack.length;hideDock();renderAll(true);scheduleSave();}
 $('#bUndo').onclick=undo;
 document.addEventListener('keydown',e=>{const typing=/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);if(e.key==='Escape'){if($('#modal').classList.contains('open'))closeModal();else if(typing)document.activeElement.blur();else hideDock();$('#moreMenu').classList.remove('open');return;}
   if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'&&!typing){e.preventDefault();undo();}});
@@ -800,6 +808,7 @@ $('#bMore').onclick=e=>{e.stopPropagation();$('#moreMenu').classList.toggle('ope
 document.addEventListener('click',e=>{if(!e.target.closest('.menuWrap'))$('#moreMenu').classList.remove('open');});
 $('#moreMenu').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b)return;$('#moreMenu').classList.remove('open');menuAct(b.dataset.m);});
 function openHelp(){openModal(`<h3>How it works</h3><div style="line-height:1.6">
+ <p><b>Your sheets.</b> <b>More → Copy for your sheets</b> gives paste-ready rows for the Shoot Scheduling, Script Breakdown &amp; Stripboard and Call Sheets templates. Each copy names the tab and cell to paste into and skips formula columns. Mark a <b>script day</b> on each scene (Scene tab) and tick <b>Minor</b> on a cast member (tap their name on the Scene tab) so both carry through to the breakdowns and the sheets.</p>
  <p><b>Shot Plot.</b> <b>More → Send to the Shot Plot</b> packs scenes, their sides and your camera setups into one file. Import it from the plot’s Shot list and each camera setup arrives as a shot linked to its lines, ready for you to place the camera and lights.</p>
  <p><b>For the editor.</b> Open a setup to log its takes, circle the ones to print and add continuity notes. Select words and choose <b>Cut on the day</b> to strike lines that were dropped. <b>More → Editor’s package</b> then downloads the lined script with facing pages, a takes log and a list of shoot-day changes.</p>
  <p><b>New drafts.</b> <b>More → Import a new draft</b> compares a revised script with the one that is open and moves your highlights, notes, tags, camera setups and scene details onto the matching lines. Notes on rewritten lines are flagged for review, notes on cut lines are kept in a list, and the earlier draft stays in My scripts.</p>
@@ -841,7 +850,7 @@ async function handleFile(f){const name=f.name||'script';const ext=(name.split('
 function finishImport(res,fallback){if(typeof importMode!=='undefined'&&importMode){finishDraft(res);return;}if(!res.els.length){toast('No script text was found in that file.',5000);return;}
   setScript({v:1,id:'s'+uid(),title:res.title||fallback,updated:Date.now(),R:res.R||54,els:res.els,sc:{},an:[],chunks:0},false);closeModal();scheduleSave();
   const pages=S.els[S.els.length-1].pg;toast(SC.length?`Imported ${pages} page${pages===1?'':'s'} and ${SC.length} scene${SC.length===1?'':'s'}`:'Imported, but no scene headings were found. Headings must start with INT. or EXT.',5000);}
-function setScript(o,saved){S=o;S.sc=S.sc||{};S.an=S.an||[];S.splits=S.splits||{};S.unhead=S.unhead||{};S.gn=S.gn||[];S.beats=(S.beats||[]).filter(b=>S.els[b.i]);S.lyHidden=S.lyHidden||{};S.setups=(S.setups||[]).filter(u=>S.els[u.e0]&&S.els[u.e1]);S.days=S.days||[];S.lost=S.lost||[];S.alias=S.alias||{};S.notCast=S.notCast||{};S.locNeeds=S.locNeeds||{};S.credit=S.credit||'';S.bdEdit=S.bdEdit||{};applyCats(S.cats||LS.get('sdesk.cats'));applyLists();S.an.forEach(a=>{if(a.k!=='tag'&&!a.ly)a.ly=LY[0][0];if(a.k==='note'&&!a.ty)a.ty=tyOf(a);});$('#lyPop').hidden=true;S.R=S.R||54;bodySaved=saved!==false;undoStack=[];$('#bUndo').disabled=true;cur=0;hideDock();setView('script');renderAll(false);if(bodySaved)try{localStorage.setItem('sdesk.last',JSON.stringify(S.id));}catch(e){}}
+function setScript(o,saved){S=o;S.sc=S.sc||{};S.an=S.an||[];S.splits=S.splits||{};S.unhead=S.unhead||{};S.gn=S.gn||[];S.beats=(S.beats||[]).filter(b=>S.els[b.i]);S.lyHidden=S.lyHidden||{};S.setups=(S.setups||[]).filter(u=>S.els[u.e0]&&S.els[u.e1]);S.days=S.days||[];S.lost=S.lost||[];S.alias=S.alias||{};S.notCast=S.notCast||{};S.minors=S.minors||{};S.locNeeds=S.locNeeds||{};S.credit=S.credit||'';S.bdEdit=S.bdEdit||{};applyCats(S.cats||LS.get('sdesk.cats'));applyLists();S.an.forEach(a=>{if(a.k!=='tag'&&!a.ly)a.ly=LY[0][0];if(a.k==='note'&&!a.ty)a.ty=tyOf(a);});$('#lyPop').hidden=true;S.R=S.R||54;bodySaved=saved!==false;undoStack=[];$('#bUndo').disabled=true;cur=0;hideDock();setView('script');renderAll(false);if(bodySaved)try{localStorage.setItem('sdesk.last',JSON.stringify(S.id));}catch(e){}}
 
 /* ============================================================
    Saving: this browser first, then the viewer's own account space
@@ -849,7 +858,7 @@ function setScript(o,saved){S=o;S.sc=S.sc||{};S.an=S.an||[];S.splits=S.splits||{
 const LS={get(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
 const pack=els=>els.map(e=>[e.t,e.x,e.pg,e.row,e.n,e.num||'']);
 const unpack=b=>b.map(a=>({t:a[0],x:a[1],pg:a[2],row:a[3],n:a[4],num:a[5]||''}));
-const stateOf=()=>({v:1,id:S.id,title:S.title,updated:S.updated,R:S.R,sc:S.sc,an:S.an,splits:S.splits,unhead:S.unhead,cats:S.cats,ntypes:S.ntypes,layers:S.layers,lyHidden:S.lyHidden,lyActive:S.lyActive,tagsHidden:!!S.tagsHidden,gn:S.gn,beats:S.beats,setups:S.setups,days:S.days,linesHidden:!!S.linesHidden,draft:S.draft,prev:S.prev,rev:S.rev,revHidden:!!S.revHidden,revStyle:S.revStyle||'',lost:S.lost,alias:S.alias,notCast:S.notCast||{},locNeeds:S.locNeeds||{},credit:S.credit||'',bdEdit:S.bdEdit||{},chunks:S.chunks||0});
+const stateOf=()=>({v:1,id:S.id,title:S.title,updated:S.updated,R:S.R,sc:S.sc,an:S.an,splits:S.splits,unhead:S.unhead,cats:S.cats,ntypes:S.ntypes,layers:S.layers,lyHidden:S.lyHidden,lyActive:S.lyActive,tagsHidden:!!S.tagsHidden,gn:S.gn,beats:S.beats,setups:S.setups,days:S.days,linesHidden:!!S.linesHidden,draft:S.draft,prev:S.prev,rev:S.rev,revHidden:!!S.revHidden,revStyle:S.revStyle||'',lost:S.lost,alias:S.alias,notCast:S.notCast||{},minors:S.minors||{},locNeeds:S.locNeeds||{},credit:S.credit||'',bdEdit:S.bdEdit||{},chunks:S.chunks||0});
 let COL=null,bodySaved=true,saveTimer=0,saving=false,dirty=false;
 function setSave(cls,txt){const s=$('#save');s.className=cls;s.querySelector('span').textContent=txt;s.title=txt;}
 function scheduleSave(){if(!S)return;S.sample=false;dirty=true;S.updated=Date.now();setSave('busy','Unsaved changes…');clearTimeout(saveTimer);saveTimer=setTimeout(doSave,1000);}
@@ -1529,7 +1538,7 @@ function stripColor(ie,tod){const I=String(ie||'').toUpperCase(),T=String(tod||'
   if(ext){if(/SUNRISE|DAWN/.test(T))return '#d9d2e9';if(/MORNING/.test(T))return '#ddebf7';if(/LATE AFTERNOON/.test(T))return '#6a9bd1';if(/AFTERNOON/.test(T))return '#9dc3ea';if(/SUNSET|DUSK|MAGIC|EVENING/.test(T))return '#b4a7d5';return '#c6dded';}
   return '#ffffff';}
 /* what each scene's sheet says: built from tags, or the user's saved edits for that scene */
-function bdAuto(s,opt,CN){const blocks=CATS.map(([c,n])=>{let items=sceneEls(s,c).map(o=>o.name);if(c==='cast')items=sceneCast(s).map(o=>({n:CN.num.get(keyOf(o.name))||99,t:o.name})).sort((a,b)=>a.n-b.n).map(o=>`${o.n}  ${o.t}`);return {n,items,color:CAT[c].color,c};}).filter(b=>b.items.length||b.c==='cast'||(opt&&opt.empty));
+function bdAuto(s,opt,CN){const blocks=CATS.map(([c,n])=>{let items=sceneEls(s,c).map(o=>o.name);if(c==='cast')items=sceneCast(s).map(o=>({n:CN.num.get(keyOf(o.name))||99,t:o.name+(isMinor(o.name)?' (minor)':'')})).sort((a,b)=>a.n-b.n).map(o=>`${o.n}  ${o.t}`);return {n,items,color:CAT[c].color,c};}).filter(b=>b.items.length||b.c==='cast'||(opt&&opt.empty));
   const N=needsOf(s);if(!opt||opt.needs!==false)if(N.length)blocks.push({n:'Location needs',items:N.map(n=>n.x),color:'#8a6d3b',c:'_needs'});
   const R2=riskOf(s);const lv=sceneLevel(s);const risk=(!opt||opt.risk!==false)&&R2.length?R2.map(r=>{const it=riskItem(r);return `${it.lvl===23?'L2–3':'L'+it.lvl}  ${it.cat} — ${it.short}${r.note?'. Plan: '+r.note:''}`;}).concat(['Approval: '+apprTxt(lv)]):[];
   const gn=(S.gn||[]).filter(n=>n.scope==='scene'&&n.key===s.key&&n.x&&n.x.trim()).map(n=>n.x.trim());const tx=S.an.filter(a=>a.k==='tx'&&a.at==='scene'&&elSc[a.s[0]]===SC.indexOf(s)).map(a=>a.x.trim());
@@ -1564,7 +1573,7 @@ function breakdownPDF(opt){const {jsPDF}=window.jspdf;const doc=brandFonts(new j
     doc.setFont('helvetica','bold');doc.setFontSize(10.5);const slug=pdfSafe([s.ie,s.set].filter(Boolean).join('. ')+(s.tod?' - '+s.tod:''));doc.text(doc.splitTextToSize(slug,R-x-120)[0]||'',x,y+19.5);
     doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.text(pdfSafe(`${fmt8(s.e8)} pgs  ·  p. ${s.pg||'—'}`),R-10,y+19.5,{align:'right'});y+=44;
     // horizontal facts row
-    const facts=[['I/E',s.ie||'—'],['Day / Night',s.tod||'—'],['Set',s.set||'—'],['Pages',fmt8(s.e8)],['Script page',String(s.pg||'—')],['NYU level',String(sceneLevel(s))]];const fw=[48,80,190,48,64,56];x=L;
+    const facts=[['I/E',s.ie||'—'],['Day / Night',s.tod||'—'],['Set',s.set||'—'],['Script day',sdayOf(s)||'—'],['Pages',fmt8(s.e8)],['Script page',String(s.pg||'—')],['NYU level',String(sceneLevel(s))]];const fw=[48,80,160,58,48,64,56];x=L;
     facts.forEach(([k,v],i)=>{doc.setFont('helvetica','bold');doc.setFontSize(6.8);gray(120);doc.text(k.toUpperCase(),x,y);gray(0);doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.text(pdfSafe(doc.splitTextToSize(v,fw[i]-6)[0]||''),x,y+12);x+=fw[i]+(i<facts.length-1?(R-L-fw.reduce((a,b)=>a+b,0))/(facts.length-1):0);});y+=26;
     if(D.syn){doc.setFont('helvetica','bold');doc.setFontSize(6.8);gray(120);doc.text('SYNOPSIS',L,y);gray(0);doc.setFont('helvetica','normal');doc.setFontSize(9.5);const ls=doc.splitTextToSize(pdfSafe(D.syn),R-L);doc.text(ls.slice(0,4),L,y+12);y+=12+ls.slice(0,4).length*12;}
     y+=4;doc.setDrawColor(210);doc.setLineWidth(.6);doc.line(L,y,R,y);y+=16;
@@ -1672,6 +1681,77 @@ function openBdReview(opt){const CN=castNumbers();const scenes=SC.filter(s=>!opt
     const rm=t.closest('[data-brm]');if(rm){save();const e2=S.bdEdit[cur().key]||JSON.parse(JSON.stringify(Object.assign({},bdAuto(cur(),opt,CN))));e2.blocks=(e2.blocks||[]).filter((b,i)=>i!==+rm.dataset.brm);S.bdEdit[cur().key]=e2;scheduleSave();draw();return;}
     if(t.id==='bdDl'){save();if(!(await needPDF()))return;saveFile(`${slug(S.title)}-breakdown-sheets.pdf`,breakdownPDF(opt));closeModal();}};
   mb.onchange=e=>{if(e.target.id==='bdAdd'&&e.target.value){save();const c=e.target.value;const e2=S.bdEdit[cur().key]||JSON.parse(JSON.stringify(bdAuto(cur(),opt,CN)));e2.blocks=e2.blocks||[];e2.blocks.push({n:CAT[c].name,items:[],color:CAT[c].color,c});S.bdEdit[cur().key]=e2;scheduleSave();draw();setTimeout(()=>{const ts=mb.querySelectorAll('[data-bb]');ts[ts.length-1]&&ts[ts.length-1].focus();},30);}};}
+/* ============================================================
+   Copy for your sheets: paste-ready rows for the Clementine Films templates
+   (Shoot Scheduling, Script Breakdown & Stripboard, Call Sheets). Each copy
+   covers one run of typing columns only, so no formula in the sheet is touched.
+   ============================================================ */
+// "Dropdown Label" column of the template's Special Scene Chart, in the same order as RISK
+const CHART_LABELS=["Aircraft: aircraft, airports, drones / UAS","Animals: household pets (immunized)","Animals: livestock, wild, exotic, or needs a wrangler","Stunts: faked slap / punch / kick / light fall, no contact","Stunts: needs stunt coordinator (most trips / falls)","Stunts: restraints or anything restricting breathing","Construction: stand-alone flats","Construction: small props / set-dressing builds","Construction: set or platform construction","Construction: power tools or sharp-blade tools","Fire: 1–5 candles, a lighter, or a stove used normally","Fire: 6+ candles, open flames, fire pits, fireplaces, sparklers","Fire: any outdoor fire","Fire: pyrotechnics or fireworks","Hazardous Location: abandoned or collapsed structures","Hazardous Location: factories, construction or work sites","Hazardous Location: remote wilderness (caves, cliffs, trails)","Hazardous Location: extreme weather or climate","Hazardous Tool: household tool used normally (knife under 6\", scissors)","Hazardous Tool: elevated-risk tool or equipment as a prop","International: State Dept. Advisory Level 1–2","International: Advisory Level 3–4 or listed country","International: special-coverage country","Misc: other elevated-risk activity","Misc: other elevated-risk element (PA or RM TBD)","Vehicles: stationary / prop vehicle","Vehicles: bicycle, normal riding with helmet","Vehicles: stunt bike / skating / camera on a moving bike or car","Vehicles: moving vehicle (anything with an engine)","Vehicles: road closure (anyone in an active roadway)","Intimacy: nudity","Intimacy: simulated sex","Intimacy: non-consensual acts","Railroad: more than 50 ft from tracks","Railroad: within 50 ft of tracks","Heights: below 30 ft (1st–2nd floor)","Heights: above 30 ft, 3rd floor+, rooftops","Substances: herbal cigarettes or vaping","Substances: simulated alcohol (non-alcoholic)","Substances: simulated drugs","SFX Makeup: simple SFX makeup","SFX Makeup: fake blood / bodily fluids / prop glass / taxidermy","SFX Makeup: full-face prosthetics, contacts, anything affecting breathing or eyes","Equipment: generator 7000W or less","Equipment: hazer / fog (water-based)","Equipment: ladder under 10 ft or small jib","Equipment: large equipment (crane, lift, car mount, gen over 7000W, light over 10K)","Equipment: ladder over 10 ft","Water: bathroom, available/battery light, normal water use","Water: bathroom with lighting or significant water use","Water: rain or rain machine","Water: within 10–20 ft of water, up to knee-high","Water: beyond knee-high, drop-offs or currents","Water: underwater photography","Water: actor swimming or submerged","Water: boats / watercraft","Weapons: prop or simulated weapons","Weapons: tool used as a weapon (menacing)","Weapons: simulated police activity in public view","Weapons: military / police / EMS uniforms in public view"];
+const CHART_OF={};{let i=0;RISK.forEach(([c,,,subs])=>subs.forEach(([k])=>{CHART_OF[c+':'+k]=CHART_LABELS[i++];}));}
+const chartLabel=r=>CHART_OF[r.cat+':'+r.sub]||'';
+
+// one TSV line per row; cells with tabs, quotes or line breaks are quoted the way Sheets reads them
+const tsvCell=v=>{v=v==null?'':String(v);return /[\t"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+const toTSV=rows=>rows.map(r=>r.map(tsvCell).join('\t')).join('\n');
+const names=(s,c)=>sceneEls(s,c).map(o=>o.name);
+const joinL=a=>a.filter(Boolean).join(', ');
+
+function ieOf(s,forBreakdown){const ie=String(s.ie||'').toUpperCase().replace(/\./g,'').replace(/\s/g,'');const dream=/DREAM/i.test(todFor(s)||s.tod||'');
+  let v=ie==='EXT'?'EXT':ie==='INT/EXT'?'INT/EXT':ie==='EXT/INT'?(forBreakdown?'EXT/INT':'INT/EXT'):ie==='EST'?'EXT':ie==='INT'?'INT':'';
+  if(!forBreakdown&&dream&&(v==='INT'||v==='EXT'))v+='/DREAM';return v;}
+function dnSched(s){const t=String(todFor(s)||'').toUpperCase();if(!t)return '';
+  for(const [re,v] of [[/LATE AFTERNOON/,'LATE AFTERNOON'],[/AFTERNOON/,'AFTERNOON'],[/MORNING/,'MORNING'],[/SUNRISE/,'SUNRISE'],[/DAWN/,'DAWN'],[/SUNSET/,'SUNSET'],[/DUSK|EVENING/,'DUSK'],[/MAGIC/,'MAGIC HOUR'],[/NIGHT/,'NIGHT'],[/DREAM/,''],[/DAY/,'DAY']])if(re.test(t))return v;return t;}
+function dnBreakdown(s){const t=String(todFor(s)||'').toUpperCase();if(!t)return '';
+  for(const [re,v] of [[/DREAM/,'DREAM'],[/LATE AFTERNOON/,'LATE AFTERNOON'],[/AFTERNOON/,'AFTERNOON'],[/MORNING/,'MORNING'],[/SUNRISE|DAWN/,'SUNRISE/DAWN'],[/SUNSET|DUSK|MAGIC/,'SUNSET/DUSK/MAGIC HOUR'],[/EVENING/,'EVENING'],[/NIGHT/,'NIGHT'],[/DAY/,'DAY']])if(re.test(t))return v;return t;}
+const minorsIn=s=>sceneCast(s).filter(o=>isMinor(o.name)).map(o=>o.name);
+const riskShort=(s,cats)=>riskOf(s).filter(r=>!cats||cats.includes(r.cat)).map(r=>{const it=riskItem(r);return it.cat+': '+it.short;});
+function levelTxt(s){const R2=riskOf(s);if(!R2.length)return '';const lv=sceneLevel(s);const tbd=R2.some(r=>riskItem(r).lvl===23);return `Level ${lv}${tbd&&lv<3?'–3 (TBD)':''} · ${lv===3?'RM':'PA'}: ${R2.map(r=>riskItem(r).cat).filter((v,i,a)=>a.indexOf(v)===i).join(', ')}`;}
+const sceneNotes=s=>(S.gn||[]).filter(n=>n.scope==='scene'&&n.key===s.key&&n.x&&n.x.trim()).map(n=>n.x.trim().replace(/\s+/g,' '));
+
+/* each paste: tab, cell, what it covers, rows */
+function sheetPastes(){const CN=castNumbers();const cid=o=>CN.num.get(keyOf(o.name));const out=[];
+  // ---------- Shoot Scheduling ----------
+  out.push({wb:'Shoot Scheduling',tab:'Cast',cell:'A5',cols:'ID · Character · (Actor through Max hours left blank) · Minor?',
+    note:'Paste before you type actor names and prep times, since it fills columns A–H.',
+    rows:CN.list.map((v,i)=>[i+1,v.name,'','','','','',isMinor(v.name)?'Y':''])});
+  out.push({wb:'Shoot Scheduling',tab:'Scene Data',cell:'A5',cols:'Scene · I/E · D/N · Set & synopsis · Shooting location (blank) · Eighths · cast 1–8',
+    rows:SC.map(s=>{const ids=new Set(sceneCast(s).map(cid));const r=[s.num,ieOf(s),dnSched(s),[s.set,s.syn].filter(Boolean).join('\n'),'',s.e8||''];for(let n=1;n<=8;n++)r.push(ids.has(n)?'x':'');return r;})});
+  out.push({wb:'Shoot Scheduling',tab:'Scene Data',cell:'AE5',cols:'Props · Wardrobe · Hair & makeup · Stunts / intimacy · SPFX / vehicles / animals · Minors · Safety / NYU level · Light / weather (blank) · Sound · Script notes',
+    note:'Skips the setup counts and the gray timing columns, so their formulas stay.',
+    rows:SC.map(s=>{const over=sceneCast(s).map(cid).filter(n=>n>8).sort((a,b)=>a-b);
+      return [joinL(names(s,'props').concat(names(s,'setdress'))),joinL(names(s,'wardrobe')),joinL(names(s,'makeup')),joinL(names(s,'stunts').concat(riskShort(s,['stunts','intimacy']))),
+        joinL(names(s,'sfx').concat(names(s,'vfx'),names(s,'vehicles'),names(s,'animals'))),joinL(minorsIn(s)),levelTxt(s),'',joinL(names(s,'sound')),
+        [over.length?'Also cast '+over.join(', '):'',...names(s,'misc'),...sceneNotes(s)].filter(Boolean).join('; ')];})});
+  // ---------- Script Breakdown & Stripboard ----------
+  out.push({wb:'Script Breakdown & Stripboard',tab:'Scene-Cast Links',cell:'A5',cols:'Cast ID · Character · Role type (blank) · Scripted age (blank) · Minor?',
+    rows:CN.list.map((v,i)=>[i+1,v.name,'','',isMinor(v.name)?'Yes':'No'])});
+  out.push({wb:'Script Breakdown & Stripboard',tab:'Scene-Cast Links',cell:'L5',cols:'Scene ID · Cast ID (one row per character per scene)',
+    note:'This is what fills Cast 1–8 and Cast (All) on the Full Script Breakdown.',
+    rows:SC.flatMap(s=>sceneCast(s).map(o=>[s.num,cid(o)]).sort((a,b)=>a[1]-b[1]))});
+  out.push({wb:'Script Breakdown & Stripboard',tab:'Full Script Breakdown',cell:'A2',cols:'Scene # · Seg. (blank)',rows:SC.map(s=>[s.num,''])});
+  out.push({wb:'Script Breakdown & Stripboard',tab:'Full Script Breakdown',cell:'D2',cols:'INT/EXT · D/N · Script day · Story location · Shooting location (blank) · Page eighths',
+    rows:SC.map(s=>[ieOf(s,true),dnBreakdown(s),sdayOf(s),s.set||'','',s.e8||''])});
+  out.push({wb:'Script Breakdown & Stripboard',tab:'Full Script Breakdown',cell:'T2',cols:'Extras (groups) · Special scene 1 · Special scene 2',
+    rows:SC.map(s=>{const R2=riskOf(s);return [joinL(names(s,'extras')),R2[0]?chartLabel(R2[0]):'',R2[1]?chartLabel(R2[1]):''];})});
+  out.push({wb:'Script Breakdown & Stripboard',tab:'Full Script Breakdown',cell:'X2',cols:'Special scene notes · Props · Wardrobe · Hair & makeup · Picture vehicles · Animals · Minors · Stunts · Intimacy',
+    note:'Skips the NYU Level column, which works itself out from the special scenes.',
+    rows:SC.map(s=>{const R2=riskOf(s);const extra=R2.slice(2).map(chartLabel);const plans=R2.filter(r=>r.note).map(r=>riskItem(r).cat+' plan: '+r.note);
+      return [[extra.length?'Also: '+extra.join('; '):'',...plans].filter(Boolean).join('. '),joinL(names(s,'props')),joinL(names(s,'wardrobe')),joinL(names(s,'makeup')),joinL(names(s,'vehicles')),joinL(names(s,'animals')),joinL(minorsIn(s)),joinL(names(s,'stunts')),joinL(riskShort(s,['intimacy']))];})});
+  // ---------- Call Sheets ----------
+  const DEPT={props:'Props',wardrobe:'Wardrobe',makeup:'Hair & Makeup',sfx:'Special Effects',vfx:'Visual Effects',vehicles:'Vehicles',setdress:'Set Dressing',stunts:'Stunts',animals:'Animals',equip:'Special Equipment',sound:'Sound / Music'};
+  const all=allEls();const el=[];Object.keys(DEPT).forEach(c=>{const m=all[c];if(!m)return;[...m.values()].sort((a,b)=>a.name.localeCompare(b.name)).forEach(o=>el.push([DEPT[c],o.name,[...new Set(o.scenes)].join(', '),'','','','']));});
+  out.push({wb:'Call Sheets',tab:'8 ELEMENTS',cell:'A5',cols:'Department · Item · Scenes · Qty · For actor · Days · Notes',
+    note:'Qty and For actor are left for you: For actor wants the actor’s name from 5 CAST, not the character.',rows:el});
+  return out;}
+
+function openSheetCopy(){const P=sheetPastes();let wb='';
+  const body=P.map((p,i)=>{const head=p.wb!==wb?`<h4 style="margin:14px 0 6px">${esc(p.wb)}</h4>`:'';wb=p.wb;
+    return `${head}<div class="cpRow"><div style="flex:1;min-width:0"><b>${esc(p.tab)}</b> ▸ cell <b class="mono">${esc(p.cell)}</b> <span class="pSub" style="margin:0">· ${p.rows.length} row${p.rows.length===1?'':'s'}</span><div class="pSub" style="margin:2px 0 0">${esc(p.cols)}${p.note?'. '+esc(p.note):''}</div></div><button class="btn sm${p.rows.length?'':' '}" data-cp="${i}" ${p.rows.length?'':'disabled'}>Copy</button></div>`;}).join('');
+  openModal(`<h3>Copy for your sheets</h3><div class="pSub">Each button copies rows with no header. Click the cell named, paste (⌘/Ctrl V), and the rows fill in to the right and down. Each copy covers typing columns only, so the formulas in your templates stay untouched. Cast numbers match the breakdown sheets: most scenes first.</div>
+    <div style="max-height:60vh;overflow:auto">${body}</div><div class="mFoot"><button class="btn pri" data-close>Done</button></div>`,'wide');
+  $('#modalBox').onclick=e=>{const b=e.target.closest('[data-cp]');if(b){const p=P[+b.dataset.cp];copyText(toTSV(p.rows),`Copied ${p.rows.length} row${p.rows.length===1?'':'s'}. Paste at ${p.tab} ▸ ${p.cell}`);b.textContent='Copied ✓';return;}if(e.target.closest('[data-close]'))closeModal();};}
+{const _ma=menuAct;menuAct=function(m){if(m==='sheetCopy'){openSheetCopy();return;}return _ma(m);};}
 /* ============================================================
    Sample + init
    ============================================================ */
