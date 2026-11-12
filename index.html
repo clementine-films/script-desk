@@ -334,7 +334,7 @@ h2.rh .btn{margin-left:auto;font:500 12px var(--sans)}
         <button data-m="csvScenes">Scene breakdown, CSV<small>One row per scene with eighths and every element</small></button>
         <button data-m="sides">Make sides…<small>Pick a day’s scenes and download the pages as a PDF</small></button>
         <button data-m="editor">Editor’s package…<small>Lined script with facing pages, takes log, shoot-day changes</small></button>
-        <button data-m="link">Send to the Lighting Plot…<small>Scenes, sides and camera setups in one file</small></button>
+        <button data-m="link">Send to the Shot Plot…<small>Scenes, sides and camera setups in one file</small></button>
         <button data-m="csvSetups">Camera setup list, CSV</button>
         <hr>
         <button data-m="csvEls">Element list, CSV<small>Every tagged element with its scenes</small></button>
@@ -800,7 +800,7 @@ $('#bMore').onclick=e=>{e.stopPropagation();$('#moreMenu').classList.toggle('ope
 document.addEventListener('click',e=>{if(!e.target.closest('.menuWrap'))$('#moreMenu').classList.remove('open');});
 $('#moreMenu').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b)return;$('#moreMenu').classList.remove('open');menuAct(b.dataset.m);});
 function openHelp(){openModal(`<h3>How it works</h3><div style="line-height:1.6">
- <p><b>Lighting Plot.</b> <b>More → Send to the Lighting Plot</b> packs scenes, their sides and your camera setups into one file. Import it from the plot’s Shot list and each camera setup arrives as a shot linked to its lines, ready for you to place the camera and lights.</p>
+ <p><b>Shot Plot.</b> <b>More → Send to the Shot Plot</b> packs scenes, their sides and your camera setups into one file. Import it from the plot’s Shot list and each camera setup arrives as a shot linked to its lines, ready for you to place the camera and lights.</p>
  <p><b>For the editor.</b> Open a setup to log its takes, circle the ones to print and add continuity notes. Select words and choose <b>Cut on the day</b> to strike lines that were dropped. <b>More → Editor’s package</b> then downloads the lined script with facing pages, a takes log and a list of shoot-day changes.</p>
  <p><b>New drafts.</b> <b>More → Import a new draft</b> compares a revised script with the one that is open and moves your highlights, notes, tags, camera setups and scene details onto the matching lines. Notes on rewritten lines are flagged for review, notes on cut lines are kept in a list, and the earlier draft stays in My scripts.</p>
  <p><b>Line the script.</b> Highlight exactly what one camera setup covers and choose <b>Line as a camera setup</b>. A labeled line runs down the script from the first word you highlighted to the last. The Scene tab lists each scene’s camera setups and tells you what has no coverage yet.</p>
@@ -1007,7 +1007,7 @@ $('#page').addEventListener('click',e=>{const t=e.target.closest('.lnTag');if(!t
 function setupDialog(u,range){const isNew=!u;if(isNew){const k=elSc[range.e0];if(k<0){toast('That text comes before the first scene heading');return;}u={id:'u'+uid(),label:nextSetupLabel(k),desc:'',e0:range.e0,e1:range.e1,o0:range.o0||0,o1:range.o1==null?null:range.o1,shot:false};}
   let e0=u.e0,e1=u.e1,o0=u.o0||0,o1=u.o1==null?null:u.o1,lab=u.label,desc=u.desc,shot=!!u.shot,cont=u.cont||'',takes=(u.takes||[]).map(t=>Object.assign({},t));const k=elSc[e0];const s=SC[k];
   const grab=()=>{lab=$('#suLabel').value;desc=$('#suDesc').value;shot=$('#suShot').checked;cont=$('#suCont').value;document.querySelectorAll('#suTakes .tkRow').forEach((r,i)=>{if(takes[i]){takes[i].c=r.querySelector('[data-tc]').checked;takes[i].x=r.querySelector('[data-tx]').value;}});};
-  const draw=()=>{openModal(`<h3>${isNew?'New camera setup':'Camera setup '+esc(u.label)}</h3><div class="pSub">One camera position, covering exactly what you highlighted. It becomes a shot in the Lighting Plot, where you place the camera and lights.</div>
+  const draw=()=>{openModal(`<h3>${isNew?'New camera setup':'Camera setup '+esc(u.label)}</h3><div class="pSub">One camera position, covering exactly what you highlighted. It becomes a shot in the Shot Plot, where you place the camera and lights.</div>
     <div style="display:grid;grid-template-columns:110px 1fr;gap:10px"><div class="f" style="margin:0"><label for="suLabel">Camera setup</label><input class="in" id="suLabel" value="${esc(lab)}" maxlength="12" style="font-family:var(--mono)"></div><div class="f" style="margin:0"><label for="suDesc">Shot description</label><input class="in" id="suDesc" value="${esc(desc)}" placeholder="WS master, favoring Nora"></div></div>
     <div class="chips" style="margin:8px 0 2px;flex-wrap:wrap">${SIZES.map(z=>`<button class="chip" data-sz="${z}">${z}</button>`).join('')}</div>
     <div class="f"><label>Covers ${fmt8(setupE8({e0,e1,o0,o1}))} of a page in scene ${esc(s?s.num:'')}</label><div class="covBox"><div><span>From</span>${esc(snipAt(e0,o0,false))}</div><div><span>To</span>${esc(snipAt(e1,o1,true))}</div></div>
@@ -1307,7 +1307,7 @@ async function openCompare(){if(!S.prev){toast('This script was not imported as 
   host.onchange=e=>{if(e.target.id==='cmpOnly')body.classList.toggle('only',e.target.checked);};}
 
 /* ============================================================
-   Link to the Lighting Plot: scenes, sides and setups in one file
+   Link to the Shot Plot: scenes, sides and setups in one file
    ============================================================ */
 function sceneLinkText(s){const E=S.els;let t='';const off={};if(E[s.i].t!=='h'||S.unhead[s.i])t=s.slug;for(let i=s.i;i<=s.end;i++){const e=E[i];if(t)t+=(e.t==='d'||e.t==='p')?'\n':'\n\n';const a=t.length;t+=e.x;off[i]=[a,t.length];}return {t,off};}
 function linkData(scope,withText){const IE={'INT':'INT.','EXT':'EXT.','INT/EXT':'INT./EXT.','EXT/INT':'INT./EXT.','EST':'EXT.'};let pick;
@@ -1317,15 +1317,15 @@ function linkData(scope,withText){const IE={'INT':'INT.','EXT':'EXT.','INT/EXT':
   return {kind:'scriptdesk-link',v:1,title:S.title,draft:S.draft||'',credit:S.credit||'',exported:new Date().toISOString(),scenes};}
 function openLink(){if(!SC.length){toast('Import a script with scenes first');return;}let scope=S.setups.length?'setups':'all',withText=true;
   const draw=()=>{const d=linkData(scope,withText);const json=JSON.stringify(d);const nSet=d.scenes.reduce((t,s)=>t+s.setups.length,0);const big=json.length>150000;
-    openModal(`<h3>Send to the Lighting Plot</h3><div class="pSub">This packs scenes, their script pages and your camera setups into one file. In the Lighting Plot, open <b>Shot list → Import from Script Desk</b> and choose the file or paste it. Each scene arrives with its heading and sides, and each camera setup becomes a shot already linked to the lines it covers. Sending again updates the same scenes and shots.</div>
+    openModal(`<h3>Send to the Shot Plot</h3><div class="pSub">This packs scenes, their script pages and your camera setups into one file. In the Shot Plot, open <b>Shot list → Import from Script Desk</b> and choose the file or paste it. Each scene arrives with its heading and sides, and each camera setup becomes a shot already linked to the lines it covers. Sending again updates the same scenes and shots.</div>
      <div class="f"><label for="lkScope">Which scenes</label><select class="in" id="lkScope"><option value="setups" ${scope==='setups'?'selected':''}>Scenes that have camera setups</option>${S.days.map(x=>`<option value="day:${x.id}" ${scope==='day:'+x.id?'selected':''}>${esc(x.label||'Untitled day')}</option>`).join('')}<option value="all" ${scope==='all'?'selected':''}>Every scene</option></select></div>
      <label class="chk"><input type="checkbox" id="lkText" ${withText?'checked':''}> Include each scene’s script text (its sides)</label>
      <div class="kv"><span>Scenes</span><span>${d.scenes.length}</span></div><div class="kv"><span>Camera setups</span><span>${nSet}</span></div><div class="kv"><span>Size</span><span>${Math.round(json.length/1000)} KB</span></div>
-     ${big?'<div class="pSub" style="color:var(--warn);margin-top:8px">This is a lot of script text for one Lighting Plot project, which can hold about 240 KB in total. Send fewer scenes, or untick the script text; the plot will skip the text on its own if it doesn’t fit.</div>':''}
+     ${big?'<div class="pSub" style="color:var(--warn);margin-top:8px">This is a lot of script text for one Shot Plot project, which can hold about 240 KB in total. Send fewer scenes, or untick the script text; the plot will skip the text on its own if it doesn’t fit.</div>':''}
      ${!d.scenes.length?'<div class="pSub" style="color:var(--warn);margin-top:8px">No scenes match. Line a setup first, or choose “Every scene”.</div>':''}
      <div class="mFoot"><button class="btn" data-close>Close</button><button class="btn" id="lkCopy" ${d.scenes.length?'':'disabled'}>Copy</button><button class="btn pri" id="lkFile" ${d.scenes.length?'':'disabled'}>Download file</button></div>`);
     const mb=$('#modalBox');mb.onchange=e=>{if(e.target.id==='lkScope'){scope=e.target.value;draw();}if(e.target.id==='lkText'){withText=e.target.checked;draw();}};
-    mb.onclick=e=>{if(e.target.id==='lkCopy')copyText(json,'Copied. Paste it into the Lighting Plot’s import box.');if(e.target.id==='lkFile')saveFile(`${slug(S.title)}-for-lighting-plot.json`,json);};};
+    mb.onclick=e=>{if(e.target.id==='lkCopy')copyText(json,'Copied. Paste it into the Shot Plot’s import box.');if(e.target.id==='lkFile')saveFile(`${slug(S.title)}-for-shot-plot.json`,json);};};
   draw();}
 /* ============================================================
    Annotated script: the pages with highlights, tags and notes in the margin
