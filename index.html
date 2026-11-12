@@ -1506,10 +1506,14 @@ function castNumbers(){const m=new Map();SC.forEach((s,k)=>sceneCast(s).forEach(
 /* ---- PDF helpers ---- */
 const metaLine=()=>[S.draft||'',S.credit?S.credit:''].filter(Boolean).join('  ·  ');
 // document header: script title + version + director/writer on the left, the document name on the right
-function pdfHead(doc,_t,docName,right,W){doc.setTextColor(0);doc.setFont('garamond','bold');doc.setFontSize(15);doc.text(pdfSafe(S.title||'Untitled'),28,30);
-  doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(0);const m=metaLine();if(m)doc.text(pdfSafe(m),28,42);
-  doc.setFont('garamond','normal');doc.setFontSize(13);doc.setTextColor(0);doc.text(pdfSafe(String(docName).replace(/\s*·.*$/,'')),W-28,30,{align:'right'});if(right){doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(0);doc.text(pdfSafe(right),W-28,42,{align:'right'});}
-  doc.setDrawColor(210);doc.setLineWidth(.6);doc.line(28,50,W-28,50);doc.setTextColor(0);}
+function pdfHead(doc,_t,docName,right,W){const dn=pdfSafe(String(docName).replace(/\s*·.*$/,''));doc.setFont('garamond','normal');doc.setFontSize(13);const dnw=doc.getTextWidth(dn);
+  doc.setFont('helvetica','normal');doc.setFontSize(8.5);const rw=right?doc.getTextWidth(pdfSafe(right)):0;
+  const title=pdfSafe(S.title||'Untitled');const avail=W-56-dnw-18;doc.setFont('garamond','bold');let fs=15;doc.setFontSize(fs);while(fs>11&&doc.getTextWidth(title)>avail){fs-=.5;doc.setFontSize(fs);}
+  let lines=[title],ty=30;if(doc.getTextWidth(title)>avail){lines=doc.splitTextToSize(title,avail).slice(0,2);ty=23;}
+  doc.setTextColor(0);lines.forEach((l,i)=>doc.text(l,28,ty+i*(fs+1)));const my=lines.length>1?ty+fs+1+11:42;
+  doc.setFont('helvetica','normal');doc.setFontSize(8.5);const m=metaLine();if(m)doc.text(doc.splitTextToSize(pdfSafe(m),W-56-rw-18)[0]||'',28,my);
+  doc.setFont('garamond','normal');doc.setFontSize(13);doc.text(dn,W-28,30,{align:'right'});if(right){doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.text(pdfSafe(right),W-28,42,{align:'right'});}
+  const ry=Math.max(50,my+7);doc.setDrawColor(210);doc.setLineWidth(.6);doc.line(28,ry,W-28,ry);doc.setTextColor(0);}
 // footer: small orange wordmark bottom-left, page number right
 function pdfFoot(doc,W,H){cfDraw(doc,26,H-25,8);doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(0);doc.text(`Page ${doc.getNumberOfPages()}`,W-28,H-17,{align:'right'});doc.setTextColor(0);}
 const dayOfScene=s=>(S.days||[]).filter(d=>(d.keys||[]).includes(s.key)).map(d=>d.label||'Day');
