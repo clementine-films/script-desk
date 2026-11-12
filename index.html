@@ -230,7 +230,24 @@ h2.rh .btn{margin-left:auto;font:500 12px var(--sans)}
 .ln i{position:absolute;top:0;bottom:0;left:0;border-left:2px solid var(--lc);opacity:.7}
 .ln i::after{content:"";position:absolute;bottom:0;left:-.45em;width:.9em;border-top:2px solid var(--lc)}
 .ln.shot i{opacity:.35}
-.lnTag{position:absolute;top:-1.2em;left:0;transform:translateX(-50%);pointer-events:auto;font:700 .68em var(--mono);background:var(--lc);color:#fff;border:0;border-radius:3px;padding:.15em .45em;white-space:nowrap;cursor:pointer}
+#lines{--tagR:3.4em}
+.rkChip{display:block;width:100%;text-align:left;margin:0 0 5px;padding:6px 8px;border-radius:7px;border:1px solid;font:12px/1.35 var(--sans);cursor:pointer;background:transparent;color:var(--ink)}
+.rkChip.L3{border-color:#e03131;background:color-mix(in srgb,#e03131 9%,transparent)}.rkChip.L2{border-color:#f08c00;background:color-mix(in srgb,#f08c00 9%,transparent)}
+.rkChip b{font-family:var(--mono);margin-right:4px}
+.rkSubs{display:flex;flex-direction:column;gap:5px}.rkSub{display:flex;gap:8px;align-items:flex-start;padding:7px 9px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:13px}
+.rkSub.on{border-color:var(--accent,#c2410c);background:color-mix(in srgb,var(--accent,#c2410c) 7%,transparent)}.rkSub input{margin-top:3px}.rkSub em{color:var(--sub);font-style:normal;font-size:11.5px}
+.rkSub details{font-size:11.5px;color:var(--sub);margin-top:2px}.rkSub summary{cursor:pointer;list-style:none;color:var(--sub);text-decoration:underline dotted}.rkSub summary::-webkit-details-marker{display:none}
+.sugChip{border-style:dashed}.lnChip .x{margin-left:4px}
+.pickList{max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:4px 10px;margin-top:6px}
+.txBox{margin:.35em 0 .5em;padding:.25em .6em;border-left:3px solid var(--txc);font:500 .78em/1.35 var(--sans);color:var(--txc);background:color-mix(in srgb,var(--txc) 7%,transparent);border-radius:0 4px 4px 0;cursor:pointer;-webkit-user-select:none;user-select:none;white-space:normal;position:relative;z-index:1}
+.txBox:hover{background:color-mix(in srgb,var(--txc) 13%,transparent)}.txBox.txLg{font-size:.95em}
+.txBox.txScene{margin-top:.6em}.txK{font:700 .78em var(--sans);letter-spacing:.08em;margin-right:.5em;opacity:.7}
+.t-d+.txBox,.t-p+.txBox,.t-c+.txBox{margin-left:10em;margin-right:6em}
+.lnTag{position:absolute;max-width:4.6em;overflow:hidden;text-overflow:ellipsis;pointer-events:auto;font:700 .68em var(--mono);line-height:1.3;background:var(--lc);color:#fff;border:0;border-radius:3px;padding:.15em .4em;white-space:nowrap;cursor:pointer;z-index:2}
+.lnTag:hover,.lnTag:focus-visible{max-width:none;z-index:3}
+.lnLead{position:absolute;left:var(--tagR);height:0;border-top:1.5px dotted var(--lc);opacity:0;transition:opacity .12s}
+.lnLead:has(+ .lnTag:hover),.lnLead:has(+ .lnTag:focus-visible){opacity:.9}
+.ln i::before{content:"";position:absolute;top:0;left:-.45em;width:.9em;border-top:2px solid var(--lc)}
 .chk{display:flex;align-items:center;gap:8px;margin:7px 0;font-size:12.5px;cursor:pointer}
 .covBox{border:1px solid var(--line);border-radius:8px;background:var(--paper);padding:8px 10px;font:12px/1.5 var(--script)}
 .covBox span{display:inline-block;width:42px;font:600 10.5px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--sub)}
@@ -280,7 +297,7 @@ h2.rh .btn{margin-left:auto;font:500 12px var(--sans)}
 @media (max-width:760px){.cmpHead{display:none}.cmpRow{grid-template-columns:1fr}.cmpRow .old{border-right:0}.cmpRow.same .old,.cmpRow.add .old,.cmpRow.cut .new{display:none}.ce.t-c{padding-left:6em}.ce.t-d{padding-left:2.5em}.ce.t-p{padding-left:4em}}
 #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:12.5px;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center}
 #toast.show{opacity:1}
-@container (max-width:640px){#lines{--lx:5em}#page{font-size:calc(clamp(8px,(100cqw - 2px)/38,16.5px)*var(--z,1));width:37.8em;padding:1.6em .9em 4em .9em}
+@container (max-width:640px){#lines{--lx:5em;--tagR:4.6em}#page{font-size:calc(clamp(8px,(100cqw - 2px)/38,16.5px)*var(--z,1));width:37.8em;padding:1.6em .9em 4em .9em}
   .el.t-h::before{position:static;display:inline;width:auto;margin-right:.6em}
   .el.t-h::after{position:static;display:inline;transform:none;margin-left:.8em}}
 @media (max-width:1180px){#stats{display:none}#top .sp{flex:1}}
@@ -476,7 +493,7 @@ function applyLists(){const pick=(own,key,base)=>((own&&own.length?own:null)||LS
   NTM=toMap(NT);LYM=toMap(LY);}
 const lyOf=a=>LYM[a.ly]?a.ly:LY[0][0];const tyOf=a=>NTM[a.ty]?a.ty:(NTM.gen?'gen':NT[0][0]);
 const activeLy=()=>S&&LYM[S.lyActive]?S.lyActive:LY[0][0];const defTy=()=>NTM[V.lastTy]?V.lastTy:(NTM.gen?'gen':NT[0][0]);
-const vis=a=>a.k==='cut'?true:a.k==='tag'?!S.tagsHidden:!S.lyHidden[lyOf(a)];
+const vis=a=>a.k==='cut'?true:a.k==='tag'?!S.tagsHidden:a.k==='tx'&&a.ly==='*'?true:!S.lyHidden[lyOf(a)];
 const HLN=['Yellow','Green','Pink','Blue'];
 let S=null,SC=[],elSc=[],byEl={},cur=0,elNode=[],heads=[];
 applyCats();
@@ -511,7 +528,8 @@ function sceneCast(s){const m=new Map();s.autoCast.forEach((n,k)=>m.set(k,{name:
 function sceneEls(s,cat){if(cat==='cast')return sceneCast(s);const m=s.el[cat];return m?[...m.values()]:[];}
 function allEls(){const out={};SC.forEach(s=>CATS.forEach(([c])=>sceneEls(s,c).forEach(o=>{const m=out[c]||(out[c]=new Map());const k=keyOf(o.name);if(!m.has(k))m.set(k,{name:o.name,scenes:[]});m.get(k).scenes.push(s.num);})));return out;}
 let RA=new Set(),RC=new Set();
-function reindex(){RA=new Set(S.rev&&!S.revHidden?S.rev.add:[]);RC=new Set(S.rev&&!S.revHidden?S.rev.chg:[]);RW=S.rev&&!S.revHidden&&revStyle()==='words'&&S.rev.wd||{};if(S.rev&&!S.rev.wd&&typeof backfillRevWords==='function')setTimeout(backfillRevWords,50);byEl={};beatAt={};S.beats.forEach(b=>(beatAt[b.i]||(beatAt[b.i]=[])).push(b));S.an.forEach(a=>{if(!vis(a))return;for(let i=a.s[0];i<=a.t[0];i++)(byEl[i]||(byEl[i]=[])).push(a);});}
+function reindex(){RA=new Set(S.rev&&!S.revHidden?S.rev.add:[]);RC=new Set(S.rev&&!S.revHidden?S.rev.chg:[]);RW=S.rev&&!S.revHidden&&revStyle()==='words'&&S.rev.wd||{};if(S.rev&&!S.rev.wd&&typeof backfillRevWords==='function')setTimeout(backfillRevWords,50);byEl={};beatAt={};S.beats.forEach(b=>(beatAt[b.i]||(beatAt[b.i]=[])).push(b));TX={};S.an.forEach(a=>{if(!vis(a))return;if(a.k==='tx'){(TX[a.s[0]]||(TX[a.s[0]]=[])).push(a);return;}for(let i=a.s[0];i<=a.t[0];i++)(byEl[i]||(byEl[i]=[])).push(a);});}
+let TX={};
 const sceneTotal=()=>SC.reduce((t,s)=>t+s.e8,0);
 
 /* ============================================================
@@ -534,7 +552,7 @@ function elHTML(i){const e=S.els[i];let at='',pre='',cls='t-'+e.t;const k=elSc[i
     else pre=`<div class="split"${meta} data-k="${k}">${esc(s.slug)}${s.split?' <span>continues</span>':''}</div>`;}
   if(beatAt[i])pre=beatAt[i].map(b=>`<div class="beat" data-b="${b.id}"><span>${esc(b.label)}</span></div>`).join('')+pre;
   if(RA.has(i)||RC.has(i)){if(revStyle()==='full')cls+=RA.has(i)?' rv-add':' rv-chg';else pre+=`<div class="rvStar m-${S.unhead[i]?'a':e.t}" title="${RA.has(i)?'New in this draft':'Rewritten in this draft'}" aria-hidden="true"></div>`;}
-  return pre+`<div class="el ${cls}" data-i="${i}"${at}>${segHTML(i)}</div>`;}
+  return pre+`<div class="el ${cls}" data-i="${i}"${at}>${segHTML(i)}</div>`+(TX[i]?txHTML(TX[i]):'');}
 function renderScript(){const E=S.els;const parts=[];let pg=E.length?E[0].pg:1;E.forEach((e,i)=>{if(e.pg!==pg){pg=e.pg;parts.push(`<div class="pb" data-pg="${pg}"></div>`);}parts.push(elHTML(i));});
   const p=$('#page');p.innerHTML=parts.join('')||'<div class="el t-a">Import a script to begin.</div>';elNode=[];p.querySelectorAll('.el[data-i]').forEach(n=>elNode[+n.dataset.i]=n);heads=SC.map((s,k)=>document.getElementById('sc'+k)||elNode[s.i]);p.style.setProperty('--z',V.z);if(typeof renderLines==='function')renderLines();}
 function refreshEls(a,b){for(let i=a;i<=b;i++){const n=elNode[i];if(n)n.innerHTML=segHTML(i);}}
@@ -559,14 +577,14 @@ function panelScene(){const s=SC[cur];if(!s)return `<div class="pSub">Import a s
    <div class="f"><label for="fNum">Scene number</label><div style="display:flex;gap:8px;align-items:center"><input class="in" id="fNum" data-sf="num" value="${esc(s.num)}" style="width:90px;font-family:var(--mono)">${s.split?'<button class="btn sm" data-act="unsplit">Join with the part above</button>':s.manual?'<button class="btn sm" data-act="unsplit">Remove this scene start</button>':'<button class="btn sm" data-act="unhead" title="Use this if a line was wrongly read as a scene heading">Not a scene heading</button>'}</div></div>
    <div class="f"><label for="fLen">Length in eighths of a page</label><div style="display:flex;gap:8px;align-items:center"><input class="in" id="fLen" data-sf="ov" value="${fmt8(s.e8)}" style="width:90px;font-family:var(--mono)"><span class="pSub" style="margin:0">${st.ov?`measured ${fmt8(s.meas)} · <button class="btn sm" data-act="resetLen">use measured</button>`:'measured from the page'}</span></div></div>
    <div class="f"><label for="fSyn">One-line synopsis</label><textarea class="in" id="fSyn" data-sf="syn" rows="2" placeholder="What happens in this scene">${esc(s.syn)}</textarea></div>`;
-  {const gl=gnList('scene',s.key);h+=`<div class="cat"><h4>Scene notes <span>${gl.length||''}</span></h4>${gl.map(gnRow).join('')}<button class="btn sm" data-act="addSceneNote">Add a note on this scene</button></div>`;}
+  {const gl=gnList('scene',s.key);h+=`<div class="cat"><h4>Scene notes <span>${gl.length||''}</span></h4>${gl.map(gnRow).join('')}<button class="btn sm" data-act="addSceneNote">Add a note on this scene</button> <button class="btn sm" data-act="addSceneText" title="Text shown on the script under this scene heading">Add text on the script</button></div>`;}
   h+='<!--prod-->';
   CATS.forEach(([c,n])=>{const list=sceneEls(s,c);if(!list.length&&c!=='cast')return;h+=`<div class="cat" style="--tc:${CAT[c].color}"><h4><i></i>${esc(n)} <span>${list.length||''}</span></h4><div class="chips">${list.map(o=>chipHTML(c,o)).join('')||'<span class="pSub" style="margin:0">Nobody speaks in this scene.</span>'}</div>${c==='cast'?castHiddenHTML(s):''}</div>`;});
   h+=`<div class="addRow"><select class="in" id="addCat" aria-label="Category">${CATS.map(([c,n])=>`<option value="${c}" ${c==='props'?'selected':''}>${esc(n)}</option>`).join('')}</select><input class="in" id="addName" placeholder="Add an element by name" aria-label="Element name"><button class="btn" data-act="addEl">Add</button></div>
    <div class="pSub" style="margin-top:12px">To tag from the page, select a word or phrase in the script and pick a category. Dashed cast chips are characters who speak in the scene.</div>
    <div class="pSub">To split a long scene into parts (4A, 4B…), select the first words of the new part in the script and choose <b>Split into parts here</b>. If a scene was missed, select its heading line and choose <b>Mark as scene heading</b>.</div>`;h=h.replace('<!--prod-->',sceneProdHTML(s));return h;}
 function annoScene(a){const k=elSc[a.s[0]];return k>=0?SC[k]:null;}
-function panelNotes(){const f=V.noteFilter,tf=NTM[V.noteTy]?V.noteTy:'all';const list=S.an.filter(a=>a.k!=='tag'&&a.k!=='cut'&&vis(a)&&(f==='all'||(f==='hl'?a.k==='hl':a.k==='note'))&&(tf==='all'||(a.k==='note'&&tyOf(a)===tf))).sort((a,b)=>a.s[0]-b.s[0]||a.s[1]-b.s[1]);const gs=gnList('script');
+function panelNotes(){const f=V.noteFilter,tf=NTM[V.noteTy]?V.noteTy:'all';const list=S.an.filter(a=>a.k!=='tag'&&a.k!=='cut'&&a.k!=='tx'&&vis(a)&&(f==='all'||(f==='hl'?a.k==='hl':a.k==='note'))&&(tf==='all'||(a.k==='note'&&tyOf(a)===tf))).sort((a,b)=>a.s[0]-b.s[0]||a.s[1]-b.s[1]);const gs=gnList('script');
   let h=revNotesHTML()+`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px"><div class="seg">${[['notes','Notes'],['hl','Highlights'],['all','Both']].map(([v,l])=>`<button data-nf="${v}" class="${f===v?'on':''}">${l}</button>`).join('')}</div><select class="in" data-ntf="1" style="width:auto;flex:1 1 100px" aria-label="Filter by note type"><option value="all">All types</option>${ntOpts(tf)}</select></div>
    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"><button class="btn sm pri" data-act="summary">Notes summary…</button><button class="btn sm" data-act="noteTypes">Edit note types</button></div>
    <div class="cat"><h4>Notes on the whole script <span>${gs.length||''}</span></h4>${gs.map(gnRow).join('')}<button class="btn sm" data-act="addScriptNote">Add a script note</button></div>
@@ -611,7 +629,7 @@ function hideDock(){dockMode=null;cardIds=[];$('#dock').hidden=true;}
 const dots=on=>HLN.map((n,c)=>`<button class="dot ${on===c?'on':''}" data-d="hl" data-c="${c}" style="background:var(--hl${c})" title="${n} highlight" aria-label="${n} highlight"></button>`).join('');
 const closeBtn=`<button class="ib" data-d="close" aria-label="Close" title="Close"><svg width="14" height="14" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.6" fill="none"><path d="M3 3l8 8M11 3l-8 8"/></svg></button>`;
 function showSelDock(){dockMode='sel';const d=$('#dock');d.hidden=false;d.innerHTML=`<div class="dkRow"><span class="dkQ">“${esc(curSel.q)}”</span>${closeBtn}</div>
-  <div class="dkRow"><span class="lab">Highlight</span>${dots(-1)}<button class="btn sm" data-d="note" style="margin-left:6px">Add note</button></div>
+  <div class="dkRow"><span class="lab">Highlight</span>${dots(-1)}<button class="btn sm" data-d="note" style="margin-left:6px">Add note</button><button class="btn sm" data-d="txt" title="Type text right on the script, under this line or scene">Add text</button></div>
   <div class="dkRow"><span class="lab">Scene</span><button class="btn sm" data-d="scene" title="Use this for a scene the import missed: the selected line becomes its heading">Mark as scene heading</button><button class="btn sm" data-d="split" title="Start a new part of this scene at this paragraph (4A, 4B…)">Split into parts here</button><button class="btn sm" data-d="beat" title="Mark a turn in the story at this line">Add story beat</button></div>
   <div class="dkRow"><span class="lab">Shoot</span><button class="btn sm" data-d="setup" title="Draw a line over exactly what you highlighted, for one camera setup">Line as a camera setup</button><button class="btn sm" data-d="dcut" title="Strike these words: they were cut or not shot on the day">Cut on the day</button></div>
   <div class="dkRow"><span class="lab">Tag as</span><div class="chips">${CATS.map(([c,n])=>`<button class="chip" data-d="tag" data-cat="${c}" style="--tc:${CAT[c].color}"><i></i>${esc(n)}</button>`).join('')}<button class="chip" data-d="cats" style="border-style:dashed">Edit categories…</button></div></div>`;}
@@ -654,6 +672,7 @@ dock.addEventListener('click',e=>{dockTouch=Date.now();const b=e.target.closest(
     pushUndo();S.splits[i]=1;renderAll(true);const k=elSc[i];setCur(k,false);V.tab='scene';renderSide();scheduleSave();toast(`Scene split: ${SC[k-1].num} and ${SC[k].num}. Join them again from the Scene tab.`,4500);return;}
   if(d==='setup'&&curSel){const E=S.els;let e0=curSel.s[0],o0=curSel.s[1],e1=curSel.t[0],o1=curSel.t[1];const ws=c=>!c||/\s/.test(c);while(e0<e1&&!E[e0].x.slice(o0).trim()){e0++;o0=0;}while(e1>e0&&!E[e1].x.slice(0,o1).trim()){e1--;o1=E[e1].x.length;}while(o0<E[e0].x.length&&ws(E[e0].x[o0]))o0++;while(o1>0&&ws(E[e1].x[o1-1]))o1--;if(e0===e1&&o1<=o0){o0=0;o1=E[e1].x.length;}if(o1>=E[e1].x.length)o1=null;window.getSelection().removeAllRanges();hideDock();setupDialog(null,{e0,e1,o0,o1});return;}
   if(d==='dcut'&&curSel){const n=addAnno({k:'cut',x:''});window.getSelection().removeAllRanges();if(n)openCard([n.id],true);return;}
+  if(d==='txt'&&curSel){const sel=curSel;window.getSelection().removeAllRanges();hideDock();textDialog(null,sel);return;}
   if(d==='note'&&curSel){const n=addAnno({k:'note',x:''});window.getSelection().removeAllRanges();if(n)openCard([n.id],true);return;}
   if(d==='tag'&&curSel){const cat=b.dataset.cat;const name=cleanName(curSel.full.replace(' … ',' '),cat);if(!name){toast('Select a word or phrase to tag');return;}const n=addAnno({k:'tag',cat,name});window.getSelection().removeAllRanges();if(n){openCard([n.id]);toast(`Tagged “${name}” as ${CAT[cat].name}`);}return;}
   if(!a)return;
@@ -729,8 +748,8 @@ $('#title').addEventListener('input',e=>{S.title=e.target.value;scheduleSave();}
    Undo
    ============================================================ */
 let undoStack=[];
-function pushUndo(){undoStack.push(JSON.stringify({an:S.an,sc:S.sc,splits:S.splits,unhead:S.unhead,gn:S.gn,beats:S.beats,setups:S.setups,lost:S.lost,alias:S.alias,notCast:S.notCast}));if(undoStack.length>60)undoStack.shift();$('#bUndo').disabled=false;}
-function undo(){if(!undoStack.length)return;const o=JSON.parse(undoStack.pop());S.an=o.an;S.sc=o.sc;S.splits=o.splits||{};S.unhead=o.unhead||{};S.gn=o.gn||[];S.beats=o.beats||[];S.setups=o.setups||[];S.lost=o.lost||[];S.alias=o.alias||{};S.notCast=o.notCast||{};$('#bUndo').disabled=!undoStack.length;hideDock();renderAll(true);scheduleSave();}
+function pushUndo(){undoStack.push(JSON.stringify({an:S.an,sc:S.sc,splits:S.splits,unhead:S.unhead,gn:S.gn,beats:S.beats,setups:S.setups,lost:S.lost,alias:S.alias,notCast:S.notCast,locNeeds:S.locNeeds}));if(undoStack.length>60)undoStack.shift();$('#bUndo').disabled=false;}
+function undo(){if(!undoStack.length)return;const o=JSON.parse(undoStack.pop());S.an=o.an;S.sc=o.sc;S.splits=o.splits||{};S.unhead=o.unhead||{};S.gn=o.gn||[];S.beats=o.beats||[];S.setups=o.setups||[];S.lost=o.lost||[];S.alias=o.alias||{};S.notCast=o.notCast||{};S.locNeeds=o.locNeeds||{};$('#bUndo').disabled=!undoStack.length;hideDock();renderAll(true);scheduleSave();}
 $('#bUndo').onclick=undo;
 document.addEventListener('keydown',e=>{const typing=/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);if(e.key==='Escape'){if($('#modal').classList.contains('open'))closeModal();else if(typing)document.activeElement.blur();else hideDock();$('#moreMenu').classList.remove('open');return;}
   if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'&&!typing){e.preventDefault();undo();}});
@@ -814,7 +833,7 @@ async function handleFile(f){const name=f.name||'script';const ext=(name.split('
 function finishImport(res,fallback){if(typeof importMode!=='undefined'&&importMode){finishDraft(res);return;}if(!res.els.length){toast('No script text was found in that file.',5000);return;}
   setScript({v:1,id:'s'+uid(),title:res.title||fallback,updated:Date.now(),R:res.R||54,els:res.els,sc:{},an:[],chunks:0},false);closeModal();scheduleSave();
   const pages=S.els[S.els.length-1].pg;toast(SC.length?`Imported ${pages} page${pages===1?'':'s'} and ${SC.length} scene${SC.length===1?'':'s'}`:'Imported, but no scene headings were found. Headings must start with INT. or EXT.',5000);}
-function setScript(o,saved){S=o;S.sc=S.sc||{};S.an=S.an||[];S.splits=S.splits||{};S.unhead=S.unhead||{};S.gn=S.gn||[];S.beats=(S.beats||[]).filter(b=>S.els[b.i]);S.lyHidden=S.lyHidden||{};S.setups=(S.setups||[]).filter(u=>S.els[u.e0]&&S.els[u.e1]);S.days=S.days||[];S.lost=S.lost||[];S.alias=S.alias||{};S.notCast=S.notCast||{};applyCats(S.cats||LS.get('sdesk.cats'));applyLists();S.an.forEach(a=>{if(a.k!=='tag'&&!a.ly)a.ly=LY[0][0];if(a.k==='note'&&!a.ty)a.ty=tyOf(a);});$('#lyPop').hidden=true;S.R=S.R||54;bodySaved=saved!==false;undoStack=[];$('#bUndo').disabled=true;cur=0;hideDock();setView('script');renderAll(false);if(bodySaved)try{localStorage.setItem('sdesk.last',JSON.stringify(S.id));}catch(e){}}
+function setScript(o,saved){S=o;S.sc=S.sc||{};S.an=S.an||[];S.splits=S.splits||{};S.unhead=S.unhead||{};S.gn=S.gn||[];S.beats=(S.beats||[]).filter(b=>S.els[b.i]);S.lyHidden=S.lyHidden||{};S.setups=(S.setups||[]).filter(u=>S.els[u.e0]&&S.els[u.e1]);S.days=S.days||[];S.lost=S.lost||[];S.alias=S.alias||{};S.notCast=S.notCast||{};S.locNeeds=S.locNeeds||{};applyCats(S.cats||LS.get('sdesk.cats'));applyLists();S.an.forEach(a=>{if(a.k!=='tag'&&!a.ly)a.ly=LY[0][0];if(a.k==='note'&&!a.ty)a.ty=tyOf(a);});$('#lyPop').hidden=true;S.R=S.R||54;bodySaved=saved!==false;undoStack=[];$('#bUndo').disabled=true;cur=0;hideDock();setView('script');renderAll(false);if(bodySaved)try{localStorage.setItem('sdesk.last',JSON.stringify(S.id));}catch(e){}}
 
 /* ============================================================
    Saving: this browser first, then the viewer's own account space
@@ -822,7 +841,7 @@ function setScript(o,saved){S=o;S.sc=S.sc||{};S.an=S.an||[];S.splits=S.splits||{
 const LS={get(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
 const pack=els=>els.map(e=>[e.t,e.x,e.pg,e.row,e.n,e.num||'']);
 const unpack=b=>b.map(a=>({t:a[0],x:a[1],pg:a[2],row:a[3],n:a[4],num:a[5]||''}));
-const stateOf=()=>({v:1,id:S.id,title:S.title,updated:S.updated,R:S.R,sc:S.sc,an:S.an,splits:S.splits,unhead:S.unhead,cats:S.cats,ntypes:S.ntypes,layers:S.layers,lyHidden:S.lyHidden,lyActive:S.lyActive,tagsHidden:!!S.tagsHidden,gn:S.gn,beats:S.beats,setups:S.setups,days:S.days,linesHidden:!!S.linesHidden,draft:S.draft,prev:S.prev,rev:S.rev,revHidden:!!S.revHidden,revStyle:S.revStyle||'',lost:S.lost,alias:S.alias,notCast:S.notCast||{},chunks:S.chunks||0});
+const stateOf=()=>({v:1,id:S.id,title:S.title,updated:S.updated,R:S.R,sc:S.sc,an:S.an,splits:S.splits,unhead:S.unhead,cats:S.cats,ntypes:S.ntypes,layers:S.layers,lyHidden:S.lyHidden,lyActive:S.lyActive,tagsHidden:!!S.tagsHidden,gn:S.gn,beats:S.beats,setups:S.setups,days:S.days,linesHidden:!!S.linesHidden,draft:S.draft,prev:S.prev,rev:S.rev,revHidden:!!S.revHidden,revStyle:S.revStyle||'',lost:S.lost,alias:S.alias,notCast:S.notCast||{},locNeeds:S.locNeeds||{},chunks:S.chunks||0});
 let COL=null,bodySaved=true,saveTimer=0,saving=false,dirty=false;
 function setSave(cls,txt){const s=$('#save');s.className=cls;s.querySelector('span').textContent=txt;s.title=txt;}
 function scheduleSave(){if(!S)return;S.sample=false;dirty=true;S.updated=Date.now();setSave('busy','Unsaved changes…');clearTimeout(saveTimer);saveTimer=setTimeout(doSave,1000);}
@@ -961,9 +980,19 @@ function snip(i,fromEnd){const x=S.els[i].x;return fromEnd?(x.length>46?'…'+x.
 
 /* ---- coverage lines drawn through the script ---- */
 function renderLines(){const pg=$('#page');if(!pg||!S)return;let host=document.getElementById('lines');if(!host){host=document.createElement('div');host.id='lines';pg.appendChild(host);}
-  if(!S.setups.length||S.linesHidden){host.innerHTML='';return;}const lanes={};let h='';
-  S.setups.slice().sort((a,b)=>a.e0-b.e0||a.e1-b.e1).forEach(u=>{const n0=elNode[u.e0],n1=elNode[u.e1];if(!n0||!n1)return;const k=elSc[u.e0];const lane=(lanes[k]=(lanes[k]||0)+1)-1;const p0=suO0(u)>0?elPoint(u.e0,suO0(u),false):null,p1=u.o1!=null&&suO1(u)<S.els[u.e1].x.length?elPoint(u.e1,suO1(u),true):null;const top=p0?p0.top-1:n0.offsetTop,bot=p1?p1.bot+1:n1.offsetTop+n1.offsetHeight;
-    h+=`<div class="ln ${u.shot?'shot':''}" style="top:${top}px;height:${Math.max(8,bot-top)}px;left:calc(var(--lx) + ${lane*2.6}em);--lc:${LINE_COLS[lane%LINE_COLS.length]}"><button class="lnTag" data-su="${u.id}" title="${esc(u.label+(u.desc?' · '+u.desc:''))}">${esc(u.label)}${u.shot?' ✓':''}</button><i></i></div>`;});
+  if(!S.setups.length||S.linesHidden){host.innerHTML='';return;}
+  const fs=parseFloat(getComputedStyle(pg).fontSize)||15,tagH=fs*.68*1.55+3;const tagR=(parseFloat(getComputedStyle(host).getPropertyValue('--tagR'))||3.4)*fs;
+  // measure every setup, then pack them into as few lanes as possible (a lane is reused once the line above it has ended)
+  const L=[];S.setups.forEach(u=>{const n0=elNode[u.e0],n1=elNode[u.e1];if(!n0||!n1)return;const p0=suO0(u)>0?elPoint(u.e0,suO0(u),false):null,p1=u.o1!=null&&suO1(u)<S.els[u.e1].x.length?elPoint(u.e1,suO1(u),true):null;
+    const top=p0?p0.top-1:n0.offsetTop,bot=p1?p1.bot+1:n1.offsetTop+n1.offsetHeight;L.push({u,top,bot});});
+  L.sort((a,b)=>a.top-b.top||b.bot-a.bot);const ends=[];
+  L.forEach(o=>{let lane=ends.findIndex(e=>e<o.top-2);if(lane<0){lane=ends.length;ends.push(0);}ends[lane]=o.bot;o.lane=lane;});
+  // tags sit in the left margin, stacked so they never overlap; a faint rule leads to the line they belong to
+  let last=-1e9,h='';
+  L.forEach((o,i)=>{const u=o.u;const col=LINE_COLS[i%LINE_COLS.length];let ty=Math.max(o.top,last+3);last=ty+tagH;const cy=Math.min(Math.max(ty+tagH/2,o.top+2),o.bot-2);
+    h+=`<div class="ln ${u.shot?'shot':''}" style="top:${o.top}px;height:${Math.max(8,o.bot-o.top)}px;left:calc(var(--lx) + ${o.lane*1.5}em);--lc:${col}"><i></i></div>`
+     +`<div class="lnLead" style="top:${cy}px;width:calc(var(--lx) + ${o.lane*1.5}em - var(--tagR));--lc:${col}"></div>`
+     +`<button class="lnTag" data-su="${u.id}" style="top:${ty}px;right:calc(100% - ${tagR}px);--lc:${col}" title="${esc(u.label+(u.desc?' · '+u.desc:''))}">${esc(u.label)}${u.shot?' ✓':''}</button>`;});
   host.innerHTML=h;}
 let lineRO=0;if(window.ResizeObserver)new ResizeObserver(()=>{cancelAnimationFrame(lineRO);lineRO=requestAnimationFrame(renderLines);}).observe($('#page'));
 $('#page').addEventListener('click',e=>{const t=e.target.closest('.lnTag');if(!t)return;e.stopPropagation();const u=S.setups.find(x=>x.id===t.dataset.su);if(u)setupDialog(u);},true);
@@ -1123,7 +1152,7 @@ function buildDraft(res,label){const oldE=S.els,newE=res.els;const A=tokenize(ol
     const [hs,ht]=A.range[s.i];let hm=0;for(let k=hs;k<ht;k++)if(ma[k]>=0&&B.T[ma[k]].e===best)hm++;const headSame=best>=0&&ht>hs&&hm>=.8*(ht-hs);
     if(best>=0&&(bc>=.3*tot||headSame))claims.push({s,key:'h'+best,ne:best,bc});else cutScenes.push({num:s.num,slug:s.slug,e8:s.e8});});
   claims.sort((x,y)=>y.bc-x.bc).forEach(c=>{if(Object.values(keyMap).some(m=>m.key===c.key)){cutScenes.push({num:c.s.num,slug:c.s.slug,e8:c.s.e8});return;}keyMap[c.s.key]={key:c.key,ne:c.ne,old:c.s};});
-  const N={v:1,id:'s'+uid(),title:S.title,draft:label,prev:S.id,updated:Date.now(),R:res.R||54,els:newE,chunks:0,cats:S.cats,ntypes:S.ntypes,layers:S.layers,lyHidden:Object.assign({},S.lyHidden),lyActive:S.lyActive,tagsHidden:!!S.tagsHidden,linesHidden:!!S.linesHidden,sc:{},an:[],splits:{},unhead:{},gn:[],beats:[],setups:[],days:[],lost:[],alias:JSON.parse(JSON.stringify(S.alias||{})),notCast:JSON.parse(JSON.stringify(S.notCast||{}))};
+  const N={v:1,id:'s'+uid(),title:S.title,draft:label,prev:S.id,updated:Date.now(),R:res.R||54,els:newE,chunks:0,cats:S.cats,ntypes:S.ntypes,layers:S.layers,lyHidden:Object.assign({},S.lyHidden),lyActive:S.lyActive,tagsHidden:!!S.tagsHidden,linesHidden:!!S.linesHidden,sc:{},an:[],splits:{},unhead:{},gn:[],beats:[],setups:[],days:[],lost:[],alias:JSON.parse(JSON.stringify(S.alias||{})),notCast:JSON.parse(JSON.stringify(S.notCast||{})),locNeeds:JSON.parse(JSON.stringify(S.locNeeds||{}))};
   const fromLabel=S.draft||'the previous draft';
   Object.keys(S.sc).forEach(k=>{const m=keyMap[k];if(m)N.sc[m.key]=JSON.parse(JSON.stringify(S.sc[k]));});
   Object.keys(S.splits).forEach(i=>{const sp=S.splits[i];const s=SC.find(x=>x.i===+i&&(x.manual||x.split));if(s&&keyMap[s.key])N.splits[keyMap[s.key].ne]=JSON.parse(JSON.stringify(sp));});
@@ -1291,10 +1320,10 @@ function openLink(){if(!SC.length){toast('Import a script with scenes first');re
    ============================================================ */
 const HLRGB=[[255,232,110],[178,236,190],[255,192,214],[186,216,255]];
 function annotatedPDF(opt){const {jsPDF}=window.jspdf;const doc=brandFonts(new jsPDF({unit:'pt',format:'letter'}));const E=S.els;const byPg={};E.forEach((e,i)=>(byPg[e.pg]||(byPg[e.pg]=[])).push(i));
-  const SCL=.8,X=x=>28+(x-72)*SCL,CW=7.2*SCL,NX=418,NW=166;const lyOn=a=>opt.layers[lyOf(a)]!==false;
-  const marks=S.an.filter(a=>(a.k==='hl'||a.k==='note')&&lyOn(a)).sort((a,b)=>a.s[0]-b.s[0]||a.s[1]-b.s[1]);const tags=opt.tags?S.an.filter(a=>a.k==='tag'):[];const cuts=S.an.filter(a=>a.k==='cut');
+  const SCL=.8,X=x=>28+(x-72)*SCL,CW=7.2*SCL,NX=418,NW=166;const lyOn=a=>a.ly==='*'||opt.layers[lyOf(a)]!==false;
+  const marks=S.an.filter(a=>((a.k==='hl'&&opt.hl!==false)||(a.k==='note'&&opt.notes!==false)||(a.k==='tx'&&opt.tx!==false))&&lyOn(a)).sort((a,b)=>a.s[0]-b.s[0]||a.s[1]-b.s[1]);const tags=opt.tags?S.an.filter(a=>a.k==='tag'):[];const cuts=opt.cuts===false?[]:S.an.filter(a=>a.k==='cut');const RVS=new Set(opt.rev&&S.rev?[...S.rev.add,...S.rev.chg]:[]);
   const gns=opt.scene?S.gn.filter(n=>n.x&&n.x.trim()&&lyOn(n)):[];const scNotes=i=>{const k=elSc[i];if(k<0||SC[k].i!==i)return [];return gns.filter(n=>n.scope==='scene'&&n.key===SC[k].key);};
-  const hasMark=pg=>byPg[pg].some(i=>marks.some(a=>a.s[0]<=i&&a.t[0]>=i)||(opt.tags&&tags.some(a=>a.s[0]<=i&&a.t[0]>=i))||scNotes(i).length);
+  const hasMark=pg=>byPg[pg].some(i=>marks.some(a=>a.s[0]<=i&&a.t[0]>=i)||RVS.has(i)||(opt.lines&&S.setups.some(u=>u.e0<=i&&u.e1>=i))||(opt.tags&&tags.some(a=>a.s[0]<=i&&a.t[0]>=i))||scNotes(i).length);
   let pages=Object.keys(byPg).map(Number).sort((a,b)=>a-b);if(opt.only)pages=pages.filter(hasMark);
   const label=pdfSafe(`${S.title}${S.draft?' · '+S.draft:''} · annotated`);let first=true,nNotes=0;const newPage=()=>{if(!first)doc.addPage();first=false;};
   const tyLab=t=>{const r=NT.find(q=>q[0]===t);return r?[r[1],rgbOf(r[2])]:['Note',[110,110,110]];};
@@ -1310,14 +1339,21 @@ function annotatedPDF(opt){const {jsPDF}=window.jspdf;const doc=brandFonts(new j
     lay.forEach(o=>{const k=elSc[o.i];const start=k>=0&&SC[k].i===o.i?SC[k]:null;doc.setFontSize(12*SCL);doc.setTextColor(0);doc.setFont('courier',o.e.t==='h'?'bold':'normal');const bx=X(PX[o.e.t]||108);
       o.lines.forEach((ln,j)=>{if(o.e.t==='tr')doc.text(ln.text,X(PX.tr),Y(o.row+j),{align:'right'});else doc.text(ln.text,bx,Y(o.row+j));});
       if(start){doc.setFont('courier','normal');doc.setFontSize(o.e.t==='h'?12*SCL:8);doc.text(pdfSafe(start.num),X(96),Y(o.row),{align:'right'});}
+      if(RVS.has(o.i)){doc.setFont('courier','bold');doc.setFontSize(11);doc.setTextColor(194,65,12);doc.text('*',NX-15,Y(o.row)+1);doc.setTextColor(0);}
+      marks.forEach(a=>{if(a.k==='tx'&&a.s[0]===o.i)boxes.push({y:Y(o.row+o.lines.length-1),txt:true,x:(a.x||'').trim(),sc:a.at==='scene'&&start?start.num:''});});
       tags.forEach(a=>{if(a.s[0]>o.i||a.t[0]<o.i)return;const [c0,c1]=rng(a,o.i);const c=rgbOf((CAT[a.cat]||{}).color||'#868e96');doc.setDrawColor(c[0],c[1],c[2]);doc.setLineWidth(1.1);o.lines.forEach((ln,j)=>{const sp=span(o,ln,c0,c1);if(sp)doc.line(sp[0],Y(o.row+j)+2.2,sp[1],Y(o.row+j)+2.2);});});
       cuts.forEach(a=>{if(a.s[0]>o.i||a.t[0]<o.i)return;const [c0,c1]=rng(a,o.i);doc.setDrawColor(200,40,40);doc.setLineWidth(.9);o.lines.forEach((ln,j)=>{const sp=span(o,ln,c0,c1);if(sp)doc.line(sp[0]-1,Y(o.row+j)-2.6,sp[1]+1,Y(o.row+j)-2.6);});});
       scNotes(o.i).forEach(n=>boxes.push({y:Y(o.row),ty:tyOf(n),x:n.x.trim(),sc:start?start.num:''}));
       marks.forEach(a=>{if(a.k!=='note'||a.s[0]>o.i||a.t[0]<o.i)return;const [c0,c1]=rng(a,o.i);doc.setDrawColor(194,65,12);doc.setLineWidth(.8);doc.setLineDashPattern([1.4,1.4],0);let lastSp=null,lastJ=0;o.lines.forEach((ln,j)=>{const sp=span(o,ln,c0,c1);if(sp){doc.line(sp[0],Y(o.row+j)+2.2,sp[1],Y(o.row+j)+2.2);lastSp=sp;lastJ=j;}});doc.setLineDashPattern([],0);
         if(a.t[0]===o.i||(a.t[0]>o.i&&o===lay[lay.length-1])){if(a.t[0]===o.i&&lastSp){boxes.push({y:Y(o.row+lastJ),ty:tyOf(a),x:(a.x||'').trim(),ax:lastSp[1],a});}else if(lastSp)boxes.push({y:Y(o.row+lastJ),ty:tyOf(a),x:(a.x||'').trim(),ax:lastSp[1],a,cont:true});}});});
+    if(opt.lines&&S.setups.length){const first=lay[0].i,last=lay[lay.length-1].i;const rowOf=(i,end)=>{const o=lay.find(q=>q.i===i);return o?(end?o.row+o.lines.length-1:o.row):null;};
+      const L=S.setups.filter(u=>u.e0<=last&&u.e1>=first).map(u=>({u,r0:u.e0>=first?rowOf(u.e0):-0.6,r1:u.e1<=last?rowOf(u.e1,true):curRow-.4,c0:u.e0>=first,c1:u.e1<=last})).sort((a,b)=>a.r0-b.r0);const ends=[];let tagY=0;
+      L.forEach((o,n)=>{let lane=ends.findIndex(e=>e<o.r0-.2);if(lane<0){lane=ends.length;ends.push(0);}ends[lane]=o.r1;const col=rgbOf(LINE_COLS[n%LINE_COLS.length]);const x=X(150)+lane*7;const y0=Y(o.r0)-lh*.8,y1=Y(o.r1)+lh*.25;
+        doc.setDrawColor(col[0],col[1],col[2]);doc.setLineWidth(1.1);doc.line(x,y0,x,y1);if(o.c0)doc.line(x-3,y0,x+3,y0);if(o.c1)doc.line(x-3,y1,x+3,y1);
+        if(o.c0){const ty=Math.max(y0+6,tagY+8);tagY=ty;doc.setFont('courier','bold');doc.setFontSize(7);doc.setTextColor(col[0],col[1],col[2]);doc.text(pdfSafe(o.u.label+(o.u.shot?' ok':'')),4,ty);doc.setTextColor(0);}});}
     /* notes that began on an earlier page and end here are listed once, where they end */
     const seen=new Set();const mine=boxes.filter(b=>{if(b.cont)return false;if(b.a){if(seen.has(b.a))return false;seen.add(b.a);}return true;}).sort((a,b)=>a.y-b.y);
-    let y=64,over=[];mine.forEach(b=>{nNotes++;b.n=nNotes;const [tl,tc]=tyLab(b.ty);doc.setFont('helvetica','normal');doc.setFontSize(7.6);const ls=doc.splitTextToSize(pdfSafe(b.x||'(no text)'),NW-4);const h=11+ls.length*9.2+5;
+    let y=64,over=[];mine.forEach(b=>{nNotes++;b.n=nNotes;const [tl,tc]=b.txt?['Text',[60,60,60]]:tyLab(b.ty);doc.setFont('helvetica','normal');doc.setFontSize(7.6);const ls=doc.splitTextToSize(pdfSafe(b.x||'(no text)'),NW-4);const h=11+ls.length*9.2+5;
       if(b.ax!=null){doc.setFont('helvetica','bold');doc.setFontSize(6.4);doc.setTextColor(194,65,12);doc.text(String(b.n),b.ax+1.5,b.y-4);}
       const top=Math.max(y,b.y-9);if(top+h>756){over.push({b,ls,tl,tc});return;}
       doc.setFillColor(tc[0],tc[1],tc[2]);doc.rect(NX-3,top,1.6,h-4,'F');doc.setFont('helvetica','bold');doc.setFontSize(6.8);doc.setTextColor(194,65,12);doc.text(String(b.n),NX+2,top+7.5);doc.setTextColor(tc[0],tc[1],tc[2]);doc.text(pdfSafe((b.sc?'SCENE '+b.sc+' · ':'')+tl).toUpperCase(),NX+4+doc.getTextWidth(String(b.n)+' '),top+7.5);
@@ -1331,14 +1367,226 @@ function annotatedPDF(opt){const {jsPDF}=window.jspdf;const doc=brandFonts(new j
   return {blob:doc.output('blob'),sheets:doc.getNumberOfPages(),notes:nNotes};}
 function openAnnotated(){if(!S||!S.els.length){toast('Import a script first');return;}const opt={layers:{},tags:false,scene:true,only:false};LY.forEach(l=>opt.layers[l[0]]=!S.lyHidden[l[0]]);
   const cnt=id=>S.an.filter(a=>(a.k==='hl'||a.k==='note')&&lyOf(a)===id).length+S.gn.filter(n=>n.x&&n.x.trim()&&lyOf(n)===id).length;
-  openModal(`<h3>Annotated script (PDF)</h3><div class="pSub">The script pages with your highlights in their colours and each note printed in the margin beside its line. Notes are numbered; any that don’t fit beside the page continue on a sheet right after it.</div>
+  openModal(`<h3>Annotated script (PDF)</h3><div class="pSub">The script pages with your highlights in their colors and each note printed in the margin beside its line. Notes are numbered; any that don’t fit beside the page continue on a sheet right after it.</div>
    <div class="f"><label>Layers to print</label>${LY.map(l=>`<label class="chk"><input type="checkbox" data-aly="${l[0]}" ${opt.layers[l[0]]?'checked':''}><i style="width:9px;height:9px;border-radius:2px;background:${l[2]};display:inline-block"></i> ${esc(l[1])} <span style="color:var(--sub)">· ${cnt(l[0])}</span></label>`).join('')}</div>
    <label class="chk"><input type="checkbox" id="anScene" checked> Scene notes and whole-script notes</label>
-   <label class="chk"><input type="checkbox" id="anTags"> Underline tagged elements in their category colours</label>
-   <label class="chk"><input type="checkbox" id="anOnly"> Only pages that have highlights or notes</label>
+   <div class="f" style="margin-bottom:2px"><label>Marks to show</label></div>
+   <div class="anMarks"><label class="chk"><input type="checkbox" id="anHl" checked> Highlights</label>
+   <label class="chk"><input type="checkbox" id="anNotes" checked> Notes in the margin</label>
+   <label class="chk"><input type="checkbox" id="anTx" checked> Text on the script <span style="color:var(--sub)">· ${S.an.filter(a=>a.k==='tx').length}</span></label>
+   <label class="chk"><input type="checkbox" id="anTags"> Element tags, underlined in their category colors</label>
+   <label class="chk"><input type="checkbox" id="anLines" ${S.setups.length?'':'disabled'}> Camera setup lines <span style="color:var(--sub)">· ${S.setups.length}</span></label>
+   <label class="chk"><input type="checkbox" id="anRev" ${S.rev?'checked':'disabled'}> Revision marks (*) <span style="color:var(--sub)">${S.rev?'· vs '+esc(S.rev.from||'last draft'):'· no earlier draft'}</span></label>
+   <label class="chk"><input type="checkbox" id="anCuts" checked> Cut-on-the-day strikes</label></div>
+   <div class="f" style="margin:8px 0 2px"><label>Pages</label></div>
+   <label class="chk"><input type="checkbox" id="anOnly"> Only pages with the marks chosen above</label>
    <div class="mFoot"><button class="btn" data-close>Cancel</button><button class="btn pri" id="anGo">Download PDF</button></div>`);
-  $('#modalBox').onclick=async ev=>{if(ev.target.id!=='anGo')return;document.querySelectorAll('#modalBox [data-aly]').forEach(c=>opt.layers[c.dataset.aly]=c.checked);opt.scene=$('#anScene').checked;opt.tags=$('#anTags').checked;opt.only=$('#anOnly').checked;
+  $('#modalBox').onclick=async ev=>{if(ev.target.id!=='anGo')return;document.querySelectorAll('#modalBox [data-aly]').forEach(c=>opt.layers[c.dataset.aly]=c.checked);opt.scene=$('#anScene').checked;opt.tags=$('#anTags').checked;opt.only=$('#anOnly').checked;opt.hl=$('#anHl').checked;opt.notes=$('#anNotes').checked;opt.tx=$('#anTx').checked;opt.lines=$('#anLines').checked;opt.rev=$('#anRev').checked;opt.cuts=$('#anCuts').checked;
     if(!(await ensureJsPDF0())){toast('The PDF maker did not load. Check your connection and try again.',5000);return;}const r=annotatedPDF(opt);saveFile(`${slug(S.title)}-annotated.pdf`,r.blob);closeModal();};}
+
+/* ---- text typed on the script: under a line or a scene heading, on one layer or all ---- */
+const TXCOLS=[['ink','Ink','#1d2024'],['red','Red','#c92a2a'],['blue','Blue','#1c64c4'],['green','Green','#2b8a3e'],['orange','Orange','#d9480f'],['purple','Purple','#7048e8']];
+function txHTML(list){return list.map(a=>{const ly=a.ly==='*'?'All layers':(LYM[a.ly]?LYM[a.ly][0]||'':'');const scene=a.at==='scene';
+  return `<div class="txBox ${scene?'txScene':''} ${a.size==='lg'?'txLg':''}" data-tx="${a.id}" style="--txc:${a.col&&a.col!=='ink'?(TXCOLS.find(x=>x[0]===a.col)||[])[2]:lyColor(a)}" title="${esc((scene?'Scene text':'Text')+(ly?' · '+ly:'')+' — click to edit')}">${scene?'<span class="txK">SCENE</span>':''}${esc(a.x||'').replace(/\n/g,'<br>')}</div>`;}).join('');}
+function lyColor(a){if(a.ly==='*')return 'var(--paperInk)';const l=LY.find(x=>x[0]===a.ly);return l?l[2]:'var(--paperInk)';}
+function textDialog(a,sel){const isNew=!a;let at=a?a.at||'line':'line';const e=a?a.s[0]:sel.s[0];const k=elSc[e];const s=k>=0?SC[k]:null;
+  openModal(`<h3>${isNew?'Add text to the script':'Edit text'}</h3><div class="pSub">Shows right on the page, ${at==='scene'?'under the scene heading':'under the line'} you picked, and moves with it if the script reflows or you import a new draft.</div>
+    <div class="f"><label for="txX">Text</label><textarea class="in" id="txX" rows="4" placeholder="e.g. Hold on Nora's hands — insert for B cam">${esc(a?a.x:'')}</textarea></div>
+    <div class="f"><label>Attach to</label><div class="seg" id="txAt"><button data-v="line" class="${at==='line'?'on':''}">This line</button><button data-v="scene" class="${at==='scene'?'on':''}" ${s?'':'disabled'}>Scene ${s?esc(s.num):''} (under heading)</button></div><div class="pSub" style="margin-top:4px">“${esc(snip(e))}”</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="f" style="margin:0"><label for="txLy">Layer</label><select class="in" id="txLy"><option value="*" ${!a||a.ly==='*'?'selected':''}>All layers (always shows)</option>${LY.map(l=>`<option value="${l[0]}" ${a&&a.ly===l[0]?'selected':''}>${esc(l[1])} only</option>`).join('')}</select></div>
+      <div class="f" style="margin:0"><label for="txCol">Color</label><select class="in" id="txCol"><option value="">Layer color</option>${TXCOLS.map(c=>`<option value="${c[0]}" ${a&&a.col===c[0]?'selected':''}>${c[1]}</option>`).join('')}</select></div></div>
+    <label class="chk"><input type="checkbox" id="txLg" ${a&&a.size==='lg'?'checked':''}> Larger text</label>
+    <div class="mFoot">${isNew?'':'<button class="btn danger" id="txDel">Delete</button>'}<button class="btn" data-close>Cancel</button><button class="btn pri" id="txSave">${isNew?'Add text':'Save'}</button></div>`);
+  $('#txAt').onclick=ev=>{const b=ev.target.closest('[data-v]');if(!b||b.disabled)return;at=b.dataset.v;$('#txAt').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));};
+  setTimeout(()=>$('#txX').focus(),30);
+  $('#txSave').onclick=()=>{const x=$('#txX').value.trim();if(!x){toast('Type some text first');return;}const ly=$('#txLy').value,col=$('#txCol').value,size=$('#txLg').checked?'lg':'';
+    const ae=at==='scene'&&s?s.i:e;const len=S.els[ae].x.length;
+    if(isNew){const n=addAnno({k:'tx',x,at},{s:[ae,0],t:[ae,len],q:''});if(n){n.ly=ly;n.col=col;n.size=size;n.at=at;}}
+    else{pushUndo();Object.assign(a,{x,ly,col,size,at,s:[ae,0],t:[ae,len]});}
+    closeModal();renderAll(true);scheduleSave();toast(isNew?'Text added':'Text saved');};
+  if(!isNew)$('#txDel').onclick=()=>{pushUndo();S.an=S.an.filter(z=>z.id!==a.id);closeModal();renderAll(true);scheduleSave();};}
+$('#page').addEventListener('click',e=>{const b=e.target.closest('.txBox');if(!b)return;e.stopPropagation();const a=S.an.find(x=>x.id===b.dataset.tx);if(a)textDialog(a);},true);
+
+document.addEventListener('click',e=>{const b=e.target.closest('[data-act="addSceneText"]');if(!b||!S)return;const s=SC[cur];if(!s)return;e.stopPropagation();const d=textDialog(null,{s:[s.i,0],t:[s.i,1],q:''});setTimeout(()=>{const x=document.querySelector('#txAt [data-v=scene]');x&&x.click();},0);},true);
+
+/* ============================================================
+   Special scenes (NYU level chart), location needs, breakdown sheets PDF, Day Out of Days PDF
+   ============================================================ */
+// NYU FTV Special Scenes / Hazardous Activities Level Chart (rev. 7/8/2026). lvl 23 = "Level 2 or 3, complexity TBD"
+const RISK=[
+ ['air','Aircraft & drones','',[['a',3,'Airports, aircraft or drones','Airports & Aircraft, including drones / UAS photography.']]],
+ ['animals','Animals','',[['a',2,'Household pets (vaccinated)','Typical household animals with immunizations (dogs, cats, birds, fish, etc.).'],['b',3,'Livestock, wild or exotic animals','Livestock, "wild" animals, animals that require wranglers and exotic household pets (insects, spiders, snakes, reptiles, chickens, pigs, large animals, etc.).']]],
+ ['stunts','Stunts, fights & restraints','',[['a',2,'Faked hit or light fall, no contact','Faked slap, punch, kick, or light fall that will be storyboarded and explained how the shot will be done without contact or injury.'],['b',3,'Needs a stunt coordinator','More complex stunts/fights requiring a stunt coordinator, including most trips/falls.'],['c',3,'Restraints or breathing restricted','Any stunt/wardrobe/prop that could restrict breathing/airways, or physical restraints on any part of the body (handcuffs, rope tied-up, taped mouth, etc.).']]],
+ ['build','Construction & rigging','',[['a',2,'Freestanding flats','Stand-alone flats; freestanding or simple flats only.'],['b',2,'Small prop / dressing builds','Small props and similarly small projects for set dressing or production design.'],['c',3,'Set construction or platforms','Set construction/platforms, including a professional volunteer designer/construction coordinator, third-party contractor or platform construction.'],['d',3,'Power tools or blades for builds','Use of power tools or tools with sharp blades for construction/building for production design.']]],
+ ['fire','Fire & pyrotechnics','',[['a',2,'1–5 candles, lighter, stove','A few candles (1 to 5), a cigarette lighter, a stove/oven being used as intended.'],['b',3,'6+ candles, open flame, fireplace, sparklers','Multiple candles (more than 5), open flames/fire pits/fireplaces, "sparklers".'],['c',3,'Any outdoor fire','Outdoor fires of any kind.'],['d',3,'Pyrotechnics or fireworks','Pyrotechnics or fireworks (requires a specialist).']]],
+ ['haz','Hazardous locations','',[['a',3,'Abandoned or collapsed structures','Abandoned / collapsed structures or towns, etc.'],['b',3,'Factory, construction or work site','Factories, construction and/or work sites, etc.'],['c',23,'Remote wilderness (caves, cliffs, trails)','Remote wilderness & nature (caves, cliffs, hiking/climbing trails, etc.). Large parks/forestry locations not close to a ranger or other families are Level 3. RM or PA; complexity & risks TBD.'],['d',3,'Extreme weather or climate','Extreme weather/climate locations.']]],
+ ['tools','Hazardous tools (as props)','For any tool used in a menacing way, use Weapons → Tool as a weapon.',[['a',2,'Household tool used normally','Traditional use of common household tools (e.g. kitchen knife under 6", scissors) used for cooking or normal use, not as a weapon.'],['b',3,'Sharp, hot, powered or heavy tool','Any tool or equipment used as a prop that has an elevated risk during filming due to sharpness, heat, moving parts, power source or weight.']]],
+ ['intl','International production','Consult the PA & RM early; some countries need extra review time.',[['a',2,'Advisory Level 1–2 country','State Department Advisory Level 1 or 2 country (and no special scenes requiring RM review).'],['b',3,'Advisory Level 3–4 or listed country','State Department Advisory Level 3 or 4 country, or any countries/areas on NYU’s list.'],['c',3,'Special-coverage country (6–8 wks)','Special coverage country: needs 4 weeks’ lead time with the insurer; begin the process 6–8 weeks ahead. Grad students: consult Tom Mangan.']]],
+ ['misc','Other elevated risk','',[['a',2,'Elevated-risk activity, no category','Any proposed activity that may involve an elevated risk but does not clearly fit another Special Scene category.'],['b',23,'Elevated-risk element, TBD','Any proposed production element that may involve an elevated risk but does not clearly fit another category. Level 2 or 3; RM or PA, complexity & risks TBD.']]],
+ ['vehicles','Vehicles & road closures','Includes bicycles, scooters, rollerskates, etc.',[['a',2,'Parked / prop vehicle','Stationary/prop vehicle (non-moving).'],['b',2,'Normal bike riding, helmet','Bicycles (normal riding, with helmet); camera on tripod or handheld.'],['c',3,'Stunt biking/skating or camera on a vehicle','Bicycles or rollerskating (stunt riding and/or without helmet); moving camera on a bike or vehicle.'],['d',3,'Moving vehicle (any engine)','Moving vehicle (anything with an engine).'],['e',3,'Road closure / crew in the roadway','Road closures (with or without vehicles). Required whenever cast/crew/equipment are positioned within the limits of an active roadway.']]],
+ ['intimacy','Nudity, simulated sex & non-consent','Consultation with the NYU Intimacy Advisor is required.',[['a',3,'Nudity or modesty garments','Nudity: actual or prosthetic nudity as defined by NYU, including with less than full opaque covering, or any implied nudity that requires modesty garments.'],['b',3,'Simulated sex','Simulated sex of any kind as defined by NYU. Actual sex acts are prohibited.'],['c',3,'Non-consensual acts','Non-consensual acts: any simulated bodily or verbal harassment or abuse. If unsure, schedule a call with NYU’s Intimacy Advisor.']]],
+ ['rail','Railroad','',[['a',2,'50+ ft from tracks','Railroad exposure over 50 feet away from tracks.'],['b',3,'Within 50 ft of tracks','Within 50 ft of tracks: apply for insurance 4–6 weeks ahead; extra insurance costs may apply.']]],
+ ['heights','Heights','Fire escapes are prohibited.',[['a',2,'Under 30 ft / floors 1–2','Balconies, bridges, open windows and other high-up exposures below 30 ft (~10 m), or 1st & 2nd floors only, including stairwells, foyers and lobbies.'],['b',3,'Over 30 ft / floor 3+ / rooftop','Rooftops, high platforms, balconies, bridges, open windows and other heights above 30 ft (~10 m), or 3rd floor and higher, including stairwells, foyers and lobbies.']]],
+ ['subst','Simulated substances','',[['a',2,'Herbal cigarettes or vaping','Cigarettes (herbal), vaping (herbal).'],['b',2,'Non-alcoholic “alcohol”','Simulated alcohol (non-alcoholic only).'],['c',2,'Simulated drugs','Drugs/illicit substances (simulated only).']]],
+ ['sfxmu','SFX makeup, prosthetics & liquids','',[['a',2,'Simple SFX makeup','Simple SFX make-up.'],['b',2,'Fake blood or fluids, prop glass','Bodily fluids (blood, urine, vomit, etc.), taxidermy/fur/skin, or prop glass, etc.'],['c',3,'Full-face prosthetic, contacts, airways/eyes','Full-face prosthetics, or any wardrobe/prop/make-up that may affect breathing and/or eyes (such as contacts). Use the Stunts Special Scene Form.']]],
+ ['equip','Specialty equipment','',[['a',2,'Generator 7000 W or less','Generators (7000 W or less).'],['b',2,'Water-based hazer / fog','Hazer/fog/smoke machine (water-based fluid only).'],['c',2,'Ladder under 10 ft, small jib','Ladders under 10 ft (ladders over 6 ft must be platform), small jibs (Porta-Jib).'],['d',3,'Crane, lift, car mount, big gen or 10K+','Large film equipment (jib arm, crane, lifts, car mounts, generators over 7000 W, single light units over 10K).'],['e',3,'Ladder over 10 ft','Ladders over 10 ft: must be platform; may require hiring certified, trained crew.']]],
+ ['water','Water & watercraft','Includes pools, showers, bathrooms and large volumes of liquid.',[['a',2,'Bathroom, battery light, normal water use','Filming in a bathroom with available light only and/or battery-powered lights, and the water source used normally (sink, tub, shower).'],['b',3,'Bathroom with film lights or heavy water use','Filming in a bathroom with lighting and/or unusual/significant use of the water source (sink, tub, shower).'],['c',3,'Rain or rain machine','Filming in the rain or simulating precipitation with a rain machine/system.'],['d',2,'Within 10–20 ft of water / knee-deep','Minimal water vicinity: within 10–20 ft of the water’s edge (beaches, pools, piers, decks near water, up to knee-high in water with a shallow entrance).'],['e',3,'Deeper than knee, drop-offs or currents','Significant water vicinity: in water beyond knee-high and/or with a steep drop-off or tumultuous current/waves.'],['f',3,'Underwater filming','Underwater photography in a pool or other body of water.'],['g',3,'Actor swimming or submerged','Actor swimming and/or body submerged in water.'],['h',3,'Boats (under 55 ft)','Boats/watercraft (under 55 ft).']]],
+ ['weapons','Weapons, police & uniforms','All prop weapon requests must also be approved by the Dept. Safety Coordinator.',[['a',3,'Prop or simulated weapon','Prop or simulated weapons of all kinds (in all locations).'],['b',3,'Tool used as a weapon','Any tool used as a weapon in a menacing, aggressive or threatening way.'],['c',3,'Simulated police activity in public','Simulated police activity of any kind (in uniform or not) in view of the public.'],['d',3,'Military/police/EMS uniforms in public','Military, police or emergency-service uniforms in view of the public.']]]];
+const RISKM={};RISK.forEach(([c,n,note,subs])=>{RISKM[c]={name:n,note,subs:{}};subs.forEach(([k,l,sh,full])=>RISKM[c].subs[k]={lvl:l,short:sh,full});});
+const RISK_REV='NYU FTV Special Scenes / Hazardous Activities Level Chart, rev. 7/8/2026';
+const lvlTxt=l=>l===23?'Level 2–3':'Level '+l;
+const apprTxt=l=>l===3?'Risk Mgmt (after PA review) · submit 10+ business days before start':l===23?'PA or Risk Mgmt · complexity TBD':'Production Advisor (PA) · simple';
+function riskOf(s){return ((S.sc[s.key]||{}).risk)||[];}
+function riskItem(r){const c=RISKM[r.cat];const sub=c&&c.subs[r.sub];return {cat:c?c.name:r.cat,short:sub?sub.short:'',full:sub?sub.full:'',lvl:r.lvl||(sub?sub.lvl:2),note:c?c.note:''};}
+function sceneLevel(s){let m=1;riskOf(s).forEach(r=>{const l=riskItem(r).lvl;m=Math.max(m,l===23?2:l);});return m;}
+function projectLevel(){return SC.reduce((m,s)=>Math.max(m,sceneLevel(s)),1);}
+function riskDialog(s,r,q){const isNew=!r;let lvl=r?(r.lvl===3?3:2):3,cat=r?r.cat:'',sub=r?r.sub:'';
+  const subsAt=c=>Object.entries(RISKM[c].subs).filter(([k,v])=>v.lvl===lvl||v.lvl===23);
+  const cats=()=>RISK.filter(([c])=>subsAt(c).length);
+  const draw=()=>{if(cat&&!subsAt(cat).length)cat='';if(!cat)cat=cats()[0][0];if(!subsAt(cat).some(([k])=>k===sub))sub=subsAt(cat)[0][0];const C=RISKM[cat];
+    openModal(`<h3>${isNew?'Special scene':'Edit special scene'} · Scene ${esc(s.num)}</h3><div class="pSub">From the ${esc(RISK_REV)}. Pick the level, then the category and type; the full NYU wording is under each type.</div>
+      ${q?`<div class="covBox" style="margin:6px 0">“${esc(q.length>140?q.slice(0,139)+'…':q)}”</div>`:''}
+      <div class="f"><label>Level</label><div class="seg" id="rkL"><button data-v="2" class="${lvl===2?'on':''}">Level 2 · PA – simple</button><button data-v="3" class="${lvl===3?'on':''}">Level 3 · RM – complex</button></div></div>
+      <div class="f"><label for="rkC">Category</label><select class="in" id="rkC">${cats().map(([c,n])=>`<option value="${c}" ${c===cat?'selected':''}>${esc(n)}</option>`).join('')}</select>${C.note?`<div class="pSub" style="margin-top:4px">${esc(C.note)}</div>`:''}</div>
+      <div class="f"><label>Type</label><div class="rkSubs">${subsAt(cat).map(([k,v])=>`<label class="rkSub ${k===sub?'on':''}"><input type="radio" name="rkS" value="${k}" ${k===sub?'checked':''}><span><b>${esc(v.short)}</b>${v.lvl===23?' <em>(Level 2 or 3)</em>':''}<details><summary>NYU wording</summary>${esc(v.full)}</details></span></label>`).join('')}</div></div>
+      <div class="f"><label for="rkN">Plan / notes</label><textarea class="in" id="rkN" rows="2" placeholder="Safety plan, who’s responsible, form submitted…">${esc(r&&r.note||'')}</textarea></div>
+      <div class="pSub">Approval: <b>${esc(apprTxt(lvl))}</b></div>
+      <div class="mFoot">${isNew?'':'<button class="btn danger" id="rkDel">Remove</button>'}<button class="btn" data-close>Cancel</button><button class="btn pri" id="rkSave">${isNew?'Add':'Save'}</button></div>`,true);
+    const mb=$('#modalBox');
+    mb.onclick=e=>{const b=e.target.closest('#rkL [data-v]');if(b){lvl=+b.dataset.v;draw();return;}
+      if(e.target.id==='rkSave'){const st=scState(s);st.risk=st.risk||[];pushUndo();const o={id:r?r.id:'r'+uid(),lvl:RISKM[cat].subs[sub].lvl===23?lvl:RISKM[cat].subs[sub].lvl,cat,sub,note:$('#rkN').value.trim(),q:r?r.q||'':q||''};if(r)Object.assign(r,o);else st.risk.push(o);closeModal();renderAll(true);scheduleSave();toast(`Scene ${s.num}: ${lvlTxt(o.lvl)} special scene`);}
+      if(e.target.id==='rkDel'){pushUndo();const st=scState(s);st.risk=(st.risk||[]).filter(x=>x!==r);closeModal();renderAll(true);scheduleSave();}};
+    mb.onchange=e=>{if(e.target.id==='rkC'){cat=e.target.value;sub='';draw();}if(e.target.name==='rkS'){sub=e.target.value;mb.querySelectorAll('.rkSub').forEach(x=>x.classList.toggle('on',x.querySelector('input').checked));}};};
+  draw();}
+
+/* ---- location / set needs ---- */
+const setKey=s=>keyOf(s.set||'');
+const locOf=set=>String(set||'').split(/\s+[-–—]\s+/)[0].trim();
+function needsOf(s){S.locNeeds=S.locNeeds||{};return S.locNeeds[setKey(s)]||[];}
+const NEED_WORDS=['brownstone','stoop','porch','balcony','fire escape','rooftop','roof','staircase','stairwell','stairs','elevator','hallway','basement','attic','garage','driveway','backyard','yard','garden','fence','gate','bay window','skylight','window','fireplace','kitchen island','bathtub','tub','shower','bunk bed','couch','sofa','piano','bar','counter','booth','closet','front door','doorway','mailbox','alley','sidewalk','intersection','crosswalk','subway','platform','train','bus stop','taxi','pickup','truck','bridge','pier','dock','ferry','boat','river','lake','beach','pool','park bench','playground','neon sign','storefront','diner','bodega','laundromat','cubicle','classroom','chalkboard','church','hospital bed','vending machine','payphone','phone booth','tv','record player','aquarium'];
+function needSuggestions(s){const have=new Set(needsOf(s).map(n=>keyOf(n.x)));const out=new Map();const KW=`(?:${NEED_WORDS.map(w=>w.replace(/ /g,'\\s+')).join('|')})s?(?:\\s+with\\s+(?:a|an|the)\\s+[a-z-]+(?:\\s+[a-z-]+)?)?`;const re=new RegExp(`(?:\\b(?:a|an|the|his|her|its|their|our|my)\\s+((?:[a-z'-]+\\s+){0,2}${KW})|\\b(${KW}))\\b`,'gi');
+  SC.filter(x=>setKey(x)===setKey(s)).forEach(x=>{for(let i=x.i+1;i<=x.end;i++){const e=S.els[i];if(e.t!=='a')continue;let m;re.lastIndex=0;while((m=re.exec(e.x))){let t=(m[1]||m[2]).replace(/\s+/g,' ').trim().toLowerCase();let prev;do{prev=t;t=t.replace(/^(a|an|the|his|her|its|their|our|my|your|some|this|that|from|to|into|onto|in|on|at|down|up|through|across|over|under|by|near|toward|towards|of|and|with|past|behind|beside|out)\s+/,'');}while(t!==prev);if(t.split(' ').length>6)continue;const k=keyOf(t);if(!have.has(k)&&!out.has(k))out.set(k,{x:t,sc:x.num});}}});
+  return [...out.values()].slice(0,10);}
+function addNeed(s,x,q){x=String(x).replace(/\s+/g,' ').trim().replace(/^[\s"'“”‘’(.,;:!?-]+|[\s"'“”‘’).,;:!?-]+$/g,'');if(!x)return;S.locNeeds=S.locNeeds||{};const k=setKey(s);const L=S.locNeeds[k]||(S.locNeeds[k]=[]);if(L.some(n=>keyOf(n.x)===keyOf(x)))return toast('Already on the list');pushUndo();L.push({id:'n'+uid(),x:x.length>80?x.slice(0,79)+'…':x,sc:s.num,q:q||''});scheduleSave();renderAll(true);toast(`Added to ${s.set} needs`);}
+
+/* ---- scene panel sections ---- */
+{const _ps=panelScene;panelScene=function(){let h=_ps();const s=SC[cur];if(!s||!S)return h;
+  const R=riskOf(s);const lv=sceneLevel(s);
+  h+=`<div class="cat rkCat"><h4><i style="background:${lv===3?'#c92a2a':lv===2?'#e8590c':'#868e96'}"></i>Special scenes <span>${R.length?'Level '+lv:''}</span></h4>${R.map(r=>{const it=riskItem(r);return `<button class="rkChip L${it.lvl===3?3:2}" data-rk="${r.id}" title="${esc(it.full)}"><b>${it.lvl===23?'L2–3':'L'+it.lvl}</b> ${esc(it.cat)} — ${esc(it.short)}</button>`;}).join('')}
+    <button class="btn sm" data-act="addRisk">${R.length?'Add another':'Flag a special scene'}</button>${R.length?'':'<span class="pSub" style="margin-left:6px">None flagged · Level 1</span>'}</div>`;
+  const N=needsOf(s),sug=needSuggestions(s);
+  h+=`<div class="cat"><h4><i style="background:#8a6d3b"></i>Location needs <span>${esc(s.set)}</span></h4><div class="pSub" style="margin:0 0 6px">What this set must have, for every scene shot here. Select words in the script and choose <b>Location need</b>, or add them here.</div>
+    <div class="chips">${N.map(n=>`<span class="chip lnChip" title="${esc(n.q?'“'+n.q+'” (scene '+n.sc+')':'From scene '+n.sc)}">${esc(n.x)}<button class="x" data-rmneed="${n.id}" aria-label="Remove">×</button></span>`).join('')||'<span class="pSub" style="margin:0">Nothing yet.</span>'}</div>
+    <div style="display:flex;gap:6px;margin-top:6px"><input class="in" id="needIn" placeholder="e.g. brownstone with a stoop"><button class="btn sm" data-act="addNeed">Add</button></div>
+    ${sug.length?`<div class="pSub" style="margin:6px 0 2px">Spotted in the script:</div><div class="chips">${sug.map(g=>`<button class="chip sugChip" data-sugneed="${esc(g.x)}" title="From scene ${esc(g.sc)} · click to add">+ ${esc(g.x)}</button>`).join('')}</div>`:''}</div>`;
+  return h;};}
+document.addEventListener('click',e=>{if(!S)return;const s=SC[cur];const t=e.target;
+  if(t.closest('[data-act="addRisk"]')&&s){e.stopPropagation();riskDialog(s,null,'');return;}
+  const rk=t.closest('[data-rk]');if(rk&&s){e.stopPropagation();const r=riskOf(s).find(x=>x.id===rk.dataset.rk);if(r)riskDialog(s,r,r.q);return;}
+  if(t.closest('[data-act="addNeed"]')&&s){e.stopPropagation();addNeed(s,$('#needIn').value);return;}
+  const sg=t.closest('[data-sugneed]');if(sg&&s){e.stopPropagation();addNeed(s,sg.dataset.sugneed);return;}
+  const rn=t.closest('[data-rmneed]');if(rn&&s){e.stopPropagation();pushUndo();const k=setKey(s);S.locNeeds[k]=(S.locNeeds[k]||[]).filter(n=>n.id!==rn.dataset.rmneed);scheduleSave();renderAll(true);return;}
+  if(t.closest('#dock [data-d="risk"]')&&curSel){e.stopPropagation();const k=elSc[curSel.s[0]];if(k<0)return toast('That text comes before the first scene heading');const q=curSel.q;window.getSelection().removeAllRanges();hideDock();riskDialog(SC[k],null,q);return;}
+  if(t.closest('#dock [data-d="need"]')&&curSel){e.stopPropagation();const k=elSc[curSel.s[0]];if(k<0)return toast('That text comes before the first scene heading');const q=curSel.q;window.getSelection().removeAllRanges();hideDock();addNeed(SC[k],q,q);return;}},true);
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='needIn'){e.preventDefault();const s=SC[cur];if(s)addNeed(s,e.target.value);}});
+{const _sd=showSelDock;showSelDock=function(){_sd();const row=[...$('#dock').querySelectorAll('.dkRow')].find(r=>r.querySelector('[data-d="setup"]'));if(row)row.insertAdjacentHTML('beforeend','<button class="btn sm" data-d="risk" title="Flag this as an NYU special scene (Level 2 or 3)">Special scene…</button><button class="btn sm" data-d="need" title="Add these words to what this location must have">Location need</button>');};}
+
+/* ---- cast numbers: most scenes first, then first appearance ---- */
+function castNumbers(){const m=new Map();SC.forEach((s,k)=>sceneCast(s).forEach(o=>{const key=keyOf(o.name);const v=m.get(key)||{name:o.name,n:0,first:k};v.n++;m.set(key,v);}));
+  const list=[...m.values()].sort((a,b)=>b.n-a.n||a.first-b.first);const num=new Map();list.forEach((v,i)=>num.set(keyOf(v.name),i+1));return {list,num};}
+
+/* ---- PDF helpers ---- */
+function pdfHead(doc,title,sub,right,W){doc.setFillColor(22,24,27);doc.rect(0,0,W,50,'F');doc.setFont('garamond','bold');doc.setFontSize(17);doc.setTextColor(255);doc.text(pdfSafe(title),28,24);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(240,147,90);doc.text(pdfSafe(sub),28,39);
+  doc.setFont('garamond','italic');doc.setFontSize(11);doc.setTextColor(243,233,215);doc.text('Clementine Films',W/2,30,{align:'center'});if(right){doc.setFont('garamond','bold');doc.setFontSize(18);doc.setTextColor(255);doc.text(pdfSafe(right),W-28,30,{align:'right'});}doc.setTextColor(0);}
+function pdfFoot(doc,W,H,txt){doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(130);doc.text(pdfSafe(txt),28,H-16);doc.text(`Page ${doc.getNumberOfPages()}`,W-28,H-16,{align:'right'});doc.setTextColor(0);}
+const dayOfScene=s=>(S.days||[]).filter(d=>(d.keys||[]).includes(s.key)).map(d=>d.label||'Day');
+
+/* ---- breakdown sheets ---- */
+function breakdownPDF(opt){const {jsPDF}=window.jspdf;const doc=brandFonts(new jsPDF({unit:'pt',format:'letter'}));const W=612,H=792;const CN=castNumbers();const scenes=SC.filter(s=>!opt.keys||opt.keys.includes(s.key));
+  const draft=`${S.title}${S.draft?' · '+S.draft:''}`;let first=true;const np=()=>{if(!first)doc.addPage();first=false;};
+  if(opt.summary){np();pdfHead(doc,S.title,'Breakdown summary'+(S.draft?' · '+S.draft:''),`${scenes.length} scenes`,W);let y=74;const lvl=projectLevel();
+    doc.setFont('helvetica','bold');doc.setFontSize(9.5);doc.setTextColor(lvl===3?201:lvl===2?232:90,lvl===3?42:lvl===2?89:90,lvl===3?42:lvl===2?12:90);doc.text(pdfSafe(`Project: NYU Level ${lvl}${lvl===1?' (no special scenes)':lvl===2?' (all special scenes simple, PA approval)':' (complex activities, Risk Mgmt approval)'}`),28,y);doc.setTextColor(0);y+=18;
+    const cols=[['SC',28],['I/E',58],['SET',86],['D/N',300],['PGS',340],['CAST',372],['SPECIAL',520]];doc.setFillColor(241,243,245);doc.rect(22,y-11,W-44,16,'F');doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(100);cols.forEach(([h,x])=>doc.text(h,x,y));doc.setTextColor(0);y+=16;
+    scenes.forEach(s=>{if(y>H-40){pdfFoot(doc,W,H,draft);doc.addPage();pdfHead(doc,S.title,'Breakdown summary, continued','',W);y=74;}const cast=sceneCast(s).map(o=>CN.num.get(keyOf(o.name))).filter(Boolean).sort((a,b)=>a-b).join(', ');const lv=sceneLevel(s);
+      doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.text(pdfSafe(s.num),28,y);doc.setFont('helvetica','normal');doc.text(pdfSafe(s.ie||''),58,y);doc.text(pdfSafe(doc.splitTextToSize(s.set||'',205)[0]||''),86,y);doc.text(pdfSafe((s.tod||'').slice(0,8)),300,y);doc.text(fmt8(s.e8),340,y);doc.text(pdfSafe(doc.splitTextToSize(cast,140)[0]||''),372,y);
+      if(lv>1){doc.setTextColor(lv===3?201:232,lv===3?42:89,lv===3?42:12);doc.setFont('helvetica','bold');doc.text('L'+lv,520,y);doc.setTextColor(0);}
+      doc.setDrawColor(225);doc.setLineWidth(.4);doc.line(22,y+5,W-22,y+5);y+=15;});
+    y+=10;if(y<H-80){doc.setFont('garamond','bold');doc.setFontSize(12);doc.text('Cast list',28,y);y+=14;doc.setFont('helvetica','normal');doc.setFontSize(8.5);CN.list.forEach((v,i)=>{if(y>H-40)return;doc.text(pdfSafe(`${i+1}. ${v.name}`),28+(i%3)*185,y);if(i%3===2)y+=12;});}
+    pdfFoot(doc,W,H,draft);}
+  scenes.forEach(s=>{np();pdfHead(doc,'Breakdown sheet',draft,'Scene '+s.num,W);let y=72;const st=S.sc[s.key]||{};
+    const info=[['INT/EXT',s.ie||'—'],['SET',s.set||'—'],['DAY/NIGHT',s.tod||'—'],['PAGES',fmt8(s.e8)],['SCRIPT PG',String(s.pg||'—')],['SHOOT DAY',dayOfScene(s).join(', ')||'—']];const cw=[60,200,74,52,58,104];let x=22;
+    info.forEach(([k,v],i)=>{doc.setDrawColor(200);doc.setLineWidth(.6);doc.rect(x,y,cw[i],34);doc.setFont('helvetica','bold');doc.setFontSize(6.8);doc.setTextColor(110);doc.text(k,x+5,y+10);doc.setTextColor(0);doc.setFont('helvetica','bold');doc.setFontSize(9.5);doc.text(pdfSafe(doc.splitTextToSize(v,cw[i]-8)[0]||''),x+5,y+25);x+=cw[i];});y+=46;
+    if(s.syn){doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(110);doc.text('SYNOPSIS',22,y);doc.setTextColor(0);doc.setFont('helvetica','normal');doc.setFontSize(9.5);const ls=doc.splitTextToSize(pdfSafe(s.syn),W-120);doc.text(ls.slice(0,3),90,y);y+=Math.max(14,ls.slice(0,3).length*12)+6;}
+    const R=riskOf(s);if(R.length&&opt.risk!==false){const lv=sceneLevel(s);const c=lv===3?[201,42,42]:[232,89,12];const h=16+R.length*24;doc.setDrawColor(c[0],c[1],c[2]);doc.setLineWidth(1.2);doc.rect(22,y,W-44,h);doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(c[0],c[1],c[2]);doc.text(pdfSafe(`SPECIAL SCENE · NYU LEVEL ${lv} · ${lv===3?'Risk Mgmt approval (10+ business days)':'PA approval'}`),30,y+12);doc.setTextColor(0);let yy=y+26;
+      R.forEach(r=>{const it=riskItem(r);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text(pdfSafe(`${it.lvl===23?'L2-3':'L'+it.lvl}  ${it.cat} — ${it.short}`),30,yy);doc.setFont('helvetica','normal');doc.setFontSize(7.6);doc.setTextColor(90);doc.text(pdfSafe(doc.splitTextToSize((r.note?'Plan: '+r.note+'  ·  ':'')+it.full,W-70)[0]||''),30,yy+10);doc.setTextColor(0);yy+=24;});y+=h+10;}
+    const N=needsOf(s);if(N.length&&opt.needs!==false){doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(110);doc.text('LOCATION NEEDS',22,y);doc.setTextColor(0);doc.setFont('helvetica','normal');doc.setFontSize(9);const ls=doc.splitTextToSize(pdfSafe(N.map(n=>n.x).join(' · ')),W-130);doc.text(ls.slice(0,3),110,y);y+=Math.max(14,ls.slice(0,3).length*12)+8;}
+    // element boxes in two columns
+    const boxes=CATS.map(([c,n])=>{let items=sceneEls(s,c).map(o=>o.name);if(c==='cast')items=sceneCast(s).map(o=>({n:CN.num.get(keyOf(o.name))||99,t:o.name})).sort((a,b)=>a.n-b.n).map(o=>`${o.n}. ${o.t}`);return {c,n,items};}).filter(b=>b.c==='cast'||b.items.length);
+    const colW=(W-44-12)/2;let cy=[y,y];boxes.forEach(b=>{doc.setFont('helvetica','normal');doc.setFontSize(9);const lines=b.items.length?b.items.flatMap(t=>doc.splitTextToSize(pdfSafe(t),colW-14)):['—'];const h=22+lines.length*11.5+6;const col=cy[0]<=cy[1]?0:1;if(cy[col]+h>H-110)return;const bx=22+col*(colW+12),by=cy[col];const rgb=rgbOf(CAT[b.c].color);
+      doc.setFillColor(rgb[0],rgb[1],rgb[2]);doc.rect(bx,by,colW,15,'F');doc.setFont('helvetica','bold');doc.setFontSize(8.2);doc.setTextColor(255);doc.text(pdfSafe(b.n.toUpperCase()),bx+6,by+10.5);doc.text(String(b.items.length||''),bx+colW-6,by+10.5,{align:'right'});doc.setTextColor(0);
+      doc.setDrawColor(rgb[0],rgb[1],rgb[2]);doc.setLineWidth(.8);doc.rect(bx,by,colW,h);doc.setFont('helvetica','normal');doc.setFontSize(9);lines.forEach((l,i)=>doc.text(l,bx+7,by+28+i*11.5));cy[col]+=h+10;});
+    let ny=Math.max(cy[0],cy[1])+4;const gn=(S.gn||[]).filter(n=>n.scope==='scene'&&n.key===s.key&&n.x&&n.x.trim());
+    if(opt.notes!==false&&ny<H-60){doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(110);doc.text('NOTES',22,ny);doc.setTextColor(0);doc.setDrawColor(200);doc.setLineWidth(.6);doc.rect(22,ny+4,W-44,Math.min(H-ny-46,90));doc.setFont('helvetica','normal');doc.setFontSize(8.5);let yy=ny+16;gn.forEach(n=>doc.splitTextToSize(pdfSafe(n.x.trim()),W-60).forEach(l=>{if(yy<Math.min(H-44,ny+90)){doc.text(l,30,yy);yy+=11;}}));}
+    pdfFoot(doc,W,H,draft);});
+  return doc.output('blob');}
+
+/* ---- Day Out of Days ---- */
+function doodData(cats){const days=(S.days||[]).filter(d=>(d.keys||[]).length);const CN=castNumbers();const rows=[];
+  cats.forEach(c=>{const m=new Map();days.forEach((d,di)=>(d.keys||[]).forEach(k=>{const s=SC.find(x=>x.key===k);if(!s)return;sceneEls(s,c).forEach(o=>{const key=keyOf(o.name);const v=m.get(key)||{name:o.name,cat:c,work:new Set()};v.work.add(di);m.set(key,v);});}));
+    let list=[...m.values()];if(c==='cast')list.sort((a,b)=>(CN.num.get(keyOf(a.name))||999)-(CN.num.get(keyOf(b.name))||999));else list.sort((a,b)=>a.name.localeCompare(b.name));
+    list.forEach(v=>{const w=[...v.work].sort((a,b)=>a-b);const f=w[0],l=w[w.length-1];const cells=days.map((d,i)=>{if(v.work.has(i))return w.length===1?'SWF':i===f?'SW':i===l?'WF':'W';return i>f&&i<l?'H':'';});
+      rows.push({name:(c==='cast'&&CN.num.get(keyOf(v.name))?CN.num.get(keyOf(v.name))+'. ':'')+v.name,cat:c,cells,work:w.length,hold:cells.filter(x=>x==='H').length,start:days[f].label||'Day '+(f+1),finish:days[l].label||'Day '+(l+1)});});});
+  return {days,rows};}
+function doodPDF(opt){const {jsPDF}=window.jspdf;const doc=brandFonts(new jsPDF({unit:'pt',format:'letter',orientation:'landscape'}));const W=792,H=612;const {days,rows}=doodData(opt.cats);
+  const draft=`${S.title}${S.draft?' · '+S.draft:''}`;const NW=170,TW=150;const per=Math.max(1,Math.floor((W-44-NW-TW)/30));const cw=Math.min(40,(W-44-NW-TW)/Math.min(per,days.length||1));
+  const COL={SW:[211,249,216],W:[233,236,239],WF:[255,214,214],SWF:[229,219,255],H:[255,243,191]};
+  for(let p=0;p<Math.max(1,Math.ceil(days.length/per));p++){const ds=days.slice(p*per,(p+1)*per);let rowStart=0;
+    while(rowStart<rows.length||rowStart===0){if(p||rowStart)doc.addPage();pdfHead(doc,S.title,'Day Out of Days'+(S.draft?' · '+S.draft:''),days.length?`${days.length} days`:'',W);let y=84;
+      doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(100);doc.text('ELEMENT',28,y);ds.forEach((d,i)=>{const x=22+NW+i*cw+cw/2;doc.text(pdfSafe((d.label||'Day '+(p*per+i+1)).slice(0,8)),x,y-8,{align:'center'});const dt=d.date?new Date(d.date+'T12:00:00'):null;if(dt&&!isNaN(dt))doc.text(dt.toLocaleDateString(undefined,{month:'numeric',day:'numeric'}),x,y,{align:'center'});});
+      const tx=22+NW+ds.length*cw+8;[['WORK',0],['HOLD',34],['START',68],['FINISH',110]].forEach(([h,o])=>doc.text(h,tx+o,y));doc.setTextColor(0);y+=10;
+      let lastCat='';let i=rowStart;for(;i<rows.length;i++){const r=rows[i];if(y>H-48)break;if(r.cat!==lastCat){lastCat=r.cat;doc.setFillColor(...rgbOf(CAT[r.cat].color));doc.rect(22,y,W-44,13,'F');doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255);doc.text(pdfSafe(CAT[r.cat].name.toUpperCase()),28,y+9.5);doc.setTextColor(0);y+=15;}
+        doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.text(pdfSafe(doc.splitTextToSize(r.name,NW-10)[0]),28,y+10);
+        ds.forEach((d,j)=>{const v=r.cells[p*per+j];const x=22+NW+j*cw;if(v){doc.setFillColor(...COL[v]);doc.rect(x+1,y+1,cw-2,13,'F');doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.text(v,x+cw/2,y+10.5,{align:'center'});}doc.setDrawColor(222);doc.setLineWidth(.4);doc.rect(x,y,cw,15);});
+        doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.text(String(r.work),tx+6,y+10);doc.text(String(r.hold||''),tx+40,y+10);doc.text(pdfSafe(r.start.slice(0,8)),tx+68,y+10);doc.text(pdfSafe(r.finish.slice(0,8)),tx+110,y+10);y+=16;}
+      if(!rows.length){doc.setFont('helvetica','normal');doc.setFontSize(11);doc.text(days.length?'Nothing tagged in the chosen categories for these days.':'No shooting days yet. In Script Desk, add days under More → Make sides (each day = its scenes).',28,y+20);}
+      doc.setFont('helvetica','normal');doc.setFontSize(7.2);doc.setTextColor(110);doc.text('SW start work · W work · WF work finish · SWF start-work-finish (one day) · H hold (paid, not working, between first and last day)',28,H-30);doc.setTextColor(0);pdfFoot(doc,W,H,draft);
+      rowStart=i;if(rowStart>=rows.length)break;}}
+  return doc.output('blob');}
+
+/* ---- locations PDF ---- */
+function locationsPDF(){const {jsPDF}=window.jspdf;const doc=brandFonts(new jsPDF({unit:'pt',format:'letter'}));const W=612,H=792;const draft=`${S.title}${S.draft?' · '+S.draft:''}`;
+  const sets=new Map();SC.forEach(s=>{const k=setKey(s);const o=sets.get(k)||{set:s.set,loc:locOf(s.set),scenes:[],ie:new Set(),tod:new Set(),e8:0};o.scenes.push(s);if(s.ie)o.ie.add(s.ie);if(s.tod)o.tod.add(s.tod);o.e8+=s.e8;sets.set(k,o);});
+  const byLoc=new Map();[...sets.values()].forEach(o=>{(byLoc.get(o.loc)||byLoc.set(o.loc,[]).get(o.loc)).push(o);});
+  pdfHead(doc,S.title,'Locations & set needs'+(S.draft?' · '+S.draft:''),`${sets.size} sets`,W);let y=76;
+  const need=n=>{if(y>H-50){pdfFoot(doc,W,H,draft);doc.addPage();pdfHead(doc,S.title,'Locations & set needs, continued','',W);y=76;}};
+  byLoc.forEach((list,loc)=>{need();y+=4;doc.setFont('garamond','bold');doc.setFontSize(15);doc.text(pdfSafe(loc||'Unnamed'),28,y);y+=6;doc.setDrawColor(189,81,3);doc.setLineWidth(1);doc.line(28,y,W-28,y);y+=14;
+    list.forEach(o=>{need();const N=needsOf(o.scenes[0]);doc.setFont('helvetica','bold');doc.setFontSize(10.5);doc.text(pdfSafe(o.set),28,y);doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(100);doc.text(pdfSafe(`${[...o.ie].join('/')} · ${[...o.tod].join(', ')} · scenes ${o.scenes.map(s=>s.num).join(', ')} · ${fmt8(o.e8)} pgs`),W-28,y,{align:'right'});doc.setTextColor(0);y+=14;
+      const lv=Math.max(1,...o.scenes.map(sceneLevel));const risks=o.scenes.flatMap(s=>riskOf(s).map(r=>({s,it:riskItem(r)})));
+      const rows=[['Must have',N.map(n=>n.x).join(' · ')||'—'],['Set dressing',[...new Set(o.scenes.flatMap(s=>sceneEls(s,'setdress').map(e=>e.name)))].join(', ')],['Props',[...new Set(o.scenes.flatMap(s=>sceneEls(s,'props').map(e=>e.name)))].join(', ')],['Vehicles',[...new Set(o.scenes.flatMap(s=>sceneEls(s,'vehicles').map(e=>e.name)))].join(', ')],['Animals',[...new Set(o.scenes.flatMap(s=>sceneEls(s,'animals').map(e=>e.name)))].join(', ')],['Most cast at once',String(Math.max(0,...o.scenes.map(s=>sceneCast(s).length)))+' speaking · '+([...new Set(o.scenes.flatMap(s=>sceneEls(s,'extras').map(e=>e.name)))].join(', ')||'no background tagged')],['Special scenes',risks.map(r=>`Sc ${r.s.num}: L${r.it.lvl===23?'2-3':r.it.lvl} ${r.it.cat} — ${r.it.short}`).join(' · ')]].filter(r=>r[1]);
+      rows.forEach(([k,v])=>{const ls=doc.splitTextToSize(pdfSafe(v),W-170);need();doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(k==='Special scenes'?(lv===3?201:232):110,k==='Special scenes'?(lv===3?42:89):110,k==='Special scenes'?(lv===3?42:12):110);doc.text(k.toUpperCase(),36,y);doc.setTextColor(0);doc.setFont('helvetica',k==='Must have'?'bold':'normal');doc.setFontSize(9);ls.slice(0,4).forEach((l,i)=>{doc.text(l,140,y+i*11.5);});y+=Math.max(13,ls.slice(0,4).length*11.5+2);});y+=10;});y+=6;});
+  pdfFoot(doc,W,H,draft);return doc.output('blob');}
+
+/* ---- dialogs + menu ---- */
+async function needPDF(){if(!(await ensureJsPDF0())){toast('The PDF maker did not load. Check your connection and try again.',5000);return false;}return true;}
+function openBreakdownPDF(){if(!SC.length){toast('Import a script with scenes first');return;}let pick=null;
+  openModal(`<h3>Breakdown sheets (PDF)</h3><div class="pSub">One sheet per scene: heading info, every tagged element in its category box (cast numbered by how many scenes they’re in), special scenes, location needs and scene notes. A summary page with the project’s NYU level comes first.</div>
+    <label class="chk"><input type="checkbox" id="bdSum" checked> Summary page (scene list, cast numbers, project level)</label><label class="chk"><input type="checkbox" id="bdRisk" checked> Special scenes</label><label class="chk"><input type="checkbox" id="bdNeeds" checked> Location needs</label><label class="chk"><input type="checkbox" id="bdNotes" checked> Notes box with scene notes</label>
+    <div class="f"><label>Scenes</label><div class="seg" id="bdScope"><button data-v="all" class="on">All ${SC.length}</button><button data-v="pick">Choose…</button></div><div id="bdPick" hidden class="pickList">${SC.map(s=>`<label class="chk"><input type="checkbox" data-bk="${esc(s.key)}" checked> ${esc(s.num)} · ${esc((s.ie?s.ie+'. ':'')+s.set)}</label>`).join('')}</div></div>
+    <div class="mFoot"><button class="btn" data-close>Cancel</button><button class="btn pri" id="bdGo">Download PDF</button></div>`);
+  $('#modalBox').onclick=async e=>{const b=e.target.closest('#bdScope [data-v]');if(b){$('#bdScope').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));$('#bdPick').hidden=b.dataset.v!=='pick';return;}
+    if(e.target.id!=='bdGo')return;const keys=$('#bdPick').hidden?null:[...document.querySelectorAll('[data-bk]')].filter(c=>c.checked).map(c=>c.dataset.bk);if(keys&&!keys.length){toast('Tick at least one scene');return;}
+    if(!(await needPDF()))return;const blob=breakdownPDF({keys,summary:$('#bdSum').checked,risk:$('#bdRisk').checked,needs:$('#bdNeeds').checked,notes:$('#bdNotes').checked});saveFile(`${slug(S.title)}-breakdown-sheets.pdf`,blob);closeModal();};}
+function openDOOD(){const days=(S.days||[]).filter(d=>(d.keys||[]).length);const def=['cast'];
+  openModal(`<h3>Day Out of Days (PDF)</h3><div class="pSub">Who and what works on each shooting day, with start (SW), work (W), finish (WF), one-day (SWF) and hold (H) days, plus totals. Days come from <b>Make sides</b>: each day is the scenes you put on it${days.length?` — you have <b>${days.length}</b>`:''}.</div>
+    ${days.length?'':'<div class="pSub" style="color:var(--danger,#c92a2a)">No shooting days yet. Open More → Make sides, add a day and pick its scenes; then come back.</div>'}
+    <div class="f"><label>Include</label>${CATS.filter(([c])=>['cast','extras','stunts','animals','vehicles','wardrobe','makeup','sfx','equip'].includes(c)).map(([c,n])=>`<label class="chk"><input type="checkbox" data-dc="${c}" ${def.includes(c)?'checked':''}> ${esc(n)}</label>`).join('')}</div>
+    <div class="mFoot">${days.length?'':'<button class="btn" data-m2="sides">Make sides…</button>'}<button class="btn" data-close>Cancel</button><button class="btn pri" id="ddGo" ${days.length?'':'disabled'}>Download PDF</button></div>`);
+  $('#modalBox').onclick=async e=>{if(e.target.closest('[data-m2="sides"]')){closeModal();menuAct('sides');return;}if(e.target.id!=='ddGo')return;const cats=[...document.querySelectorAll('[data-dc]')].filter(c=>c.checked).map(c=>c.dataset.dc);if(!cats.length){toast('Pick at least one category');return;}
+    if(!(await needPDF()))return;saveFile(`${slug(S.title)}-day-out-of-days.pdf`,doodPDF({cats}));closeModal();};}
+async function downloadLocations(){if(!SC.length){toast('Import a script with scenes first');return;}if(!(await needPDF()))return;saveFile(`${slug(S.title)}-locations.pdf`,locationsPDF());}
+{const _ma=menuAct;menuAct=function(m){if(m==='bdPDF')return openBreakdownPDF();if(m==='dood')return openDOOD();if(m==='locPDF')return downloadLocations();return _ma(m);};}
+{const mm=$('#moreMenu');const anchor=mm&&mm.querySelector('[data-m="csvEls"]');if(anchor)anchor.insertAdjacentHTML('beforebegin','<button data-m="bdPDF">Breakdown sheets, PDF…<small>One sheet per scene with every element, special scenes and needs</small></button><button data-m="dood">Day Out of Days, PDF…<small>Cast and elements across your shooting days</small></button><button data-m="locPDF">Locations & set needs, PDF<small>Each set: what it must have, dressing, props, special scenes</small></button>');}
+{const _rr=renderReport;renderReport=function(){_rr();if(V.view!=='report')return;const h=[...document.querySelectorAll('#reportWrap h2.rh')].find(x=>/Scene breakdown/.test(x.textContent));if(h&&!h.querySelector('[data-m="bdPDF"]'))h.insertAdjacentHTML('beforeend',' <button class="btn sm" data-m="bdPDF">Breakdown sheets PDF</button> <button class="btn sm" data-m="dood">DOOD PDF</button> <button class="btn sm" data-m="locPDF">Locations PDF</button>');};}
 /* ============================================================
    Sample + init
    ============================================================ */
