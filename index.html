@@ -247,6 +247,10 @@ h2.rh .btn{margin-left:auto;font:500 12px var(--sans)}
 .sdNav{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:6px}
 @media (max-width:700px){.sdGrid{grid-template-columns:1fr}}
 .el.rv-add{background:var(--rvA)}.el.rv-chg{background:var(--rvC)}
+.rvStar{height:0;padding-top:.01px;position:relative;pointer-events:none;-webkit-user-select:none;user-select:none}
+.rvStar::after{content:'*';position:absolute;left:39.3em;top:1.2em;font-weight:700;color:var(--rvMk,#c2410c)}.rvStar.m-h::after{top:2.4em}.rvStar.m-d::after,.rvStar.m-p::after{top:0}
+.rvw{background:var(--rvC);border-radius:2px;box-shadow:0 0 0 1px var(--rvC)}
+@container (max-width:640px){.rvStar::after{left:36.3em}}
 .pill.rvA{background:var(--rvA);border-color:transparent}.pill.rvC{background:var(--rvC);border-color:transparent}.pill.rvD{background:var(--rvD);border-color:transparent}
 .cutBox{max-height:200px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:6px 10px;font:12px/1.45 var(--script)}
 .cutBox div{padding:4px 0;border-bottom:1px solid var(--line);text-decoration:line-through;text-decoration-color:var(--dim);overflow-wrap:anywhere}
@@ -505,19 +509,20 @@ function sceneCast(s){const m=new Map();s.autoCast.forEach((n,k)=>m.set(k,{name:
 function sceneEls(s,cat){if(cat==='cast')return sceneCast(s);const m=s.el[cat];return m?[...m.values()]:[];}
 function allEls(){const out={};SC.forEach(s=>CATS.forEach(([c])=>sceneEls(s,c).forEach(o=>{const m=out[c]||(out[c]=new Map());const k=keyOf(o.name);if(!m.has(k))m.set(k,{name:o.name,scenes:[]});m.get(k).scenes.push(s.num);})));return out;}
 let RA=new Set(),RC=new Set();
-function reindex(){RA=new Set(S.rev&&!S.revHidden?S.rev.add:[]);RC=new Set(S.rev&&!S.revHidden?S.rev.chg:[]);byEl={};beatAt={};S.beats.forEach(b=>(beatAt[b.i]||(beatAt[b.i]=[])).push(b));S.an.forEach(a=>{if(!vis(a))return;for(let i=a.s[0];i<=a.t[0];i++)(byEl[i]||(byEl[i]=[])).push(a);});}
+function reindex(){RA=new Set(S.rev&&!S.revHidden?S.rev.add:[]);RC=new Set(S.rev&&!S.revHidden?S.rev.chg:[]);RW=S.rev&&!S.revHidden&&revStyle()==='words'&&S.rev.wd||{};if(S.rev&&!S.rev.wd&&typeof backfillRevWords==='function')setTimeout(backfillRevWords,50);byEl={};beatAt={};S.beats.forEach(b=>(beatAt[b.i]||(beatAt[b.i]=[])).push(b));S.an.forEach(a=>{if(!vis(a))return;for(let i=a.s[0];i<=a.t[0];i++)(byEl[i]||(byEl[i]=[])).push(a);});}
 const sceneTotal=()=>SC.reduce((t,s)=>t+s.e8,0);
 
 /* ============================================================
    Rendering — script
    ============================================================ */
-function segHTML(i){const e=S.els[i],list=byEl[i];if(!list)return esc(e.x);const L=e.x.length;const rs=list.map(a=>({a,s:a.s[0]<i?0:Math.min(L,a.s[1]),t:a.t[0]>i?L:Math.min(L,a.t[1])})).filter(r=>r.t>r.s);if(!rs.length)return esc(e.x);
+let RW={};const revStyle=()=>S&&S.revStyle||'words';
+function segHTML(i){const e=S.els[i],list=(byEl[i]||[]).concat((RC.has(i)&&RW[i]||[]).map(([s,t])=>({k:'rvw',id:'',s:[i,s],t:[i,t]})));if(!list.length)return esc(e.x);const L=e.x.length;const rs=list.map(a=>({a,s:a.s[0]<i?0:Math.min(L,a.s[1]),t:a.t[0]>i?L:Math.min(L,a.t[1])})).filter(r=>r.t>r.s);if(!rs.length)return esc(e.x);
   const cuts=[...new Set([0,L].concat(...rs.map(r=>[r.s,r.t])))].sort((a,b)=>a-b);let h='';
   for(let k=0;k<cuts.length-1;k++){const a=cuts[k],b=cuts[k+1];const txt=esc(e.x.slice(a,b));const act=rs.filter(r=>r.s<=a&&r.t>=b);if(!act.length){h+=txt;continue;}
     let cls='',st='';const hl=act.filter(r=>r.a.k==='hl').pop();if(hl)cls+=' hl hc'+hl.a.c;const tg=act.filter(r=>r.a.k==='tag').pop();if(tg){cls+=' tg';st=` style="--tc:${CAT[tg.a.cat]?CAT[tg.a.cat].color:'#888'}"`;}
-    if(act.some(r=>r.a.k==='cut'))cls+=' dcut';
+    if(act.some(r=>r.a.k==='cut'))cls+=' dcut';if(act.some(r=>r.a.k==='rvw'))cls+=' rvw';const ids=act.filter(r=>r.a.id).map(r=>r.a.id);if(!ids.length&&cls.trim()==='rvw'){h+=`<span class="rvw">${txt}</span>`;continue;}
     const nt=act.filter(r=>r.a.k==='note');if(nt.length){cls+=' nt';if(nt.some(r=>r.t===b&&r.a.t[0]===i))cls+=' nend';}
-    h+=`<span class="${cls.trim()}"${st} data-a="${act.map(r=>r.a.id).join(',')}">${txt}</span>`;}
+    h+=`<span class="${cls.trim()}"${st} data-a="${ids.join(',')}">${txt}</span>`;}
   return h;}
 function elHTML(i){const e=S.els[i];let at='',pre='',cls='t-'+e.t;const k=elSc[i],s=k>=0&&SC[k].i===i?SC[k]:null;
   if(e.t==='h'&&S.unhead[i])cls='t-a';
@@ -526,7 +531,7 @@ function elHTML(i){const e=S.els[i];let at='',pre='',cls='t-'+e.t;const k=elSc[i
     else if(s.manual&&s.whole){at=meta;cls='t-h';}
     else pre=`<div class="split"${meta} data-k="${k}">${esc(s.slug)}${s.split?' <span>continues</span>':''}</div>`;}
   if(beatAt[i])pre=beatAt[i].map(b=>`<div class="beat" data-b="${b.id}"><span>${esc(b.label)}</span></div>`).join('')+pre;
-  if(RA.has(i))cls+=' rv-add';else if(RC.has(i))cls+=' rv-chg';
+  if(RA.has(i)||RC.has(i)){if(revStyle()==='full')cls+=RA.has(i)?' rv-add':' rv-chg';else pre+=`<div class="rvStar m-${S.unhead[i]?'a':e.t}" title="${RA.has(i)?'New in this draft':'Rewritten in this draft'}" aria-hidden="true"></div>`;}
   return pre+`<div class="el ${cls}" data-i="${i}"${at}>${segHTML(i)}</div>`;}
 function renderScript(){const E=S.els;const parts=[];let pg=E.length?E[0].pg:1;E.forEach((e,i)=>{if(e.pg!==pg){pg=e.pg;parts.push(`<div class="pb" data-pg="${pg}"></div>`);}parts.push(elHTML(i));});
   const p=$('#page');p.innerHTML=parts.join('')||'<div class="el t-a">Import a script to begin.</div>';elNode=[];p.querySelectorAll('.el[data-i]').forEach(n=>elNode[+n.dataset.i]=n);heads=SC.map((s,k)=>document.getElementById('sc'+k)||elNode[s.i]);p.style.setProperty('--z',V.z);if(typeof renderLines==='function')renderLines();}
@@ -815,7 +820,7 @@ function setScript(o,saved){S=o;S.sc=S.sc||{};S.an=S.an||[];S.splits=S.splits||{
 const LS={get(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
 const pack=els=>els.map(e=>[e.t,e.x,e.pg,e.row,e.n,e.num||'']);
 const unpack=b=>b.map(a=>({t:a[0],x:a[1],pg:a[2],row:a[3],n:a[4],num:a[5]||''}));
-const stateOf=()=>({v:1,id:S.id,title:S.title,updated:S.updated,R:S.R,sc:S.sc,an:S.an,splits:S.splits,unhead:S.unhead,cats:S.cats,ntypes:S.ntypes,layers:S.layers,lyHidden:S.lyHidden,lyActive:S.lyActive,tagsHidden:!!S.tagsHidden,gn:S.gn,beats:S.beats,setups:S.setups,days:S.days,linesHidden:!!S.linesHidden,draft:S.draft,prev:S.prev,rev:S.rev,revHidden:!!S.revHidden,lost:S.lost,alias:S.alias,notCast:S.notCast||{},chunks:S.chunks||0});
+const stateOf=()=>({v:1,id:S.id,title:S.title,updated:S.updated,R:S.R,sc:S.sc,an:S.an,splits:S.splits,unhead:S.unhead,cats:S.cats,ntypes:S.ntypes,layers:S.layers,lyHidden:S.lyHidden,lyActive:S.lyActive,tagsHidden:!!S.tagsHidden,gn:S.gn,beats:S.beats,setups:S.setups,days:S.days,linesHidden:!!S.linesHidden,draft:S.draft,prev:S.prev,rev:S.rev,revHidden:!!S.revHidden,revStyle:S.revStyle||'',lost:S.lost,alias:S.alias,notCast:S.notCast||{},chunks:S.chunks||0});
 let COL=null,bodySaved=true,saveTimer=0,saving=false,dirty=false;
 function setSave(cls,txt){const s=$('#save');s.className=cls;s.querySelector('span').textContent=txt;s.title=txt;}
 function scheduleSave(){if(!S)return;S.sample=false;dirty=true;S.updated=Date.now();setSave('busy','Unsaved changes…');clearTimeout(saveTimer);saveTimer=setTimeout(doSave,1000);}
@@ -876,11 +881,11 @@ function renderLayers(){const p=$('#lyPop');if(p.hidden)return;const act=activeL
   p.innerHTML=`<div class="lab" style="margin-bottom:6px">Layers</div>${LY.map(([id,n,c])=>`<div class="lyRow"><label><input type="checkbox" data-lv="${id}" ${S.lyHidden[id]?'':'checked'} aria-label="Show ${esc(n)}"><i style="background:${c}"></i><span>${esc(n)}</span></label><button class="btn sm ${id===act?'pri':''}" data-la="${id}">${id===act?'Writing here':'Write here'}</button></div>`).join('')}
    <div class="lyRow"><label><input type="checkbox" data-lv="__tags" ${S.tagsHidden?'':'checked'}><i style="background:var(--dim)"></i><span>Breakdown tags</span></label></div>
    <div class="lyRow"><label><input type="checkbox" data-lv="__lines" ${S.linesHidden?'':'checked'}><i style="background:#c2410c"></i><span>Coverage lines</span></label></div>${S.rev?`
-   <div class="lyRow"><label><input type="checkbox" data-lv="__rev" ${S.revHidden?'':'checked'}><i style="background:#2f9e44"></i><span>Revision tints</span></label></div>`:''}
+   <div class="lyRow"><label><input type="checkbox" data-lv="__rev" ${S.revHidden?'':'checked'}><i style="background:#2f9e44"></i><span>Revision marks</span></label></div>${S.revHidden?'':`<div class="lyRow" style="padding-left:22px"><select class="in" data-rvs="1" style="width:100%" aria-label="How revisions show">${[['words','* in margin + changed words'],['stars','* in margin only'],['full','Whole paragraphs tinted']].map(([v,l])=>`<option value="${v}" ${revStyle()===v?'selected':''}>${l}</option>`).join('')}</select></div>`}`:''}
    <div class="pSub" style="margin:8px 0 6px">New notes and highlights go on the layer marked “Writing here”. Untick a layer to hide it.</div><button class="btn sm" data-le="1">Edit layers…</button>`;}
 $('#bLayers').onclick=e=>{e.stopPropagation();const p=$('#lyPop');p.hidden=!p.hidden;renderLayers();};
 document.addEventListener('click',e=>{if(!e.target.closest('#lyPop')&&!e.target.closest('#bLayers'))$('#lyPop').hidden=true;});
-$('#lyPop').addEventListener('change',e=>{const id=e.target.dataset.lv;if(!id)return;if(id==='__rev'){S.revHidden=!e.target.checked;renderAll(true);renderLayers();scheduleSave();return;}if(id==='__lines'){S.linesHidden=!e.target.checked;renderLines();scheduleSave();return;}if(id==='__tags')S.tagsHidden=!e.target.checked;else{if(e.target.checked)delete S.lyHidden[id];else S.lyHidden[id]=1;}hideDock();renderAll(true);renderLayers();scheduleSave();});
+$('#lyPop').addEventListener('change',e=>{if(e.target.dataset.rvs){S.revStyle=e.target.value;renderAll(true);renderLayers();scheduleSave();return;}const id=e.target.dataset.lv;if(!id)return;if(id==='__rev'){S.revHidden=!e.target.checked;renderAll(true);renderLayers();scheduleSave();return;}if(id==='__lines'){S.linesHidden=!e.target.checked;renderLines();scheduleSave();return;}if(id==='__tags')S.tagsHidden=!e.target.checked;else{if(e.target.checked)delete S.lyHidden[id];else S.lyHidden[id]=1;}hideDock();renderAll(true);renderLayers();scheduleSave();});
 $('#lyPop').addEventListener('click',e=>{const a=e.target.closest('[data-la]');if(a){S.lyActive=a.dataset.la;delete S.lyHidden[S.lyActive];renderAll(true);renderLayers();scheduleSave();return;}if(e.target.closest('[data-le]')){$('#lyPop').hidden=true;openLayers();}});
 
 /* ---- scene & script notes ---- */
@@ -1064,7 +1069,11 @@ function openSides(){if(!SC.length){toast('Import a script with scenes first');r
    The comparison works on words, not paragraphs, so a paragraph that only moved
    across a page break is not reported as a change.
    ============================================================ */
-const normTok=w=>w.toLowerCase().replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,'-');
+const normTok=w=>w.toLowerCase().replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,'-').replace(/-{2,}/g,'-').replace(/…/g,'...');
+// changed words inside rewritten paragraphs: {paragraph index: [[start,end],…]}
+function revWords(B,mb,chg){const wd={};chg.forEach(j=>{const [s,t]=B.range[j];const sp=[];let a=-1,b=-1;for(let k=s;k<t;k++){if(mb[k]<0){const tk=B.T[k];if(a<0)a=tk.o;b=tk.o+tk.l;}else if(a>=0){sp.push([a,b]);a=-1;}}if(a>=0)sp.push([a,b]);if(sp.length)wd[j]=sp;});return wd;}
+let revWdBusy=false;
+async function backfillRevWords(){if(revWdBusy||!S||!S.rev||S.rev.wd||!S.prev)return;revWdBusy=true;const id=S.id;try{const old=await loadBody(S.prev);if(!old||!S||S.id!==id)return;const A=tokenize(old),B=tokenize(S.els);const {ma,mb}=diffTokens(A.T.map(t=>t.w),B.T.map(t=>t.w));tidyMatch(A,B,ma,mb,S.els.length);S.rev.wd=revWords(B,mb,S.rev.chg);renderAll(true);scheduleSave();}catch(e){console.warn(e);}finally{revWdBusy=false;}}
 function tokenize(els){const T=[],range=[];els.forEach((e,i)=>{const a=T.length;const re=/\S+/g;let m;while((m=re.exec(e.x))){if(/^\((cont'd|cont’d|continued|more)\)$/i.test(m[0]))continue;T.push({w:normTok(m[0]),e:i,o:m.index,l:m[0].length});}range.push([a,T.length]);});return {T,range};}
 function diffTokens(a,b){const n=a.length,m=b.length;const ma=new Int32Array(n).fill(-1),mb=new Int32Array(m).fill(-1);const link=(i,j)=>{ma[i]=j;mb[j]=i;};const stack=[[0,n,0,m]];
   const lcs=(a0,a1,b0,b1)=>{const N=a1-a0,M=b1-b0,W=M+1;const t=new Uint16Array((N+1)*W);for(let i=N-1;i>=0;i--)for(let j=M-1;j>=0;j--)t[i*W+j]=a[a0+i]===b[b0+j]?t[(i+1)*W+j+1]+1:Math.max(t[(i+1)*W+j],t[i*W+j+1]);
@@ -1112,7 +1121,7 @@ function buildDraft(res,label){const oldE=S.els,newE=res.els;const A=tokenize(ol
     const [hs,ht]=A.range[s.i];let hm=0;for(let k=hs;k<ht;k++)if(ma[k]>=0&&B.T[ma[k]].e===best)hm++;const headSame=best>=0&&ht>hs&&hm>=.8*(ht-hs);
     if(best>=0&&(bc>=.3*tot||headSame))claims.push({s,key:'h'+best,ne:best,bc});else cutScenes.push({num:s.num,slug:s.slug,e8:s.e8});});
   claims.sort((x,y)=>y.bc-x.bc).forEach(c=>{if(Object.values(keyMap).some(m=>m.key===c.key)){cutScenes.push({num:c.s.num,slug:c.s.slug,e8:c.s.e8});return;}keyMap[c.s.key]={key:c.key,ne:c.ne,old:c.s};});
-  const N={v:1,id:'s'+uid(),title:S.title,draft:label,prev:S.id,updated:Date.now(),R:res.R||54,els:newE,chunks:0,cats:S.cats,ntypes:S.ntypes,layers:S.layers,lyHidden:Object.assign({},S.lyHidden),lyActive:S.lyActive,tagsHidden:!!S.tagsHidden,linesHidden:!!S.linesHidden,sc:{},an:[],splits:{},unhead:{},gn:[],beats:[],setups:[],days:[],lost:[],alias:JSON.parse(JSON.stringify(S.alias||{}))};
+  const N={v:1,id:'s'+uid(),title:S.title,draft:label,prev:S.id,updated:Date.now(),R:res.R||54,els:newE,chunks:0,cats:S.cats,ntypes:S.ntypes,layers:S.layers,lyHidden:Object.assign({},S.lyHidden),lyActive:S.lyActive,tagsHidden:!!S.tagsHidden,linesHidden:!!S.linesHidden,sc:{},an:[],splits:{},unhead:{},gn:[],beats:[],setups:[],days:[],lost:[],alias:JSON.parse(JSON.stringify(S.alias||{})),notCast:JSON.parse(JSON.stringify(S.notCast||{}))};
   const fromLabel=S.draft||'the previous draft';
   Object.keys(S.sc).forEach(k=>{const m=keyMap[k];if(m)N.sc[m.key]=JSON.parse(JSON.stringify(S.sc[k]));});
   Object.keys(S.splits).forEach(i=>{const sp=S.splits[i];const s=SC.find(x=>x.i===+i&&(x.manual||x.split));if(s&&keyMap[s.key])N.splits[keyMap[s.key].ne]=JSON.parse(JSON.stringify(sp));});
@@ -1130,7 +1139,7 @@ function buildDraft(res,label){const oldE=S.els,newE=res.els;const A=tokenize(ol
   const add=[],chg=[];newE.forEach((e,j)=>{const [s,t]=B.range[j];if(s===t)return;if(e.t==='c'&&/\(CONT/i.test(e.x))return;let matched=0,broken=false;for(let k=s;k<t;k++){if(mb[k]>=0){matched++;if(k>s&&mb[k-1]>=0&&mb[k]-mb[k-1]!==1){for(let q=mb[k-1]+1;q<mb[k];q++)if(ma[q]<0){broken=true;break;}}}}
     if(!matched)add.push(j);else if(matched<t-s||broken)chg.push(j);});
   const cuts=[];const cutBy={};let cutN=0;oldE.forEach((e,i)=>{const [s,t]=A.range[i];if(s===t)return;if(e.t==='c'&&/\(CONT/i.test(e.x))return;for(let k=s;k<t;k++)if(ma[k]>=0)return;const os=SC[elSc[i]];const nk=os&&keyMap[os.key]?keyMap[os.key].key:'';cutBy[nk]=(cutBy[nk]||0)+1;cutN++;if(cuts.length<150)cuts.push({sc:os?os.num:'',t:e.t,x:e.x.length>220?e.x.slice(0,218)+'…':e.x});});
-  N.rev={from:fromLabel,at:Date.now(),add,chg,cuts,cutN,cutScenes,cutBy,old8:Object.fromEntries(Object.values(keyMap).map(m=>[m.key,m.old.e8])),notes:cnt,suLost,oldTotal:sceneTotal(),oldScenes:SC.length};
+  N.rev={from:fromLabel,at:Date.now(),add,chg,wd:revWords(B,mb,chg),cuts,cutN,cutScenes,cutBy,old8:Object.fromEntries(Object.values(keyMap).map(m=>[m.key,m.old.e8])),notes:cnt,suLost,oldTotal:sceneTotal(),oldScenes:SC.length};
   return N;}
 function revSceneRows(){const r=S.rev;if(!r)return [];const A=new Set(r.add),C=new Set(r.chg);const rows=[];SC.forEach(s=>{let a=0,c=0;for(let i=s.i;i<=s.end;i++){if(A.has(i))a++;else if(C.has(i))c++;}const d=r.cutBy[s.key]||0;const isNew=!(s.key in r.old8);const o8=r.old8[s.key];if(isNew||a||c||d||(o8!=null&&Math.abs(o8-s.e8)>=2))rows.push({s,a,c,d,isNew,o8});});return rows;}
 
