@@ -1527,6 +1527,9 @@ function bdAuto(s,opt,CN){const blocks=CATS.map(([c,n])=>{let items=sceneEls(s,c
   const gn=(S.gn||[]).filter(n=>n.scope==='scene'&&n.key===s.key&&n.x&&n.x.trim()).map(n=>n.x.trim());const tx=S.an.filter(a=>a.k==='tx'&&a.at==='scene'&&elSc[a.s[0]]===SC.indexOf(s)).map(a=>a.x.trim());
   return {syn:s.syn||'',blocks,risk,lv,notes:(!opt||opt.notes!==false)?gn.concat(tx):[]};}
 function bdData(s,opt,CN){const a=bdAuto(s,opt,CN);const e=(S.bdEdit||{})[s.key];if(!e)return a;return {syn:e.syn!=null?e.syn:a.syn,blocks:e.blocks||a.blocks,risk:e.risk||a.risk,lv:a.lv,notes:e.notes||a.notes,edited:true};}
+// CONTINUOUS / SAME / LATER carry the time of day from the scene before (for strip colors)
+const RELTOD=/^(CONT(INUOUS|\.)?|SAME( TIME)?|LATER|MOMENTS LATER|A? ?MOMENT LATER|SECONDS LATER|MINUTES LATER|CONTINUED)$/i;
+function todFor(s){let k=SC.indexOf(s);let t=String(s.tod||'').trim();while(RELTOD.test(t)&&k>0){k--;t=String(SC[k].tod||'').trim();}return RELTOD.test(t)?'':t;}
 /* ---- breakdown sheets: stripboard-style list, then one sheet per scene ---- */
 function bdOrder(scenes){const days=(S.days||[]).filter(d=>(d.keys||[]).length);if(!days.length)return [{day:null,list:scenes}];const used=new Set();const out=days.map(d=>{const list=d.keys.map(k=>scenes.find(s=>s.key===k)).filter(Boolean);list.forEach(s=>used.add(s.key));return {day:d,list};});const rest=scenes.filter(s=>!used.has(s.key));if(rest.length)out.push({day:null,list:rest,unsched:true});return out;}
 function breakdownPDF(opt){const {jsPDF}=window.jspdf;const doc=brandFonts(new jsPDF({unit:'pt',format:'letter'}));const W=612,H=792,L=28,R=W-28;const CN=castNumbers();const scenes=SC.filter(s=>!opt.keys||opt.keys.includes(s.key));
@@ -1539,7 +1542,7 @@ function breakdownPDF(opt){const {jsPDF}=window.jspdf;const doc=brandFonts(new j
     const need=h=>{if(y+h>H-44){pdfFoot(doc,W,H);doc.addPage();pdfHead(doc,'','Stripboard','continued',W);y=70;headRow();}};
     [{list:scenes}].forEach(g=>{
       g.list.forEach(s=>{const sy=bdData(s,opt,CN).syn;const syn=sy?doc.splitTextToSize(pdfSafe(sy),232).slice(0,2):[];need(16+syn.length*10);const bg=sceneEls(s,'extras').length;const lv=sceneLevel(s);
-        {const c=rgbOf(stripColor(s.ie,s.tod));doc.setFillColor(c[0],c[1],c[2]);doc.rect(L-4,y-10,R-L+8,14+syn.length*9.5+2,'F');}
+        {const c=rgbOf(stripColor(s.ie,todFor(s)));doc.setFillColor(c[0],c[1],c[2]);doc.rect(L-4,y-10,R-L+8,14+syn.length*9.5+2,'F');}
         doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text(pdfSafe(s.num),L,y);doc.setFont('helvetica','normal');doc.text(pdfSafe(s.ie||''),L+38,y);{let t=(s.tod||'').toUpperCase();if(doc.getTextWidth(t)>50)t=t.replace('CONTINUOUS','CONT.').replace('MORNING','MORN.').replace('AFTERNOON','AFTN.').replace('EVENING','EVE.');while(t&&doc.getTextWidth(t)>50)t=t.slice(0,-1);doc.text(pdfSafe(t),L+66,y);}doc.setFont('helvetica','bold');doc.text(pdfSafe(doc.splitTextToSize(s.set||'',232)[0]||''),L+120,y);doc.setFont('helvetica','normal');
         doc.text(fmt8(s.e8),L+358,y);doc.text(pdfSafe(doc.splitTextToSize(castIds(s).join(', '),76)[0]||''),L+398,y);doc.text(bg?String(bg):'',L+478,y);if(lv>1){doc.setFont('helvetica','bold');doc.text('L'+lv,L+512,y);doc.setFont('helvetica','normal');}
         let yy=y+10;doc.setFontSize(7.8);gray(95);syn.forEach(l=>{doc.text(l,L+120,yy);yy+=9.5;});gray(0);doc.setDrawColor(255);doc.setLineWidth(1.5);doc.line(L-4,yy-4.5,R+4,yy-4.5);y=yy+8;});
@@ -1548,7 +1551,7 @@ function breakdownPDF(opt){const {jsPDF}=window.jspdf;const doc=brandFonts(new j
     pdfFoot(doc,W,H);}
   /* one sheet per scene: slug bar and plain facts across the top, categories as vertical lists below */
   scenes.forEach(s=>{np();pdfHead(doc,'','Script breakdown','',W);let y=62;const D=bdData(s,opt,CN);
-    const c=rgbOf(stripColor(s.ie,s.tod));doc.setFillColor(c[0],c[1],c[2]);doc.rect(L,y,R-L,30,'F');
+    const c=rgbOf(stripColor(s.ie,todFor(s)));doc.setFillColor(c[0],c[1],c[2]);doc.rect(L,y,R-L,30,'F');
     doc.setFont('garamond','bold');doc.setFontSize(17);doc.text('Scene '+pdfSafe(s.num),L+10,y+20);let x=L+10+doc.getTextWidth('Scene '+pdfSafe(s.num))+14;
     doc.setFont('helvetica','bold');doc.setFontSize(10.5);const slug=pdfSafe([s.ie,s.set].filter(Boolean).join('. ')+(s.tod?' - '+s.tod:''));doc.text(doc.splitTextToSize(slug,R-x-120)[0]||'',x,y+19.5);
     doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.text(pdfSafe(`${fmt8(s.e8)} pgs  ·  p. ${s.pg||'—'}`),R-10,y+19.5,{align:'right'});y+=44;
@@ -1641,7 +1644,7 @@ function openBdReview(opt){const CN=castNumbers();const scenes=SC.filter(s=>!opt
   const draw=()=>{const s=cur(),D=data();const auto=bdAuto(s,opt,CN);const used=new Set(D.blocks.map(b=>b.n));const addable=CATS.filter(([c,n])=>!used.has(n));
     const mb=$('#modalBox');mb.innerHTML=`<h3>Review breakdown sheets</h3><div class="pSub">Change anything for these sheets: reword, delete or add lines (one item per line). Edits are kept for next time and never change your tags or the script. <b>Reset</b> puts a scene back to what’s tagged.</div>
       <div class="bdRev"><div class="bdList">${scenes.map((x,i)=>`<button class="bdItem ${i===k?'on':''}" data-bi="${i}"><b>${esc(x.num)}</b> <span>${esc(x.set)}</span>${S.bdEdit[x.key]?'<i title="Edited">edited</i>':''}</button>`).join('')}</div>
-      <div class="bdForm"><div class="bdSlug" style="background:${stripColor(s.ie,s.tod)}"><b>Scene ${esc(s.num)}</b> ${esc([s.ie,s.set].filter(Boolean).join('. ')+(s.tod?' - '+s.tod:''))} <span>${fmt8(s.e8)} pgs</span></div>
+      <div class="bdForm"><div class="bdSlug" style="background:${stripColor(s.ie,todFor(s))}"><b>Scene ${esc(s.num)}</b> ${esc([s.ie,s.set].filter(Boolean).join('. ')+(s.tod?' - '+s.tod:''))} <span>${fmt8(s.e8)} pgs</span></div>
         <div class="f"><label>Synopsis</label><textarea class="in" rows="2" data-bf="syn">${esc(D.syn)}</textarea></div>
         <div class="bdGrid">${D.blocks.map((b,i)=>`<div class="f bdBlk"><label><i style="background:${b.color||'#868e96'}"></i>${esc(b.n)} <button class="x" data-brm="${i}" title="Remove this section from the sheet" aria-label="Remove ${esc(b.n)}">×</button></label><textarea class="in" rows="${Math.max(2,Math.min(8,b.items.length+1))}" data-bb="${i}" placeholder="One item per line">${esc(lines(b.items))}</textarea></div>`).join('')}</div>
         ${addable.length?`<div style="display:flex;gap:6px;align-items:center;margin:4px 0 10px"><select class="in" id="bdAdd" style="width:auto"><option value="">+ Add a category…</option>${addable.map(([c,n])=>`<option value="${c}">${esc(n)}</option>`).join('')}</select></div>`:''}
