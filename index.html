@@ -137,6 +137,15 @@ body.narrow #scriptWrap{padding:8px 6px 170px}
 .chip i{width:9px;height:9px;border-radius:2px;background:var(--tc);flex:none}
 .chip:hover{border-color:var(--dim)}
 .minTag{font:700 9px var(--sans);letter-spacing:.4px;text-transform:uppercase;background:#bd5103;color:#fff;border-radius:3px;padding:1px 4px;margin-left:2px}
+.clList{display:flex;flex-direction:column;gap:4px}
+.clRow{display:flex;gap:6px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--panel2,transparent);color:inherit;border-radius:6px;padding:5px 7px;font:inherit;font-size:12px;cursor:pointer}
+.clRow b{flex:1;min-width:0;font-weight:600}
+.clTy{font-size:10px;font-weight:700;color:#5f3dc4;white-space:nowrap}
+.clSt{font-size:10px;font-weight:700;color:#fff;border-radius:3px;padding:1px 5px;white-space:nowrap}
+.clPl{font-size:10px;white-space:nowrap}
+.clSug{padding:0}
+.clSug .clAdd{border:0;background:transparent;color:inherit;font:inherit;padding:2px 2px 2px 8px;cursor:pointer}
+.clSug .clAdd small{color:#5f3dc4;font-weight:700}
 .cpRow{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
 .cpRow .mono{font-family:var(--mono)}
 .chip .x{border:0;background:transparent;padding:0 0 0 2px;color:var(--dim);font-size:14px;line-height:1}
@@ -334,6 +343,7 @@ h2.rh .btn{margin-left:auto;font:500 12px var(--sans)}
         <button data-m="compare">Compare side by side with the earlier draft</button>
         <button data-m="scripts">My scripts…<small>Open or delete saved scripts</small></button>
         <hr>
+        <button data-m="clearances">Clearances…<small>Music, brands, artwork and screens to clear, with status; PDF or CSV</small></button>
         <button data-m="sheetCopy">Copy for your sheets…<small>Scene Data, Full Script Breakdown, call sheet Elements</small></button>
         <button data-m="csvScenes">Scene breakdown, CSV<small>One row per scene with eighths and every element</small></button>
         <button data-m="sides">Make sides…<small>Pick a day’s scenes and download the pages as a PDF</small></button>
@@ -764,8 +774,8 @@ $('#title').addEventListener('input',e=>{S.title=e.target.value;scheduleSave();}
    Undo
    ============================================================ */
 let undoStack=[];
-function pushUndo(){undoStack.push(JSON.stringify({an:S.an,sc:S.sc,splits:S.splits,unhead:S.unhead,gn:S.gn,beats:S.beats,setups:S.setups,lost:S.lost,alias:S.alias,notCast:S.notCast,locNeeds:S.locNeeds,bdEdit:S.bdEdit,minors:S.minors}));if(undoStack.length>60)undoStack.shift();$('#bUndo').disabled=false;}
-function undo(){if(!undoStack.length)return;const o=JSON.parse(undoStack.pop());S.an=o.an;S.sc=o.sc;S.splits=o.splits||{};S.unhead=o.unhead||{};S.gn=o.gn||[];S.beats=o.beats||[];S.setups=o.setups||[];S.lost=o.lost||[];S.alias=o.alias||{};S.notCast=o.notCast||{};S.minors=o.minors||S.minors||{};S.locNeeds=o.locNeeds||{};S.bdEdit=o.bdEdit||S.bdEdit||{};$('#bUndo').disabled=!undoStack.length;hideDock();renderAll(true);scheduleSave();}
+function pushUndo(){undoStack.push(JSON.stringify({an:S.an,sc:S.sc,splits:S.splits,unhead:S.unhead,gn:S.gn,beats:S.beats,setups:S.setups,lost:S.lost,alias:S.alias,notCast:S.notCast,locNeeds:S.locNeeds,bdEdit:S.bdEdit,minors:S.minors,clear:S.clear,clearNo:S.clearNo}));if(undoStack.length>60)undoStack.shift();$('#bUndo').disabled=false;}
+function undo(){if(!undoStack.length)return;const o=JSON.parse(undoStack.pop());S.an=o.an;S.sc=o.sc;S.splits=o.splits||{};S.unhead=o.unhead||{};S.gn=o.gn||[];S.beats=o.beats||[];S.setups=o.setups||[];S.lost=o.lost||[];S.alias=o.alias||{};S.notCast=o.notCast||{};S.minors=o.minors||S.minors||{};S.clear=o.clear||{};S.clearNo=o.clearNo||{};S.locNeeds=o.locNeeds||{};S.bdEdit=o.bdEdit||S.bdEdit||{};$('#bUndo').disabled=!undoStack.length;hideDock();renderAll(true);scheduleSave();}
 $('#bUndo').onclick=undo;
 document.addEventListener('keydown',e=>{const typing=/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);if(e.key==='Escape'){if($('#modal').classList.contains('open'))closeModal();else if(typing)document.activeElement.blur();else hideDock();$('#moreMenu').classList.remove('open');return;}
   if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'&&!typing){e.preventDefault();undo();}});
@@ -808,6 +818,7 @@ $('#bMore').onclick=e=>{e.stopPropagation();$('#moreMenu').classList.toggle('ope
 document.addEventListener('click',e=>{if(!e.target.closest('.menuWrap'))$('#moreMenu').classList.remove('open');});
 $('#moreMenu').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b)return;$('#moreMenu').classList.remove('open');menuAct(b.dataset.m);});
 function openHelp(){openModal(`<h3>How it works</h3><div style="line-height:1.6">
+ <p><b>Clearances.</b> On the Scene tab, <b>Clearances</b> lists music, brands, artwork, screens and print spotted in the script and your tags. Click a suggestion to add it, × to dismiss it, or select words and choose <b>Clearance</b>. Each item gets a type, plan and status; <b>More → Clearances</b> shows them all with a PDF or CSV. It’s a checklist, not legal clearance, and it can’t see what’s on a location until you add it.</p>
  <p><b>Your sheets.</b> <b>More → Copy for your sheets</b> gives paste-ready rows for the Shoot Scheduling, Script Breakdown &amp; Stripboard and Call Sheets templates. Each copy names the tab and cell to paste into and skips formula columns. Mark a <b>script day</b> on each scene (Scene tab) and tick <b>Minor</b> on a cast member (tap their name on the Scene tab) so both carry through to the breakdowns and the sheets.</p>
  <p><b>Shot Plot.</b> <b>More → Send to the Shot Plot</b> packs scenes, their sides and your camera setups into one file. Import it from the plot’s Shot list and each camera setup arrives as a shot linked to its lines, ready for you to place the camera and lights.</p>
  <p><b>For the editor.</b> Open a setup to log its takes, circle the ones to print and add continuity notes. Select words and choose <b>Cut on the day</b> to strike lines that were dropped. <b>More → Editor’s package</b> then downloads the lined script with facing pages, a takes log and a list of shoot-day changes.</p>
@@ -850,7 +861,7 @@ async function handleFile(f){const name=f.name||'script';const ext=(name.split('
 function finishImport(res,fallback){if(typeof importMode!=='undefined'&&importMode){finishDraft(res);return;}if(!res.els.length){toast('No script text was found in that file.',5000);return;}
   setScript({v:1,id:'s'+uid(),title:res.title||fallback,updated:Date.now(),R:res.R||54,els:res.els,sc:{},an:[],chunks:0},false);closeModal();scheduleSave();
   const pages=S.els[S.els.length-1].pg;toast(SC.length?`Imported ${pages} page${pages===1?'':'s'} and ${SC.length} scene${SC.length===1?'':'s'}`:'Imported, but no scene headings were found. Headings must start with INT. or EXT.',5000);}
-function setScript(o,saved){S=o;S.sc=S.sc||{};S.an=S.an||[];S.splits=S.splits||{};S.unhead=S.unhead||{};S.gn=S.gn||[];S.beats=(S.beats||[]).filter(b=>S.els[b.i]);S.lyHidden=S.lyHidden||{};S.setups=(S.setups||[]).filter(u=>S.els[u.e0]&&S.els[u.e1]);S.days=S.days||[];S.lost=S.lost||[];S.alias=S.alias||{};S.notCast=S.notCast||{};S.minors=S.minors||{};S.locNeeds=S.locNeeds||{};S.credit=S.credit||'';S.bdEdit=S.bdEdit||{};applyCats(S.cats||LS.get('sdesk.cats'));applyLists();S.an.forEach(a=>{if(a.k!=='tag'&&!a.ly)a.ly=LY[0][0];if(a.k==='note'&&!a.ty)a.ty=tyOf(a);});$('#lyPop').hidden=true;S.R=S.R||54;bodySaved=saved!==false;undoStack=[];$('#bUndo').disabled=true;cur=0;hideDock();setView('script');renderAll(false);if(bodySaved)try{localStorage.setItem('sdesk.last',JSON.stringify(S.id));}catch(e){}}
+function setScript(o,saved){S=o;S.sc=S.sc||{};S.an=S.an||[];S.splits=S.splits||{};S.unhead=S.unhead||{};S.gn=S.gn||[];S.beats=(S.beats||[]).filter(b=>S.els[b.i]);S.lyHidden=S.lyHidden||{};S.setups=(S.setups||[]).filter(u=>S.els[u.e0]&&S.els[u.e1]);S.days=S.days||[];S.lost=S.lost||[];S.alias=S.alias||{};S.notCast=S.notCast||{};S.minors=S.minors||{};S.clear=S.clear||{};S.clearNo=S.clearNo||{};S.locNeeds=S.locNeeds||{};S.credit=S.credit||'';S.bdEdit=S.bdEdit||{};applyCats(S.cats||LS.get('sdesk.cats'));applyLists();S.an.forEach(a=>{if(a.k!=='tag'&&!a.ly)a.ly=LY[0][0];if(a.k==='note'&&!a.ty)a.ty=tyOf(a);});$('#lyPop').hidden=true;S.R=S.R||54;bodySaved=saved!==false;undoStack=[];$('#bUndo').disabled=true;cur=0;hideDock();setView('script');renderAll(false);if(bodySaved)try{localStorage.setItem('sdesk.last',JSON.stringify(S.id));}catch(e){}}
 
 /* ============================================================
    Saving: this browser first, then the viewer's own account space
@@ -858,7 +869,7 @@ function setScript(o,saved){S=o;S.sc=S.sc||{};S.an=S.an||[];S.splits=S.splits||{
 const LS={get(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
 const pack=els=>els.map(e=>[e.t,e.x,e.pg,e.row,e.n,e.num||'']);
 const unpack=b=>b.map(a=>({t:a[0],x:a[1],pg:a[2],row:a[3],n:a[4],num:a[5]||''}));
-const stateOf=()=>({v:1,id:S.id,title:S.title,updated:S.updated,R:S.R,sc:S.sc,an:S.an,splits:S.splits,unhead:S.unhead,cats:S.cats,ntypes:S.ntypes,layers:S.layers,lyHidden:S.lyHidden,lyActive:S.lyActive,tagsHidden:!!S.tagsHidden,gn:S.gn,beats:S.beats,setups:S.setups,days:S.days,linesHidden:!!S.linesHidden,draft:S.draft,prev:S.prev,rev:S.rev,revHidden:!!S.revHidden,revStyle:S.revStyle||'',lost:S.lost,alias:S.alias,notCast:S.notCast||{},minors:S.minors||{},locNeeds:S.locNeeds||{},credit:S.credit||'',bdEdit:S.bdEdit||{},chunks:S.chunks||0});
+const stateOf=()=>({v:1,id:S.id,title:S.title,updated:S.updated,R:S.R,sc:S.sc,an:S.an,splits:S.splits,unhead:S.unhead,cats:S.cats,ntypes:S.ntypes,layers:S.layers,lyHidden:S.lyHidden,lyActive:S.lyActive,tagsHidden:!!S.tagsHidden,gn:S.gn,beats:S.beats,setups:S.setups,days:S.days,linesHidden:!!S.linesHidden,draft:S.draft,prev:S.prev,rev:S.rev,revHidden:!!S.revHidden,revStyle:S.revStyle||'',lost:S.lost,alias:S.alias,notCast:S.notCast||{},minors:S.minors||{},clear:S.clear||{},clearNo:S.clearNo||{},locNeeds:S.locNeeds||{},credit:S.credit||'',bdEdit:S.bdEdit||{},chunks:S.chunks||0});
 let COL=null,bodySaved=true,saveTimer=0,saving=false,dirty=false;
 function setSave(cls,txt){const s=$('#save');s.className=cls;s.querySelector('span').textContent=txt;s.title=txt;}
 function scheduleSave(){if(!S)return;S.sample=false;dirty=true;S.updated=Date.now();setSave('busy','Unsaved changes…');clearTimeout(saveTimer);saveTimer=setTimeout(doSave,1000);}
@@ -1636,12 +1647,12 @@ function openBreakdownPDF(){if(!SC.length){toast('Import a script with scenes fi
   openModal(`<h3>Breakdown sheets (PDF)</h3><div class="pSub">A stripboard first, then one sheet per scene: the scene heading, every element tagged in it under its category (including categories you’ve added), special scenes, location needs and scene notes. Cast IDs are numbered by how many scenes each person is in.</div>
     <div class="f"><label for="bdCredit">Director / Writer (printed at the top of every page)</label><input class="in" id="bdCredit" value="${esc(S.credit||'')}" placeholder="Directed by … · Written by …"></div>
     <div class="f"><label for="bdDraft">Script version</label><input class="in" id="bdDraft" value="${esc(S.draft||'')}" placeholder="Draft 9 · 10/10/2026"></div>
-    <label class="chk"><input type="checkbox" id="bdSum" checked> Stripboard first (strips in script order, cast IDs, BG, NYU level)</label><label class="chk"><input type="checkbox" id="bdEmpty"> Show empty categories as —</label><label class="chk"><input type="checkbox" id="bdRisk" checked> Special scenes</label><label class="chk"><input type="checkbox" id="bdNeeds" checked> Location needs</label><label class="chk"><input type="checkbox" id="bdNotes" checked> Notes box with scene notes</label>
+    <label class="chk"><input type="checkbox" id="bdSum" checked> Stripboard first (strips in script order, cast IDs, BG, NYU level)</label><label class="chk"><input type="checkbox" id="bdEmpty"> Show empty categories as —</label><label class="chk"><input type="checkbox" id="bdRisk" checked> Special scenes</label><label class="chk"><input type="checkbox" id="bdNeeds" checked> Location needs</label><label class="chk"><input type="checkbox" id="bdClear" checked> Clearances</label><label class="chk"><input type="checkbox" id="bdNotes" checked> Notes box with scene notes</label>
     <div class="f"><label>Scenes</label><div class="seg" id="bdScope"><button data-v="all" class="on">All ${SC.length}</button><button data-v="pick">Choose…</button></div><div id="bdPick" hidden class="pickList">${SC.map(s=>`<label class="chk"><input type="checkbox" data-bk="${esc(s.key)}" checked> ${esc(s.num)} · ${esc((s.ie?s.ie+'. ':'')+s.set)}</label>`).join('')}</div></div>
     <div class="mFoot"><button class="btn" data-close>Cancel</button><button class="btn pri" id="bdGo">Review sheets…</button></div>`);
   $('#modalBox').onclick=async e=>{const b=e.target.closest('#bdScope [data-v]');if(b){$('#bdScope').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));$('#bdPick').hidden=b.dataset.v!=='pick';return;}
     if(e.target.id!=='bdGo')return;const keys=$('#bdPick').hidden?null:[...document.querySelectorAll('[data-bk]')].filter(c=>c.checked).map(c=>c.dataset.bk);if(keys&&!keys.length){toast('Tick at least one scene');return;}
-    S.credit=$('#bdCredit').value.trim();S.draft=$('#bdDraft').value.trim()||S.draft;scheduleSave();openBdReview({keys,empty:$('#bdEmpty').checked,summary:$('#bdSum').checked,risk:$('#bdRisk').checked,needs:$('#bdNeeds').checked,notes:$('#bdNotes').checked});};}
+    S.credit=$('#bdCredit').value.trim();S.draft=$('#bdDraft').value.trim()||S.draft;scheduleSave();openBdReview({keys,empty:$('#bdEmpty').checked,summary:$('#bdSum').checked,risk:$('#bdRisk').checked,needs:$('#bdNeeds').checked,clear:$('#bdClear').checked,notes:$('#bdNotes').checked});};}
 function openDOOD(){const days=(S.days||[]).filter(d=>(d.keys||[]).length);const def=['cast'];
   openModal(`<h3>Day Out of Days (PDF)</h3><div class="pSub">Who and what works on each shooting day, with start (SW), work (W), finish (WF), one-day (SWF) and hold (H) days, plus totals. Days come from <b>Make sides</b>: each day is the scenes you put on it${days.length?` — you have <b>${days.length}</b>`:''}.</div>
     ${days.length?'':'<div class="pSub" style="color:var(--danger,#c92a2a)">No shooting days yet. Open More → Make sides, add a day and pick its scenes; then come back.</div>'}
@@ -1722,7 +1733,7 @@ function sheetPastes(){const CN=castNumbers();const cid=o=>CN.num.get(keyOf(o.na
     rows:SC.map(s=>{const over=sceneCast(s).map(cid).filter(n=>n>8).sort((a,b)=>a-b);
       return [joinL(names(s,'props').concat(names(s,'setdress'))),joinL(names(s,'wardrobe')),joinL(names(s,'makeup')),joinL(names(s,'stunts').concat(riskShort(s,['stunts','intimacy']))),
         joinL(names(s,'sfx').concat(names(s,'vfx'),names(s,'vehicles'),names(s,'animals'))),joinL(minorsIn(s)),levelTxt(s),'',joinL(names(s,'sound')),
-        [over.length?'Also cast '+over.join(', '):'',...names(s,'misc'),...sceneNotes(s)].filter(Boolean).join('; ')];})});
+        [over.length?'Also cast '+over.join(', '):'',...names(s,'misc'),...((S.clear||{})[s.key]||[]).filter(c=>c.status==='Open'||c.status==='Requested').map(c=>'Clear: '+c.x),...sceneNotes(s)].filter(Boolean).join('; ')];})});
   // ---------- Script Breakdown & Stripboard ----------
   out.push({wb:'Script Breakdown & Stripboard',tab:'Scene-Cast Links',cell:'A5',cols:'Cast ID · Character · Role type (blank) · Scripted age (blank) · Minor?',
     rows:CN.list.map((v,i)=>[i+1,v.name,'','',isMinor(v.name)?'Yes':'No'])});
@@ -1752,6 +1763,103 @@ function openSheetCopy(){const P=sheetPastes();let wb='';
     <div style="max-height:60vh;overflow:auto">${body}</div><div class="mFoot"><button class="btn pri" data-close>Done</button></div>`,'wide');
   $('#modalBox').onclick=e=>{const b=e.target.closest('[data-cp]');if(b){const p=P[+b.dataset.cp];copyText(toTSV(p.rows),`Copied ${p.rows.length} row${p.rows.length===1?'':'s'}. Paste at ${p.tab} ▸ ${p.cell}`);b.textContent='Copied ✓';return;}if(e.target.closest('[data-close]'))closeModal();};}
 {const _ma=menuAct;menuAct=function(m){if(m==='sheetCopy'){openSheetCopy();return;}return _ma(m);};}
+/* ============================================================
+   Clearances: likely items spotted in the script and tags, accepted by hand
+   S.clear[sceneKey] = [{id,x,type,plan,status,note,sc,q}] · S.clearNo = dismissed suggestions
+   ============================================================ */
+const CL_TYPES=['Music','Brand / logo','Artwork','Screen content','Print','Identifier','Real person / business'];
+const CL_PLANS=['Clear it','Replace / greek it','Fair to use','Cut'];
+const CL_STATUS=['Open','Requested','Cleared','Replaced','Not needed'];
+const CL_COLOR={'Open':'#c92a2a','Requested':'#e8590c','Cleared':'#2b8a3e','Replaced':'#1971c2','Not needed':'#495057'};
+const CL_BRANDS=['Coca-Cola','Coke','Pepsi','Sprite','Fanta','Dr Pepper','Red Bull','Monster','Gatorade','Starbucks','Dunkin','McDonald\'s','Burger King','Wendy\'s','Taco Bell','KFC','Chipotle','Subway','Domino\'s','Pizza Hut','Shake Shack','Chick-fil-A','Doritos','Cheetos','Oreo','Oreos','Kit Kat','Snickers','M&Ms','Skittles','Cheerios','Kellogg\'s','Heinz','Budweiser','Bud Light','Corona','Heineken','Jack Daniel\'s','Smirnoff','Absolut','Hennessy','Marlboro','Juul','Apple','iPhone','iPad','MacBook','AirPods','Samsung','Galaxy','Google','Android','Microsoft','Windows','Xbox','PlayStation','Nintendo','Sony','Dell','HP','Canon','Nikon','GoPro','Polaroid','Netflix','Hulu','HBO','Disney','Spotify','YouTube','Instagram','TikTok','Facebook','Twitter','Snapchat','WhatsApp','Tinder','Uber','Lyft','Amazon','Alexa','Walmart','Target','Costco','IKEA','CVS','Walgreens','Duane Reade','Whole Foods','Trader Joe\'s','7-Eleven','Home Depot','Nike','Adidas','Puma','Reebok','Converse','Vans','Jordans','New Balance','Under Armour','Levi\'s','Gap','H&M','Zara','Uniqlo','Gucci','Prada','Louis Vuitton','Chanel','Hermès','Supreme','North Face','Patagonia','Carhartt','Ray-Ban','Rolex','Tiffany','Victoria\'s Secret','Sephora','MAC','Toyota','Honda','Ford','Chevy','Chevrolet','Tesla','BMW','Mercedes','Audi','Jeep','Volkswagen','Subaru','Harley','Vespa','Citi Bike','MetroCard','OMNY','FedEx','UPS','USPS','Visa','Mastercard','PayPal','Venmo','Barbie','Lego','Hello Kitty','Pokémon','Marvel','Star Wars','Yankees','Mets','Knicks','Nets','Giants','Jets','Lakers','NBA','NFL','MLB','New York Times','Daily News','New York Post','Vogue'];
+const CL_RULES=[
+ ['Music',/\b(sings?|singing|sang|radio|jukebox|record player|turntable|vinyl|karaoke|playlist|song|stereo|boombox|music|mixtape)\b/i],
+ ['Screen content',/\b(tv|television|laptop|computer screen|monitor|phone screen|screen|newscast|news broadcast|broadcast|commercial|video|movie|film plays|youtube|facetime|zoom call|livestream)\b/i],
+ ['Artwork',/\b(painting|poster|mural|portrait|photograph|photo|artwork|sculpture|graffiti|billboard|tattoo)s?\b/i],
+ ['Print',/\b(book|magazine|newspaper|headline|comic|novel|record sleeve|album cover|cereal box)\b/i],
+ ['Identifier',/\b(license plate|plates? read|phone number|address reads|street sign)\b|\b\d{3}[-. ]\d{4}\b/i]];
+const clList=s=>{S.clear=S.clear||{};return S.clear[s.key]||[];};
+const clAll=()=>{const out=[];SC.forEach(s=>clList(s).forEach(c=>out.push({s,c})));return out;};
+function clGuess(x){const t=String(x);for(const [ty,re] of CL_RULES)if(re.test(t))return ty;if(clBrandIn(t))return 'Brand / logo';return 'Brand / logo';}
+const CL_BRE=new RegExp('(?:^|[^A-Za-z])('+CL_BRANDS.map(b=>b.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/'/g,'[\'’]')).sort((a,b)=>b.length-a.length).join('|')+')(?![A-Za-z])','g');
+function clBrandIn(t){CL_BRE.lastIndex=0;const out=[];let m;while((m=CL_BRE.exec(t))){const w=m[1];if(/^[A-Z0-9]/.test(w)||/^i[A-Z]/.test(w))out.push(w);}return out;}
+const CL_STOP=/^(a|an|the|his|her|its|their|our|my|your|some|this|that|on|in|at|from|of|to|into|onto|by|with|and|over|under|behind|beside|near)$/i;
+// a short phrase around the trigger word: "poster of Prince", "radio plays “Moon River”"
+function clPhrase(text,idx,len){const before=text.slice(0,idx).split(/\s+/).filter(Boolean),after=text.slice(idx+len).split(/\s+/).filter(Boolean);
+  const pre=[];for(let i=before.length-1;i>=0&&pre.length<2;i--){const w=before[i].replace(/[^\w'’-]/g,'');if(!w||/[.!?;:,]$/.test(before[i]))break;if(CL_STOP.test(w))break;pre.unshift(w);}
+  const post=[];const c0=(after[0]||'').replace(/[^\w]/g,'').toLowerCase();
+  if(/^(of|by|called|titled|from)$/.test(c0)){post.push(after[0]);for(let i=1;i<after.length&&post.length<6;i++){const raw=after[i],w=raw.replace(/[^\w'’&-]/g,'');if(/^[A-Z0-9“"]/.test(raw)||(/^(the|of|and|a|&)$/i.test(w)&&post.length>1)){post.push(raw);if(/[.!?;:,”"]$/.test(raw))break;}else if(/^(the|a|an)$/i.test(w)&&post.length===1){post.push(raw);}else break;}
+    while(post.length&&/^(the|of|and|a|an|&)$/i.test(post[post.length-1].replace(/[^\w&]/g,'')))post.pop();if(post.length===1)post.length=0;}
+  else if(/^(showing|shows|playing|plays|reading|reads|with)$/.test(c0)){for(let i=0;i<after.length&&post.length<4;i++){post.push(after[i]);if(/[.!?;:,]$/.test(after[i]))break;}}
+  return [...pre,text.substr(idx,len),...post].join(' ').replace(/[\s,.;:!?]+$/,'').replace(/^[“"']|[”"']$/g,'');}
+function clSuggest(s){S.clearNo=S.clearNo||{};const have=new Set(clList(s).map(c=>keyOf(c.x)));const out=new Map();
+  const add=(x,type,q)=>{x=String(x).replace(/\s+/g,' ').trim();if(!x||x.length>70)return;const k=keyOf(x);if(have.has(k)||S.clearNo[k]||out.has(k))return;out.set(k,{x,type,q:q||x});};
+  let lastCue='';
+  for(let i=s.i+1;i<=s.end;i++){const e=S.els[i];if(!e)continue;const t=e.x||'';
+    if(e.t==='c'){lastCue=cueName(t);continue;}
+    if(e.t==='p'){if(/\b(sing|hum|whistl)/i.test(t))add(`Song ${lastCue?lastCue+' sings':'sung'}`,'Music',t);continue;}
+    if(e.t!=='a'&&e.t!=='d')continue;
+    // quoted titles near music words: “Moon River”
+    if(e.t==='a'){const qre=/[“"]([^”"]{2,50})[”"]/g;let m;while((m=qre.exec(t))){const near=t.slice(Math.max(0,m.index-60),m.index+m[0].length+40);if(CL_RULES[0][1].test(near))add(`“${m[1]}”`,'Music',near);}}
+    clBrandIn(t).forEach(b=>add(b,'Brand / logo',t));
+    if(e.t!=='a')continue;
+    const quoted=/[“"][^”"]{2,50}[”"]/.test(t);CL_RULES.forEach(([ty,re])=>{const g=new RegExp(re.source,'gi');let m;while((m=g.exec(t))){if(ty==='Music'&&quoted)continue;if(ty==='Screen content'&&/^screen$/i.test(m[0])&&!/\b(tv|phone|laptop|computer|movie|television)\b/i.test(t))continue;add(clPhrase(t,m.index,m[0].length),ty,t);}});}
+  // tagged elements: props, set dressing, wardrobe and sound that look like they need clearing
+  ['props','setdress','wardrobe','sound','vehicles'].forEach(c=>sceneEls(s,c).forEach(o=>{const n=o.name;const b=clBrandIn(n);if(b.length)return add(n,'Brand / logo',n);for(const [ty,re] of CL_RULES){if(re.test(n)&&(c!=='sound'||ty==='Music'))return add(n,ty,n);}if(c==='sound'&&/[“"]/.test(n))add(n,'Music',n);}));
+  return [...out.values()].slice(0,12);}
+function addClear(s,x,type,q){x=String(x).replace(/\s+/g,' ').trim().replace(/^[\s"'(.,;:!?-]+|[\s"').,;:!?-]+$/g,'');if(!x)return;S.clear=S.clear||{};const L=S.clear[s.key]||(S.clear[s.key]=[]);
+  if(L.some(c=>keyOf(c.x)===keyOf(x)))return toast('Already a clearance item in this scene');pushUndo();
+  L.push({id:'c'+uid(),x:x.length>80?x.slice(0,79)+'…':x,type:type||clGuess(q||x),plan:'Clear it',status:'Open',note:'',sc:s.num,q:q||''});scheduleSave();renderAll(true);toast('Added to clearances');}
+function clDialog(s,c){const opt=(L,v)=>L.map(o=>`<option ${o===v?'selected':''}>${esc(o)}</option>`).join('');
+  openModal(`<h3>Clearance · scene ${esc(s.num)}</h3>${c.q&&c.q!==c.x?`<div class="pSub">From the script: “${esc(c.q.length>160?c.q.slice(0,159)+'…':c.q)}”</div>`:''}
+    <div class="f"><label for="clX">Item</label><input class="in" id="clX" value="${esc(c.x)}"></div>
+    <div class="f2" style="display:flex;gap:8px"><div class="f" style="flex:1"><label for="clT">Type</label><select class="in" id="clT">${opt(CL_TYPES,c.type)}</select></div><div class="f" style="flex:1"><label for="clP">Plan</label><select class="in" id="clP">${opt(CL_PLANS,c.plan)}</select></div><div class="f" style="flex:1"><label for="clS">Status</label><select class="in" id="clS">${opt(CL_STATUS,c.status)}</select></div></div>
+    <div class="f"><label for="clN">Notes</label><textarea class="in" id="clN" rows="3" placeholder="Rights holder, contact, fee, what replaces it, link to the signed release…">${esc(c.note||'')}</textarea></div>
+    <div class="mFoot" style="justify-content:space-between"><button class="btn danger" id="clDel">Remove</button><div style="display:flex;gap:6px"><button class="btn" data-close>Cancel</button><button class="btn pri" id="clSave">Save</button></div></div>`);
+  $('#clSave').onclick=()=>{const x=$('#clX').value.trim();if(!x)return;pushUndo();Object.assign(c,{x,type:$('#clT').value,plan:$('#clP').value,status:$('#clS').value,note:$('#clN').value.trim()});closeModal();scheduleSave();renderAll(true);};
+  $('#clDel').onclick=()=>{pushUndo();S.clear[s.key]=clList(s).filter(o=>o.id!==c.id);closeModal();scheduleSave();renderAll(true);};}
+
+/* scene panel: accepted items, add box, suggestions */
+{const _ps=panelScene;panelScene=function(){let h=_ps();const s=SC[cur];if(!s||!S)return h;const L=clList(s),sug=clSuggest(s);
+  h+=`<div class="cat"><h4><i style="background:#5f3dc4"></i>Clearances <span>${L.length||''}</span></h4><div class="pSub" style="margin:0 0 6px">Music, brands, artwork, screens and print that may need permission. Select words in the script and choose <b>Clearance</b>, or add them here.</div>
+    <div class="clList">${L.map(c=>`<button class="clRow" data-cl="${c.id}" title="${esc(c.note||'Click to edit')}"><span class="clTy">${esc(c.type)}</span><b>${esc(c.x)}</b><span class="clSt" style="background:${CL_COLOR[c.status]||'#495057'}">${esc(c.status)}</span><span class="clPl">${esc(c.plan)}</span></button>`).join('')||'<span class="pSub" style="margin:0">Nothing yet.</span>'}</div>
+    <div style="display:flex;gap:6px;margin-top:6px"><input class="in" id="clIn" placeholder="e.g. song on the radio, Pepsi can"><button class="btn sm" data-act="addClear">Add</button></div>
+    ${sug.length?`<div class="pSub" style="margin:6px 0 2px">Spotted in the script and tags (click to add, × to dismiss):</div><div class="chips">${sug.map(g=>`<span class="chip sugChip clSug"><button class="clAdd" data-sugcl="${esc(g.x)}" data-sugty="${esc(g.type)}" data-sugq="${esc(g.q)}" title="${esc(g.q.length>140?g.q.slice(0,139)+'…':g.q)}">+ <small>${esc(g.type)}</small> ${esc(g.x)}</button><button class="x" data-nocl="${esc(g.x)}" aria-label="Dismiss">×</button></span>`).join('')}</div>`:''}</div>`;
+  return h;};}
+document.addEventListener('click',e=>{if(!S)return;const s=SC[cur];const t=e.target;
+  if(t.closest('[data-act="addClear"]')&&s){e.stopPropagation();addClear(s,$('#clIn').value);return;}
+  const sg=t.closest('[data-sugcl]');if(sg&&s){e.stopPropagation();addClear(s,sg.dataset.sugcl,sg.dataset.sugty,sg.dataset.sugq);return;}
+  const no=t.closest('[data-nocl]');if(no&&s){e.stopPropagation();pushUndo();S.clearNo=S.clearNo||{};S.clearNo[keyOf(no.dataset.nocl)]=1;scheduleSave();renderAll(true);return;}
+  const r=t.closest('[data-cl]');if(r&&s){e.stopPropagation();const c=clList(s).find(o=>o.id===r.dataset.cl);if(c)clDialog(s,c);return;}
+  if(t.closest('#dock [data-d="clear"]')&&curSel){e.stopPropagation();const k=elSc[curSel.s[0]];if(k<0)return toast('That text comes before the first scene heading');const q=curSel.q;window.getSelection().removeAllRanges();hideDock();addClear(SC[k],q,null,q);return;}},true);
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='clIn'){e.preventDefault();const s=SC[cur];if(s)addClear(s,e.target.value);}});
+{const _sd=showSelDock;showSelDock=function(){_sd();const row=[...$('#dock').querySelectorAll('.dkRow')].find(r=>r.querySelector('[data-d="need"]'));if(row&&!row.querySelector('[data-d="clear"]'))row.insertAdjacentHTML('beforeend','<button class="btn sm" data-d="clear" title="Add these words to the clearances list">Clearance</button>');};}
+
+/* breakdown sheets: a Clearances block on each scene */
+{const _ba=bdAuto;bdAuto=function(s,opt,CN){const a=_ba(s,opt,CN);if(opt&&opt.clear===false)return a;const L=clList(s);if(L.length)a.blocks.push({n:'Clearances',items:L.map(c=>`${c.x} — ${c.type} · ${c.plan} · ${c.status}`),color:'#5f3dc4',c:'_clear'});return a;};}
+
+/* project-wide list: edit status, download PDF / CSV */
+function clCSV(){const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';return 'Scene,Item,Type,Plan,Status,Notes,From the script\n'+clAll().map(({s,c})=>[s.num,c.x,c.type,c.plan,c.status,c.note,c.q].map(q).join(',')).join('\n');}
+function clPDF(){const {jsPDF}=window.jspdf;const doc=brandFonts(new jsPDF({unit:'pt',format:'letter'}));const W=612,H=792,L=28,R=W-28;const A=clAll();
+  pdfHead(doc,S.title,'Clearances'+(S.draft?' · '+S.draft:''),`${A.length} item${A.length===1?'':'s'}`,W);let y=78;
+  const open=A.filter(o=>o.c.status==='Open'||o.c.status==='Requested').length;doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(0);doc.text(pdfSafe(`${open} still open · ${A.length-open} resolved`),L,y);y+=16;
+  const need=h=>{if(y+h>H-46){pdfFoot(doc,W,H);doc.addPage();pdfHead(doc,S.title,'Clearances, continued','',W);y=78;}};
+  CL_TYPES.forEach(ty=>{const list=A.filter(o=>o.c.type===ty);if(!list.length)return;need(40);y+=6;doc.setFont('garamond','bold');doc.setFontSize(14);doc.text(pdfSafe(ty),L,y);y+=5;doc.setDrawColor(189,81,3);doc.setLineWidth(1);doc.line(L,y,R,y);y+=13;
+    doc.setFont('helvetica','bold');doc.setFontSize(7);[['SC',L],['ITEM',L+34],['PLAN',L+250],['STATUS',L+340],['NOTES',L+410]].forEach(([t,x])=>doc.text(t,x,y));y+=11;
+    list.forEach(({s,c})=>{const nt=doc.splitTextToSize(pdfSafe(c.note||''),R-(L+410));const it=doc.splitTextToSize(pdfSafe(c.x),210);const h=Math.max(nt.length,it.length,1)*11+4;need(h);
+      doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(0);doc.text(pdfSafe(s.num),L,y);doc.text(it,L+34,y);doc.text(pdfSafe(c.plan),L+250,y);
+      const col=CL_COLOR[c.status]||'#495057';const [r,g,b]=[1,3,5].map(i=>parseInt(col.slice(i,i+2),16));doc.setTextColor(r,g,b);doc.setFont('helvetica','bold');doc.text(pdfSafe(c.status),L+340,y);doc.setTextColor(0);doc.setFont('helvetica','normal');doc.text(nt,L+410,y);y+=h;});});
+  if(!A.length){doc.setFontSize(10);doc.text('No clearance items yet.',L,y+10);}
+  pdfFoot(doc,W,H);return doc.output('blob');}
+function openClearances(){const draw=()=>{const A=clAll();const opt=(Lst,v)=>Lst.map(o=>`<option ${o===v?'selected':''}>${esc(o)}</option>`).join('');
+  const sugN=SC.reduce((n,s)=>n+clSuggest(s).length,0);
+  $('#modalBox').innerHTML=`<h3>Clearances</h3><div class="pSub">${A.length} item${A.length===1?'':'s'} across ${new Set(A.map(o=>o.s.key)).size} scene${new Set(A.map(o=>o.s.key)).size===1?'':'s'}${sugN?` · ${sugN} more spotted in the script, waiting on the Scene tab`:''}. A checklist, not legal clearance: it can’t tell whether a song is public domain, and it can’t see what’s on a location until you add it.</div>
+    <div style="max-height:52vh;overflow:auto"><table class="t" style="width:100%"><tr><th>Sc</th><th>Item</th><th>Type</th><th>Plan</th><th>Status</th><th>Notes</th></tr>${A.map(({s,c})=>`<tr><td>${esc(s.num)}</td><td>${esc(c.x)}</td><td><select class="in" data-clk="${c.id}" data-f="type">${opt(CL_TYPES,c.type)}</select></td><td><select class="in" data-clk="${c.id}" data-f="plan">${opt(CL_PLANS,c.plan)}</select></td><td><select class="in" data-clk="${c.id}" data-f="status">${opt(CL_STATUS,c.status)}</select></td><td><input class="in" data-clk="${c.id}" data-f="note" value="${esc(c.note||'')}"></td></tr>`).join('')||'<tr><td colspan="6">Nothing yet. Open a scene and check <b>Clearances</b> on the Scene tab.</td></tr>'}</table></div>
+    <div class="mFoot" style="justify-content:space-between"><div style="display:flex;gap:6px"><button class="btn" id="clPdf" ${A.length?'':'disabled'}>Download PDF</button><button class="btn" id="clCsv" ${A.length?'':'disabled'}>Download CSV</button></div><button class="btn pri" data-close>Done</button></div>`;};
+  openModal('','wide');draw();const M=$('#modalBox');let snapped=false;
+  M.onchange=e=>{const t=e.target;if(!t.dataset.clk)return;const o=clAll().find(x=>x.c.id===t.dataset.clk);if(!o)return;if(!snapped){pushUndo();snapped=true;}o.c[t.dataset.f]=t.value;scheduleSave();};
+  M.onclick=async e=>{if(e.target.id==='clCsv')saveFile(`${slug(S.title)}-clearances.csv`,clCSV());if(e.target.id==='clPdf'){await ensureJsPDF();saveFile(`${slug(S.title)}-clearances.pdf`,clPDF());}if(e.target.closest('[data-close]')){closeModal();renderAll(true);}};}
+{const _ma=menuAct;menuAct=function(m){if(m==='clearances'){openClearances();return;}return _ma(m);};}
 /* ============================================================
    Sample + init
    ============================================================ */
