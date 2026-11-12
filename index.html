@@ -833,7 +833,7 @@ async function handleFile(f){const name=f.name||'script';const ext=(name.split('
 function finishImport(res,fallback){if(typeof importMode!=='undefined'&&importMode){finishDraft(res);return;}if(!res.els.length){toast('No script text was found in that file.',5000);return;}
   setScript({v:1,id:'s'+uid(),title:res.title||fallback,updated:Date.now(),R:res.R||54,els:res.els,sc:{},an:[],chunks:0},false);closeModal();scheduleSave();
   const pages=S.els[S.els.length-1].pg;toast(SC.length?`Imported ${pages} page${pages===1?'':'s'} and ${SC.length} scene${SC.length===1?'':'s'}`:'Imported, but no scene headings were found. Headings must start with INT. or EXT.',5000);}
-function setScript(o,saved){S=o;S.sc=S.sc||{};S.an=S.an||[];S.splits=S.splits||{};S.unhead=S.unhead||{};S.gn=S.gn||[];S.beats=(S.beats||[]).filter(b=>S.els[b.i]);S.lyHidden=S.lyHidden||{};S.setups=(S.setups||[]).filter(u=>S.els[u.e0]&&S.els[u.e1]);S.days=S.days||[];S.lost=S.lost||[];S.alias=S.alias||{};S.notCast=S.notCast||{};S.locNeeds=S.locNeeds||{};applyCats(S.cats||LS.get('sdesk.cats'));applyLists();S.an.forEach(a=>{if(a.k!=='tag'&&!a.ly)a.ly=LY[0][0];if(a.k==='note'&&!a.ty)a.ty=tyOf(a);});$('#lyPop').hidden=true;S.R=S.R||54;bodySaved=saved!==false;undoStack=[];$('#bUndo').disabled=true;cur=0;hideDock();setView('script');renderAll(false);if(bodySaved)try{localStorage.setItem('sdesk.last',JSON.stringify(S.id));}catch(e){}}
+function setScript(o,saved){S=o;S.sc=S.sc||{};S.an=S.an||[];S.splits=S.splits||{};S.unhead=S.unhead||{};S.gn=S.gn||[];S.beats=(S.beats||[]).filter(b=>S.els[b.i]);S.lyHidden=S.lyHidden||{};S.setups=(S.setups||[]).filter(u=>S.els[u.e0]&&S.els[u.e1]);S.days=S.days||[];S.lost=S.lost||[];S.alias=S.alias||{};S.notCast=S.notCast||{};S.locNeeds=S.locNeeds||{};S.credit=S.credit||'';applyCats(S.cats||LS.get('sdesk.cats'));applyLists();S.an.forEach(a=>{if(a.k!=='tag'&&!a.ly)a.ly=LY[0][0];if(a.k==='note'&&!a.ty)a.ty=tyOf(a);});$('#lyPop').hidden=true;S.R=S.R||54;bodySaved=saved!==false;undoStack=[];$('#bUndo').disabled=true;cur=0;hideDock();setView('script');renderAll(false);if(bodySaved)try{localStorage.setItem('sdesk.last',JSON.stringify(S.id));}catch(e){}}
 
 /* ============================================================
    Saving: this browser first, then the viewer's own account space
@@ -841,7 +841,7 @@ function setScript(o,saved){S=o;S.sc=S.sc||{};S.an=S.an||[];S.splits=S.splits||{
 const LS={get(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
 const pack=els=>els.map(e=>[e.t,e.x,e.pg,e.row,e.n,e.num||'']);
 const unpack=b=>b.map(a=>({t:a[0],x:a[1],pg:a[2],row:a[3],n:a[4],num:a[5]||''}));
-const stateOf=()=>({v:1,id:S.id,title:S.title,updated:S.updated,R:S.R,sc:S.sc,an:S.an,splits:S.splits,unhead:S.unhead,cats:S.cats,ntypes:S.ntypes,layers:S.layers,lyHidden:S.lyHidden,lyActive:S.lyActive,tagsHidden:!!S.tagsHidden,gn:S.gn,beats:S.beats,setups:S.setups,days:S.days,linesHidden:!!S.linesHidden,draft:S.draft,prev:S.prev,rev:S.rev,revHidden:!!S.revHidden,revStyle:S.revStyle||'',lost:S.lost,alias:S.alias,notCast:S.notCast||{},locNeeds:S.locNeeds||{},chunks:S.chunks||0});
+const stateOf=()=>({v:1,id:S.id,title:S.title,updated:S.updated,R:S.R,sc:S.sc,an:S.an,splits:S.splits,unhead:S.unhead,cats:S.cats,ntypes:S.ntypes,layers:S.layers,lyHidden:S.lyHidden,lyActive:S.lyActive,tagsHidden:!!S.tagsHidden,gn:S.gn,beats:S.beats,setups:S.setups,days:S.days,linesHidden:!!S.linesHidden,draft:S.draft,prev:S.prev,rev:S.rev,revHidden:!!S.revHidden,revStyle:S.revStyle||'',lost:S.lost,alias:S.alias,notCast:S.notCast||{},locNeeds:S.locNeeds||{},credit:S.credit||'',chunks:S.chunks||0});
 let COL=null,bodySaved=true,saveTimer=0,saving=false,dirty=false;
 function setSave(cls,txt){const s=$('#save');s.className=cls;s.querySelector('span').textContent=txt;s.title=txt;}
 function scheduleSave(){if(!S)return;S.sample=false;dirty=true;S.updated=Date.now();setSave('busy','Unsaved changes…');clearTimeout(saveTimer);saveTimer=setTimeout(doSave,1000);}
@@ -1046,7 +1046,7 @@ function brandFonts(doc){const F=window.SDFONTS;let ok=false;if(F){try{[['LatoR'
   const o=doc.setFont.bind(doc);doc.setFont=(n,st)=>{if(n==='helvetica')return o(ok?'Lato':'helvetica',st);if(n==='garamond')return o(ok?'EBGaramond':'times',st==='italic'?'normal':st);return o(n,st);};return doc;}
 function wrapLines(text,w){const out=[];let cur='';String(text).split(/\s+/).forEach(wd=>{if(!wd)return;while(wd.length>w){if(cur){out.push(cur);cur='';}out.push(wd.slice(0,w));wd=wd.slice(w);}if(!cur)cur=wd;else if(cur.length+1+wd.length<=w)cur+=' '+wd;else{out.push(cur);cur=wd;}});if(cur)out.push(cur);return out.length?out:[''];}
 const pdfSafe=t=>String(t).replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/…/g,'...').replace(/[–—]/g,'-').replace(/[^\x20-\x7E\xA0-\xFF]/g,'?');
-let CFIMG=null;async function cfMark(){if(CFIMG)return CFIMG;try{await document.fonts.load("italic 64px 'EB Garamond'");}catch(e){}try{const c=document.createElement('canvas');let x=c.getContext('2d');const f="italic 400 64px 'EB Garamond',Garamond,Georgia,serif";x.font=f;const w=Math.ceil(x.measureText('Clementine Films').width)+8;c.width=w;c.height=84;x=c.getContext('2d');x.font=f;x.fillStyle='#bd5103';x.fillText('Clementine Films',4,62);CFIMG={url:c.toDataURL('image/png'),w,h:84};}catch(e){}return CFIMG;}
+let CFIMG=null;async function cfMark(){if(CFIMG)return CFIMG;try{await document.fonts.load("italic 64px 'EB Garamond'");}catch(e){}try{const c=document.createElement('canvas');let x=c.getContext('2d');const f="italic 400 64px 'EB Garamond',Garamond,Georgia,serif";const T='Clementine Films \u2022 Script Desk';x.font=f;const w=Math.ceil(x.measureText(T).width)+8;c.width=w;c.height=84;x=c.getContext('2d');x.font=f;x.fillStyle='#bd5103';x.fillText(T,4,62);CFIMG={url:c.toDataURL('image/png'),w,h:84};}catch(e){}return CFIMG;}
 function cfDraw(doc,x,y,h){if(!CFIMG)return;try{doc.addImage(CFIMG.url,'PNG',x,y,h*CFIMG.w/CFIMG.h,h);}catch(e){}}
 const PX={h:108,a:108,c:266,d:180,p:223,tr:540};
 function sidesPDF(day){const {jsPDF}=window.jspdf;const half=!!day.half;const doc=brandFonts(new jsPDF({unit:'pt',format:'letter',orientation:half?'landscape':'portrait'}));
@@ -1054,16 +1054,16 @@ function sidesPDF(day){const {jsPDF}=window.jspdf;const half=!!day.half;const do
   const pages=[...new Set(E.filter((e,i)=>inSel(i)).map(e=>e.pg))].sort((a,b)=>a-b);let slot=0;
   const place=()=>{if(half){if(slot>0&&slot%2===0)doc.addPage();const o={ox:slot%2?396:0,sc:396/612};slot++;return o;}if(slot>0)doc.addPage();slot++;return {ox:0,sc:1};};
   const label=pdfSafe(`${S.title} · ${day.label||'Sides'}`);const scs=SC.filter(s=>keys.has(s.key));
-  if(day.cover!==false){const {ox,sc}=place();const X=x=>ox+x*sc,Y=y=>y*sc;cfDraw(doc,X(70),Y(50),15*sc);doc.setTextColor(0);doc.setFont('garamond','bold');doc.setFontSize(23*sc);doc.text(pdfSafe(S.title),X(72),Y(96));doc.setFontSize(15*sc);doc.setFont('garamond','normal');doc.text(pdfSafe(`Sides · ${day.label||''}`),X(72),Y(120));doc.setFont('helvetica','normal');
-    doc.setFontSize(9*sc);doc.setTextColor(110);doc.text(`${scs.length} scene${scs.length===1?'':'s'} · ${fmt8(scs.reduce((t,s)=>t+s.e8,0))} pages · script pages ${pages.join(', ')}`,X(72),Y(140));doc.setTextColor(0);
+  if(day.cover!==false){const {ox,sc}=place();const X=x=>ox+x*sc,Y=y=>y*sc;cfDraw(doc,X(26),Y(767),8*sc);doc.setTextColor(0);doc.setFont('garamond','bold');doc.setFontSize(23*sc);doc.text(pdfSafe(S.title),X(72),Y(96));doc.setFontSize(15*sc);doc.setFont('garamond','normal');doc.text(pdfSafe(`Sides · ${day.label||''}`),X(72),Y(120));doc.setFont('helvetica','normal');
+    doc.setFontSize(9*sc);doc.setTextColor(0);doc.text(`${scs.length} scene${scs.length===1?'':'s'} · ${fmt8(scs.reduce((t,s)=>t+s.e8,0))} pages · script pages ${pages.join(', ')}`,X(72),Y(140));doc.setTextColor(0);
     let y=176;doc.setFont('helvetica','bold');doc.setFontSize(9*sc);doc.text('SC',X(72),Y(y));doc.text('SCENE',X(110),Y(y));doc.text('PGS',X(380),Y(y));doc.text('CAST',X(420),Y(y));doc.setLineWidth(.6*sc);doc.line(X(72),Y(y+5),X(540),Y(y+5));y+=22;doc.setFont('helvetica','normal');
     scs.forEach(s=>{if(y>730)return;doc.setFontSize(10*sc);doc.setFont('helvetica','bold');doc.text(pdfSafe(s.num),X(72),Y(y));doc.setFont('courier','normal');doc.setFontSize(9.5*sc);const hl=doc.splitTextToSize(pdfSafe(s.slug),260*sc);doc.text(hl,X(110),Y(y));doc.setFont('helvetica','normal');doc.setFontSize(10*sc);const cl=doc.splitTextToSize(pdfSafe(sceneCast(s).map(o=>o.name).join(', ')||'-'),120*sc);doc.text(fmt8(s.e8),X(380),Y(y));doc.text(cl,X(420),Y(y));let n=Math.max(hl.length,cl.length);
-      if(s.syn){doc.setFontSize(8.5*sc);doc.setTextColor(110);const sl=doc.splitTextToSize(pdfSafe(s.syn),260*sc);doc.text(sl,X(110),Y(y+n*12));doc.setTextColor(0);n+=sl.length;}y+=n*12+8;});}
+      if(s.syn){doc.setFontSize(8.5*sc);doc.setTextColor(0);const sl=doc.splitTextToSize(pdfSafe(s.syn),260*sc);doc.text(sl,X(110),Y(y+n*12));doc.setTextColor(0);n+=sl.length;}y+=n*12+8;});}
   pages.forEach(pg=>{const {ox,sc}=place();const X=x=>ox+x*sc;const list=byPg[pg]||[];
     // layout rows first, so a crowded page can tighten its line pitch
     let curRow=0;const lay=list.map(i=>{const e=E[i];const lines=wrapLines(pdfSafe(e.x),WRAP[e.t]||60);const row=Math.max(e.row,curRow);curRow=row+lines.length;return {i,e,lines,row};});
     const lh=Math.min(12,(792-72-40)/Math.max(1,curRow));const Y=r=>(72+r*lh+9)*sc;
-    doc.setFont('courier','normal');doc.setFontSize(9*sc);doc.setTextColor(110);doc.text(label,X(108),40*sc);doc.text(pg+'.',X(540),40*sc,{align:'right'});
+    doc.setFont('courier','normal');doc.setFontSize(9*sc);doc.setTextColor(0);doc.text(label,X(108),40*sc);doc.text(pg+'.',X(540),40*sc,{align:'right'});
     let run=null;const runs=[];
     lay.forEach(o=>{const sel=inSel(o.i);const k=elSc[o.i];const start=k>=0&&SC[k].i===o.i?SC[k]:null;
       if(!sel){if(day.cross===false)return;if(!run){run={r0:o.row,r1:o.row+o.lines.length};runs.push(run);}else run.r1=o.row+o.lines.length;}else run=null;
@@ -1223,7 +1223,7 @@ function linedPDF(opt){const {jsPDF}=window.jspdf;const doc=brandFonts(new jsPDF
   const lanes={},laneOf={};S.setups.slice().sort((a,b)=>a.e0-b.e0||a.e1-b.e1).forEach(u=>{const k=elSc[u.e0];laneOf[u.id]=(lanes[k]=(lanes[k]||0)+1)-1;});
   const cuts=S.an.filter(a=>a.k==='cut');const label=pdfSafe(`${S.title}${S.draft?' · '+S.draft:''} · lined script`);let first=true;const newPage=()=>{if(!first)doc.addPage();first=false;};
   pages.forEach(pg=>{const list=byPg[pg];const here=S.setups.filter(u=>list.some(i=>i>=u.e0&&i<=u.e1)).sort((a,b)=>a.e0-b.e0||a.e1-b.e1);
-    if(opt.facing){newPage();let y=72;const W=468;doc.setTextColor(110);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text(label,72,40);doc.text('facing page '+pg,540,40,{align:'right'});cfDraw(doc,70,750,11);
+    if(opt.facing){newPage();let y=72;const W=468;doc.setTextColor(0);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text(label,72,40);doc.text('facing page '+pg,540,40,{align:'right'});cfDraw(doc,26,767,8);
       doc.setTextColor(0);doc.setFont('garamond','bold');doc.setFontSize(17);doc.text(`Script page ${pg}: camera setups and notes`,72,y);y+=24;
       const para=(txt,x,size,style,color,fam)=>{doc.setFont(fam||'helvetica',style||'normal');doc.setFontSize(size);doc.setTextColor(color||0);const ls=doc.splitTextToSize(pdfSafe(txt),72+W-x);for(const l of ls){if(y>740)return false;doc.text(l,x,y);y+=size+3;}return true;};
       let full=false;if(!here.length){para('No camera setups cover this page.',72,10,'normal',110);y+=6;}
@@ -1236,9 +1236,9 @@ function linedPDF(opt){const {jsPDF}=window.jspdf;const doc=brandFonts(new jsPDF
         if(u.cont){para('Continuity: '+u.cont,82,10,'italic');}y+=8;});
       const scHere=SC.filter(s=>E[s.i].pg===pg&&(S.sc[s.key]||{}).dayNote);const cutHere=cuts.filter(a=>E[a.s[0]].pg===pg);
       if(!full&&(scHere.length||cutHere.length)){y+=4;para('Changed on the day',72,14,'bold',0,'garamond');scHere.forEach(s=>para(`Sc ${s.num}: ${S.sc[s.key].dayNote}`,82,10));cutHere.forEach(a=>{para('Cut:',82,10,'bold');para(a.q,92,9.5,'normal',0,'courier');if(a.x)para(a.x,92,10);y+=3;});}
-      if(full){doc.setFont('helvetica','italic');doc.setFontSize(9);doc.setTextColor(110);doc.text('More on this page than fits. See the takes log for the rest.',72,756);}}
+      if(full){doc.setFont('helvetica','italic');doc.setFontSize(9);doc.setTextColor(0);doc.text('More on this page than fits. See the takes log for the rest.',72,756);}}
     newPage();let curRow=0;const lay=list.map(i=>{const e=E[i];const lines=wrapTok(e.x,WRAP[e.t]||60);const row=Math.max(e.row,curRow);curRow=row+lines.length;return {i,e,lines,row};});const lh=Math.min(12,(792-72-40)/Math.max(1,curRow));const Y=r=>72+r*lh+9;const CW=7.2;
-    doc.setFont('courier','normal');doc.setFontSize(9);doc.setTextColor(110);doc.text(label,108,40);doc.text(pg+'.',540,40,{align:'right'});
+    doc.setFont('courier','normal');doc.setFontSize(9);doc.setTextColor(0);doc.text(label,108,40);doc.text(pg+'.',540,40,{align:'right'});
     lay.forEach(o=>{const sel=inSel(o.i);const k=elSc[o.i];const start=k>=0&&SC[k].i===o.i?SC[k]:null;doc.setFontSize(12);doc.setTextColor(sel?0:170);doc.setFont('courier',o.e.t==='h'&&sel?'bold':'normal');const bx=PX[o.e.t]||108;
       o.lines.forEach((ln,j)=>{if(o.e.t==='tr')doc.text(ln.text,PX.tr,Y(o.row+j),{align:'right'});else doc.text(ln.text,bx,Y(o.row+j));});
       if(start){doc.setFont('courier','normal');doc.setFontSize(o.e.t==='h'?12:9);doc.text(pdfSafe(start.num),96,Y(o.row),{align:'right'});if(o.e.t==='h')doc.text(pdfSafe(start.num),552,Y(o.row));}
@@ -1326,11 +1326,11 @@ function annotatedPDF(opt){const {jsPDF}=window.jspdf;const doc=brandFonts(new j
   const hasMark=pg=>byPg[pg].some(i=>marks.some(a=>a.s[0]<=i&&a.t[0]>=i)||RVS.has(i)||(opt.lines&&S.setups.some(u=>u.e0<=i&&u.e1>=i))||(opt.tags&&tags.some(a=>a.s[0]<=i&&a.t[0]>=i))||scNotes(i).length);
   let pages=Object.keys(byPg).map(Number).sort((a,b)=>a-b);if(opt.only)pages=pages.filter(hasMark);
   const label=pdfSafe(`${S.title}${S.draft?' · '+S.draft:''} · annotated`);let first=true,nNotes=0;const newPage=()=>{if(!first)doc.addPage();first=false;};
-  const tyLab=t=>{const r=NT.find(q=>q[0]===t);return r?[r[1],rgbOf(r[2])]:['Note',[110,110,110]];};
-  const head=(t,r)=>{doc.setFont('courier','normal');doc.setFontSize(8);doc.setTextColor(120);doc.text(t,X(108),34);doc.text(r,584,34,{align:'right'});};
+  const tyLab=t=>{const r=NT.find(q=>q[0]===t);return r?[r[1],rgbOf(r[2])]:['Note',[0,0,0]];};
+  const head=(t,r)=>{doc.setFont('courier','normal');doc.setFontSize(8);doc.setTextColor(0);doc.text(t,X(108),34);doc.text(r,584,34,{align:'right'});};
   const script=gns.filter(n=>n.scope==='script');
   if(script.length&&!opt.only){newPage();head(label,'script notes');let y=72;doc.setFont('garamond','bold');doc.setFontSize(17);doc.setTextColor(0);doc.text('Notes on the whole script',56,y);y+=22;
-    script.forEach(n=>{const [tl,tc]=tyLab(tyOf(n));doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(tc[0],tc[1],tc[2]);if(y>740){doc.addPage();head(label,'script notes');y=72;}doc.text(pdfSafe(tl.toUpperCase()),56,y);y+=12;doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(20);doc.splitTextToSize(pdfSafe(n.x.trim()),500).forEach(l=>{if(y>750){doc.addPage();head(label,'script notes');y=72;}doc.text(l,56,y);y+=13;});y+=8;});}
+    script.forEach(n=>{const [tl,tc]=tyLab(tyOf(n));doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(tc[0],tc[1],tc[2]);if(y>740){doc.addPage();head(label,'script notes');y=72;}doc.text(pdfSafe(tl.toUpperCase()),56,y);y+=12;doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(0);doc.splitTextToSize(pdfSafe(n.x.trim()),500).forEach(l=>{if(y>750){doc.addPage();head(label,'script notes');y=72;}doc.text(l,56,y);y+=13;});y+=8;});}
   pages.forEach(pg=>{const list=byPg[pg];newPage();let curRow=0;const lay=list.map(i=>{const e=E[i];const lines=wrapTok(e.x,WRAP[e.t]||60);const row=Math.max(e.row,curRow);curRow=row+lines.length;return {i,e,lines,row};});const lh=Math.min(12,(792-72-40)/Math.max(1,curRow));const Y=r=>72+r*lh+9;
     head(label,pg+'.');doc.setDrawColor(215);doc.setLineWidth(.5);doc.line(NX-8,60,NX-8,756);
     const span=(o,ln,c0,c1)=>{const hit=ln.toks.filter(t=>t.o<c1&&t.o+t.l>c0);if(!hit.length)return null;const bx=X(PX[o.e.t]||108);if(o.e.t==='tr'){const x1=X(PX.tr);return [x1-ln.len*CW,x1];}const a0=hit[0],a1=hit[hit.length-1];return [bx+a0.col*CW,bx+(a1.col+pdfSafe(o.e.x.substr(a1.o,a1.l)).length)*CW];};
@@ -1357,12 +1357,12 @@ function annotatedPDF(opt){const {jsPDF}=window.jspdf;const doc=brandFonts(new j
       if(b.ax!=null){doc.setFont('helvetica','bold');doc.setFontSize(6.4);doc.setTextColor(194,65,12);doc.text(String(b.n),b.ax+1.5,b.y-4);}
       const top=Math.max(y,b.y-9);if(top+h>756){over.push({b,ls,tl,tc});return;}
       doc.setFillColor(tc[0],tc[1],tc[2]);doc.rect(NX-3,top,1.6,h-4,'F');doc.setFont('helvetica','bold');doc.setFontSize(6.8);doc.setTextColor(194,65,12);doc.text(String(b.n),NX+2,top+7.5);doc.setTextColor(tc[0],tc[1],tc[2]);doc.text(pdfSafe((b.sc?'SCENE '+b.sc+' · ':'')+tl).toUpperCase(),NX+4+doc.getTextWidth(String(b.n)+' '),top+7.5);
-      doc.setFont('helvetica','normal');doc.setFontSize(7.6);doc.setTextColor(25);ls.forEach((l,q)=>doc.text(l,NX+2,top+18+q*9.2));
+      doc.setFont('helvetica','normal');doc.setFontSize(7.6);doc.setTextColor(0);ls.forEach((l,q)=>doc.text(l,NX+2,top+18+q*9.2));
       if(b.ax!=null&&top>b.y+4){doc.setDrawColor(200);doc.setLineWidth(.4);doc.line(NX-8,b.y-2,NX-3,top+4);}
       y=top+h;});
     if(over.length){doc.addPage();head(label,`notes for page ${pg}, continued`);let yy=72;doc.setFont('garamond','bold');doc.setFontSize(16);doc.setTextColor(0);doc.text(`Notes for script page ${pg}, continued`,56,yy);yy+=22;
       over.forEach(({b,tl,tc})=>{doc.setFont('helvetica','normal');doc.setFontSize(10);const ls=doc.splitTextToSize(pdfSafe(b.x||'(no text)'),500);if(yy+14+ls.length*13>750){doc.addPage();head(label,`notes for page ${pg}, continued`);yy=72;}
-        doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(194,65,12);doc.text(String(b.n),56,yy);doc.setTextColor(tc[0],tc[1],tc[2]);doc.text(pdfSafe((b.sc?'SCENE '+b.sc+' · ':'')+tl).toUpperCase(),60+doc.getTextWidth(String(b.n)),yy);yy+=13;doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(20);ls.forEach(l=>{doc.text(l,56,yy);yy+=13;});yy+=8;});}});
+        doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(194,65,12);doc.text(String(b.n),56,yy);doc.setTextColor(tc[0],tc[1],tc[2]);doc.text(pdfSafe((b.sc?'SCENE '+b.sc+' · ':'')+tl).toUpperCase(),60+doc.getTextWidth(String(b.n)),yy);yy+=13;doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(0);ls.forEach(l=>{doc.text(l,56,yy);yy+=13;});yy+=8;});}});
   if(first){doc.setFont('helvetica','normal');doc.setFontSize(12);doc.text(opt.only?'No pages have highlights or notes on the chosen layers.':'Nothing to print yet.',72,96);}
   return {blob:doc.output('blob'),sheets:doc.getNumberOfPages(),notes:nNotes};}
 function openAnnotated(){if(!S||!S.els.length){toast('Import a script first');return;}const opt={layers:{},tags:false,scene:true,only:false};LY.forEach(l=>opt.layers[l[0]]=!S.lyHidden[l[0]]);
@@ -1496,38 +1496,68 @@ function castNumbers(){const m=new Map();SC.forEach((s,k)=>sceneCast(s).forEach(
   const list=[...m.values()].sort((a,b)=>b.n-a.n||a.first-b.first);const num=new Map();list.forEach((v,i)=>num.set(keyOf(v.name),i+1));return {list,num};}
 
 /* ---- PDF helpers ---- */
-function pdfHead(doc,title,sub,right,W){doc.setFillColor(22,24,27);doc.rect(0,0,W,50,'F');doc.setFont('garamond','bold');doc.setFontSize(17);doc.setTextColor(255);doc.text(pdfSafe(title),28,24);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(240,147,90);doc.text(pdfSafe(sub),28,39);
-  doc.setFont('garamond','italic');doc.setFontSize(11);doc.setTextColor(243,233,215);doc.text('Clementine Films',W/2,30,{align:'center'});if(right){doc.setFont('garamond','bold');doc.setFontSize(18);doc.setTextColor(255);doc.text(pdfSafe(right),W-28,30,{align:'right'});}doc.setTextColor(0);}
-function pdfFoot(doc,W,H,txt){doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(130);doc.text(pdfSafe(txt),28,H-16);doc.text(`Page ${doc.getNumberOfPages()}`,W-28,H-16,{align:'right'});doc.setTextColor(0);}
+const metaLine=()=>[S.draft||'',S.credit?S.credit:''].filter(Boolean).join('  ·  ');
+// document header: script title + version + director/writer on the left, the document name on the right
+function pdfHead(doc,_t,docName,right,W){doc.setTextColor(0);doc.setFont('garamond','bold');doc.setFontSize(15);doc.text(pdfSafe(S.title||'Untitled'),28,30);
+  doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(0);const m=metaLine();if(m)doc.text(pdfSafe(m),28,42);
+  doc.setFont('garamond','normal');doc.setFontSize(13);doc.setTextColor(0);doc.text(pdfSafe(String(docName).replace(/\s*·.*$/,'')),W-28,30,{align:'right'});if(right){doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(0);doc.text(pdfSafe(right),W-28,42,{align:'right'});}
+  doc.setDrawColor(210);doc.setLineWidth(.6);doc.line(28,50,W-28,50);doc.setTextColor(0);}
+// footer: small orange wordmark bottom-left, page number right
+function pdfFoot(doc,W,H){cfDraw(doc,26,H-25,8);doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(0);doc.text(`Page ${doc.getNumberOfPages()}`,W-28,H-17,{align:'right'});doc.setTextColor(0);}
 const dayOfScene=s=>(S.days||[]).filter(d=>(d.keys||[]).includes(s.key)).map(d=>d.label||'Day');
 
-/* ---- breakdown sheets ---- */
-function breakdownPDF(opt){const {jsPDF}=window.jspdf;const doc=brandFonts(new jsPDF({unit:'pt',format:'letter'}));const W=612,H=792;const CN=castNumbers();const scenes=SC.filter(s=>!opt.keys||opt.keys.includes(s.key));
-  const draft=`${S.title}${S.draft?' · '+S.draft:''}`;let first=true;const np=()=>{if(!first)doc.addPage();first=false;};
-  if(opt.summary){np();pdfHead(doc,S.title,'Breakdown summary'+(S.draft?' · '+S.draft:''),`${scenes.length} scenes`,W);let y=74;const lvl=projectLevel();
-    doc.setFont('helvetica','bold');doc.setFontSize(9.5);doc.setTextColor(lvl===3?201:lvl===2?232:90,lvl===3?42:lvl===2?89:90,lvl===3?42:lvl===2?12:90);doc.text(pdfSafe(`Project: NYU Level ${lvl}${lvl===1?' (no special scenes)':lvl===2?' (all special scenes simple, PA approval)':' (complex activities, Risk Mgmt approval)'}`),28,y);doc.setTextColor(0);y+=18;
-    const cols=[['SC',28],['I/E',58],['SET',86],['D/N',300],['PGS',340],['CAST',372],['SPECIAL',520]];doc.setFillColor(241,243,245);doc.rect(22,y-11,W-44,16,'F');doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(100);cols.forEach(([h,x])=>doc.text(h,x,y));doc.setTextColor(0);y+=16;
-    scenes.forEach(s=>{if(y>H-40){pdfFoot(doc,W,H,draft);doc.addPage();pdfHead(doc,S.title,'Breakdown summary, continued','',W);y=74;}const cast=sceneCast(s).map(o=>CN.num.get(keyOf(o.name))).filter(Boolean).sort((a,b)=>a-b).join(', ');const lv=sceneLevel(s);
-      doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.text(pdfSafe(s.num),28,y);doc.setFont('helvetica','normal');doc.text(pdfSafe(s.ie||''),58,y);doc.text(pdfSafe(doc.splitTextToSize(s.set||'',205)[0]||''),86,y);doc.text(pdfSafe((s.tod||'').slice(0,8)),300,y);doc.text(fmt8(s.e8),340,y);doc.text(pdfSafe(doc.splitTextToSize(cast,140)[0]||''),372,y);
-      if(lv>1){doc.setTextColor(lv===3?201:232,lv===3?42:89,lv===3?42:12);doc.setFont('helvetica','bold');doc.text('L'+lv,520,y);doc.setTextColor(0);}
-      doc.setDrawColor(225);doc.setLineWidth(.4);doc.line(22,y+5,W-22,y+5);y+=15;});
-    y+=10;if(y<H-80){doc.setFont('garamond','bold');doc.setFontSize(12);doc.text('Cast list',28,y);y+=14;doc.setFont('helvetica','normal');doc.setFontSize(8.5);CN.list.forEach((v,i)=>{if(y>H-40)return;doc.text(pdfSafe(`${i+1}. ${v.name}`),28+(i%3)*185,y);if(i%3===2)y+=12;});}
-    pdfFoot(doc,W,H,draft);}
-  scenes.forEach(s=>{np();pdfHead(doc,'Breakdown sheet',draft,'Scene '+s.num,W);let y=72;const st=S.sc[s.key]||{};
-    const info=[['INT/EXT',s.ie||'—'],['SET',s.set||'—'],['DAY/NIGHT',s.tod||'—'],['PAGES',fmt8(s.e8)],['SCRIPT PG',String(s.pg||'—')],['SHOOT DAY',dayOfScene(s).join(', ')||'—']];const cw=[60,200,74,52,58,104];let x=22;
-    info.forEach(([k,v],i)=>{doc.setDrawColor(200);doc.setLineWidth(.6);doc.rect(x,y,cw[i],34);doc.setFont('helvetica','bold');doc.setFontSize(6.8);doc.setTextColor(110);doc.text(k,x+5,y+10);doc.setTextColor(0);doc.setFont('helvetica','bold');doc.setFontSize(9.5);doc.text(pdfSafe(doc.splitTextToSize(v,cw[i]-8)[0]||''),x+5,y+25);x+=cw[i];});y+=46;
-    if(s.syn){doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(110);doc.text('SYNOPSIS',22,y);doc.setTextColor(0);doc.setFont('helvetica','normal');doc.setFontSize(9.5);const ls=doc.splitTextToSize(pdfSafe(s.syn),W-120);doc.text(ls.slice(0,3),90,y);y+=Math.max(14,ls.slice(0,3).length*12)+6;}
-    const R=riskOf(s);if(R.length&&opt.risk!==false){const lv=sceneLevel(s);const c=lv===3?[201,42,42]:[232,89,12];const h=16+R.length*24;doc.setDrawColor(c[0],c[1],c[2]);doc.setLineWidth(1.2);doc.rect(22,y,W-44,h);doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(c[0],c[1],c[2]);doc.text(pdfSafe(`SPECIAL SCENE · NYU LEVEL ${lv} · ${lv===3?'Risk Mgmt approval (10+ business days)':'PA approval'}`),30,y+12);doc.setTextColor(0);let yy=y+26;
-      R.forEach(r=>{const it=riskItem(r);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text(pdfSafe(`${it.lvl===23?'L2-3':'L'+it.lvl}  ${it.cat} — ${it.short}`),30,yy);doc.setFont('helvetica','normal');doc.setFontSize(7.6);doc.setTextColor(90);doc.text(pdfSafe(doc.splitTextToSize((r.note?'Plan: '+r.note+'  ·  ':'')+it.full,W-70)[0]||''),30,yy+10);doc.setTextColor(0);yy+=24;});y+=h+10;}
-    const N=needsOf(s);if(N.length&&opt.needs!==false){doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(110);doc.text('LOCATION NEEDS',22,y);doc.setTextColor(0);doc.setFont('helvetica','normal');doc.setFontSize(9);const ls=doc.splitTextToSize(pdfSafe(N.map(n=>n.x).join(' · ')),W-130);doc.text(ls.slice(0,3),110,y);y+=Math.max(14,ls.slice(0,3).length*12)+8;}
-    // element boxes in two columns
-    const boxes=CATS.map(([c,n])=>{let items=sceneEls(s,c).map(o=>o.name);if(c==='cast')items=sceneCast(s).map(o=>({n:CN.num.get(keyOf(o.name))||99,t:o.name})).sort((a,b)=>a.n-b.n).map(o=>`${o.n}. ${o.t}`);return {c,n,items};}).filter(b=>b.c==='cast'||b.items.length);
-    const colW=(W-44-12)/2;let cy=[y,y];boxes.forEach(b=>{doc.setFont('helvetica','normal');doc.setFontSize(9);const lines=b.items.length?b.items.flatMap(t=>doc.splitTextToSize(pdfSafe(t),colW-14)):['—'];const h=22+lines.length*11.5+6;const col=cy[0]<=cy[1]?0:1;if(cy[col]+h>H-110)return;const bx=22+col*(colW+12),by=cy[col];const rgb=rgbOf(CAT[b.c].color);
-      doc.setFillColor(rgb[0],rgb[1],rgb[2]);doc.rect(bx,by,colW,15,'F');doc.setFont('helvetica','bold');doc.setFontSize(8.2);doc.setTextColor(255);doc.text(pdfSafe(b.n.toUpperCase()),bx+6,by+10.5);doc.text(String(b.items.length||''),bx+colW-6,by+10.5,{align:'right'});doc.setTextColor(0);
-      doc.setDrawColor(rgb[0],rgb[1],rgb[2]);doc.setLineWidth(.8);doc.rect(bx,by,colW,h);doc.setFont('helvetica','normal');doc.setFontSize(9);lines.forEach((l,i)=>doc.text(l,bx+7,by+28+i*11.5));cy[col]+=h+10;});
-    let ny=Math.max(cy[0],cy[1])+4;const gn=(S.gn||[]).filter(n=>n.scope==='scene'&&n.key===s.key&&n.x&&n.x.trim());
-    if(opt.notes!==false&&ny<H-60){doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(110);doc.text('NOTES',22,ny);doc.setTextColor(0);doc.setDrawColor(200);doc.setLineWidth(.6);doc.rect(22,ny+4,W-44,Math.min(H-ny-46,90));doc.setFont('helvetica','normal');doc.setFontSize(8.5);let yy=ny+16;gn.forEach(n=>doc.splitTextToSize(pdfSafe(n.x.trim()),W-60).forEach(l=>{if(yy<Math.min(H-44,ny+90)){doc.text(l,30,yy);yy+=11;}}));}
-    pdfFoot(doc,W,H,draft);});
+// strip colors, from the user's Stripboard template rules (first match wins)
+function stripColor(ie,tod){const I=String(ie||'').toUpperCase(),T=String(tod||'').toUpperCase();const ext=/^EXT/.test(I),int=/^INT/.test(I);
+  if(/DREAM/.test(T))return '#f4b6b6';if(ext&&/NIGHT/.test(T))return '#b6d6a8';if(int&&/NIGHT/.test(T))return '#ffe499';
+  if(int){if(/SUNRISE|DAWN/.test(T))return '#f7dcd0';if(/MORNING/.test(T))return '#fff4d5';if(/LATE AFTERNOON/.test(T))return '#e2b778';if(/AFTERNOON/.test(T))return '#f9ebca';if(/SUNSET|DUSK|MAGIC|EVENING/.test(T))return '#f1c4a1';return '#fff8e7';}
+  if(ext){if(/SUNRISE|DAWN/.test(T))return '#d9d2e9';if(/MORNING/.test(T))return '#ddebf7';if(/LATE AFTERNOON/.test(T))return '#6a9bd1';if(/AFTERNOON/.test(T))return '#9dc3ea';if(/SUNSET|DUSK|MAGIC|EVENING/.test(T))return '#b4a7d5';return '#c6dded';}
+  return '#ffffff';}
+/* ---- breakdown sheets: stripboard-style list, then one sheet per scene ---- */
+function bdOrder(scenes){const days=(S.days||[]).filter(d=>(d.keys||[]).length);if(!days.length)return [{day:null,list:scenes}];const used=new Set();const out=days.map(d=>{const list=d.keys.map(k=>scenes.find(s=>s.key===k)).filter(Boolean);list.forEach(s=>used.add(s.key));return {day:d,list};});const rest=scenes.filter(s=>!used.has(s.key));if(rest.length)out.push({day:null,list:rest,unsched:true});return out;}
+function breakdownPDF(opt){const {jsPDF}=window.jspdf;const doc=brandFonts(new jsPDF({unit:'pt',format:'letter'}));const W=612,H=792,L=28,R=W-28;const CN=castNumbers();const scenes=SC.filter(s=>!opt.keys||opt.keys.includes(s.key));
+  let first=true;const np=()=>{if(!first)doc.addPage();first=false;};const gray=v=>doc.setTextColor(0,0,0);
+  const castIds=s=>sceneCast(s).map(o=>CN.num.get(keyOf(o.name))).filter(Boolean).sort((a,b)=>a-b);
+  /* front: working stripboard */
+  if(opt.summary){np();pdfHead(doc,'','Stripboard',`${scenes.length} scenes · ${fmt8(scenes.reduce((t,s)=>t+s.e8,0))} pages · NYU Level ${projectLevel()}`,W);let y=70;
+    const C=[['STRIP',L],['I/E',L+38],['D/N',L+66],['SET',L+120],['PAGES',L+358],['CAST IDs',L+398],['BG',L+478],['LVL',L+512]];
+    const headRow=()=>{doc.setFont('helvetica','bold');doc.setFontSize(7);gray(120);C.forEach(([h,x])=>doc.text(h,x,y));gray(0);doc.setDrawColor(200);doc.setLineWidth(.5);doc.line(L,y+4,R,y+4);y+=16;};headRow();
+    const need=h=>{if(y+h>H-44){pdfFoot(doc,W,H);doc.addPage();pdfHead(doc,'','Stripboard','continued',W);y=70;headRow();}};
+    [{list:scenes}].forEach(g=>{
+      g.list.forEach(s=>{const syn=s.syn?doc.splitTextToSize(pdfSafe(s.syn),232).slice(0,2):[];need(16+syn.length*10);const bg=sceneEls(s,'extras').length;const lv=sceneLevel(s);
+        {const c=rgbOf(stripColor(s.ie,s.tod));doc.setFillColor(c[0],c[1],c[2]);doc.rect(L-4,y-10,R-L+8,14+syn.length*9.5+2,'F');}
+        doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text(pdfSafe(s.num),L,y);doc.setFont('helvetica','normal');doc.text(pdfSafe(s.ie||''),L+38,y);{let t=(s.tod||'').toUpperCase();if(doc.getTextWidth(t)>50)t=t.replace('CONTINUOUS','CONT.').replace('MORNING','MORN.').replace('AFTERNOON','AFTN.').replace('EVENING','EVE.');while(t&&doc.getTextWidth(t)>50)t=t.slice(0,-1);doc.text(pdfSafe(t),L+66,y);}doc.setFont('helvetica','bold');doc.text(pdfSafe(doc.splitTextToSize(s.set||'',232)[0]||''),L+120,y);doc.setFont('helvetica','normal');
+        doc.text(fmt8(s.e8),L+358,y);doc.text(pdfSafe(doc.splitTextToSize(castIds(s).join(', '),76)[0]||''),L+398,y);doc.text(bg?String(bg):'',L+478,y);if(lv>1){doc.setFont('helvetica','bold');doc.text('L'+lv,L+512,y);doc.setFont('helvetica','normal');}
+        let yy=y+10;doc.setFontSize(7.8);gray(95);syn.forEach(l=>{doc.text(l,L+120,yy);yy+=9.5;});gray(0);doc.setDrawColor(255);doc.setLineWidth(1.5);doc.line(L-4,yy-4.5,R+4,yy-4.5);y=yy+8;});
+});
+    need(30);y+=6;doc.setFont('garamond','bold');doc.setFontSize(11.5);doc.text('Cast IDs',L,y);y+=13;doc.setFont('helvetica','normal');doc.setFontSize(8.5);CN.list.forEach((v,i)=>{need(12);doc.text(pdfSafe(`${i+1}  ${v.name}`),L+(i%4)*140,y);if(i%4===3||i===CN.list.length-1)y+=12;});
+    pdfFoot(doc,W,H);}
+  /* one sheet per scene: slug bar and plain facts across the top, categories as vertical lists below */
+  scenes.forEach(s=>{np();pdfHead(doc,'','Script breakdown','',W);let y=62;
+    const c=rgbOf(stripColor(s.ie,s.tod));doc.setFillColor(c[0],c[1],c[2]);doc.rect(L,y,R-L,30,'F');
+    doc.setFont('garamond','bold');doc.setFontSize(17);doc.text('Scene '+pdfSafe(s.num),L+10,y+20);let x=L+10+doc.getTextWidth('Scene '+pdfSafe(s.num))+14;
+    doc.setFont('helvetica','bold');doc.setFontSize(10.5);const slug=pdfSafe([s.ie,s.set].filter(Boolean).join('. ')+(s.tod?' - '+s.tod:''));doc.text(doc.splitTextToSize(slug,R-x-120)[0]||'',x,y+19.5);
+    doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.text(pdfSafe(`${fmt8(s.e8)} pgs  ·  p. ${s.pg||'—'}`),R-10,y+19.5,{align:'right'});y+=44;
+    // horizontal facts row
+    const facts=[['I/E',s.ie||'—'],['Day / Night',s.tod||'—'],['Set',s.set||'—'],['Pages',fmt8(s.e8)],['Script page',String(s.pg||'—')],['NYU level',String(sceneLevel(s))]];const fw=[48,80,190,48,64,56];x=L;
+    facts.forEach(([k,v],i)=>{doc.setFont('helvetica','bold');doc.setFontSize(6.8);gray(120);doc.text(k.toUpperCase(),x,y);gray(0);doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.text(pdfSafe(doc.splitTextToSize(v,fw[i]-6)[0]||''),x,y+12);x+=fw[i]+(i<facts.length-1?(R-L-fw.reduce((a,b)=>a+b,0))/(facts.length-1):0);});y+=26;
+    if(s.syn){doc.setFont('helvetica','bold');doc.setFontSize(6.8);gray(120);doc.text('SYNOPSIS',L,y);gray(0);doc.setFont('helvetica','normal');doc.setFontSize(9.5);const ls=doc.splitTextToSize(pdfSafe(s.syn),R-L);doc.text(ls.slice(0,4),L,y+12);y+=12+ls.slice(0,4).length*12;}
+    y+=4;doc.setDrawColor(210);doc.setLineWidth(.6);doc.line(L,y,R,y);y+=16;
+    // category blocks, each a vertical list, flowed into three columns
+    const blocks=CATS.map(([c,n])=>{let items=sceneEls(s,c).map(o=>o.name);if(c==='cast')items=sceneCast(s).map(o=>({n:CN.num.get(keyOf(o.name))||99,t:o.name})).sort((a,b)=>a.n-b.n).map(o=>`${o.n}  ${o.t}`);return {n,items,color:CAT[c].color,c};}).filter(b=>b.items.length||b.c==='cast'||opt.empty);
+    const N=needsOf(s);if(opt.needs!==false&&N.length)blocks.push({n:'Location needs',items:N.map(n=>n.x),color:'#8a6d3b'});
+    const cols=3,gap=14,cw=(R-L-gap*(cols-1))/cols;const colY=[y,y,y];const top=y;
+    const drawBlock=(b,ci,by)=>{const bx=L+ci*(cw+gap);const cc=rgbOf(b.color||'#868e96');doc.setFillColor(cc[0],cc[1],cc[2]);doc.rect(bx,by-6.5,5,5,'F');doc.setFont('helvetica','bold');doc.setFontSize(7.6);gray(70);doc.text(pdfSafe(b.n.toUpperCase()),bx+9,by-1.5);gray(0);
+      let yy=by+12;doc.setFont('helvetica','normal');doc.setFontSize(9.3);if(!b.items.length){gray(150);doc.text('—',bx+9,yy);gray(0);return yy+8;}
+      b.items.forEach(t=>{const ls=doc.splitTextToSize(pdfSafe(t),cw-14);ls.forEach((l,i)=>{doc.text(l,bx+9,yy);yy+=11.5;});yy+=1.5;});return yy+8;};
+    const measure=b=>{doc.setFont('helvetica','normal');doc.setFontSize(9.3);return 20+(b.items.length?b.items.reduce((t,x)=>t+doc.splitTextToSize(pdfSafe(x),cw-14).length*11.5+1.5,0):10)+8;};
+    blocks.forEach(b=>{const h=measure(b);let ci=colY.indexOf(Math.min(...colY));if(colY[ci]+h>H-60){pdfFoot(doc,W,H);doc.addPage();pdfHead(doc,'','Script breakdown','Scene '+s.num+', continued',W);colY[0]=colY[1]=colY[2]=70;ci=0;}colY[ci]=drawBlock(b,ci,colY[ci]);});
+    y=Math.max(...colY)+4;
+    // full-width text items
+    const para=(label,lines,alert)=>{if(!lines.length)return;doc.setFont('helvetica','normal');doc.setFontSize(9.5);const ls=lines.flatMap(t=>doc.splitTextToSize(pdfSafe(t),R-L));if(y+18+ls.length*12>H-44){pdfFoot(doc,W,H);doc.addPage();pdfHead(doc,'','Script breakdown','Scene '+s.num+', continued',W);y=74;}
+      doc.setDrawColor(225);doc.setLineWidth(.5);doc.line(L,y-8,R,y-8);doc.setFont('helvetica','bold');doc.setFontSize(7.6);if(alert)doc.setTextColor(...alert);else gray(70);doc.text(pdfSafe(label.toUpperCase()),L,y+2);gray(0);doc.setFont('helvetica','normal');doc.setFontSize(9.5);ls.forEach((l,i)=>doc.text(l,L,y+15+i*12));y+=15+ls.length*12+12;};
+    const R2=riskOf(s);if(opt.risk!==false&&R2.length){const lv=sceneLevel(s);para('Special scene / hazardous activity · NYU Level '+lv,R2.map(r=>{const it=riskItem(r);return `${it.lvl===23?'L2–3':'L'+it.lvl}  ${it.cat} — ${it.short}${r.note?'. Plan: '+r.note:''}`;}).concat(['Approval: '+apprTxt(lv)]),lv===3?[201,42,42]:[214,90,0]);}
+    if(opt.notes!==false){const gn=(S.gn||[]).filter(n=>n.scope==='scene'&&n.key===s.key&&n.x&&n.x.trim()).map(n=>n.x.trim());const tx=S.an.filter(a=>a.k==='tx'&&a.at==='scene'&&elSc[a.s[0]]===SC.indexOf(s)).map(a=>a.x.trim());para('Scene notes',gn.concat(tx).length?gn.concat(tx):['—']);}
+    pdfFoot(doc,W,H);});
   return doc.output('blob');}
 
 /* ---- Day Out of Days ---- */
@@ -1542,14 +1572,14 @@ function doodPDF(opt){const {jsPDF}=window.jspdf;const doc=brandFonts(new jsPDF(
   const COL={SW:[211,249,216],W:[233,236,239],WF:[255,214,214],SWF:[229,219,255],H:[255,243,191]};
   for(let p=0;p<Math.max(1,Math.ceil(days.length/per));p++){const ds=days.slice(p*per,(p+1)*per);let rowStart=0;
     while(rowStart<rows.length||rowStart===0){if(p||rowStart)doc.addPage();pdfHead(doc,S.title,'Day Out of Days'+(S.draft?' · '+S.draft:''),days.length?`${days.length} days`:'',W);let y=84;
-      doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(100);doc.text('ELEMENT',28,y);ds.forEach((d,i)=>{const x=22+NW+i*cw+cw/2;doc.text(pdfSafe((d.label||'Day '+(p*per+i+1)).slice(0,8)),x,y-8,{align:'center'});const dt=d.date?new Date(d.date+'T12:00:00'):null;if(dt&&!isNaN(dt))doc.text(dt.toLocaleDateString(undefined,{month:'numeric',day:'numeric'}),x,y,{align:'center'});});
+      doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(0);doc.text('ELEMENT',28,y);ds.forEach((d,i)=>{const x=22+NW+i*cw+cw/2;doc.text(pdfSafe((d.label||'Day '+(p*per+i+1)).slice(0,8)),x,y-8,{align:'center'});const dt=d.date?new Date(d.date+'T12:00:00'):null;if(dt&&!isNaN(dt))doc.text(dt.toLocaleDateString(undefined,{month:'numeric',day:'numeric'}),x,y,{align:'center'});});
       const tx=22+NW+ds.length*cw+8;[['WORK',0],['HOLD',34],['START',68],['FINISH',110]].forEach(([h,o])=>doc.text(h,tx+o,y));doc.setTextColor(0);y+=10;
       let lastCat='';let i=rowStart;for(;i<rows.length;i++){const r=rows[i];if(y>H-48)break;if(r.cat!==lastCat){lastCat=r.cat;doc.setFillColor(...rgbOf(CAT[r.cat].color));doc.rect(22,y,W-44,13,'F');doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255);doc.text(pdfSafe(CAT[r.cat].name.toUpperCase()),28,y+9.5);doc.setTextColor(0);y+=15;}
         doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.text(pdfSafe(doc.splitTextToSize(r.name,NW-10)[0]),28,y+10);
         ds.forEach((d,j)=>{const v=r.cells[p*per+j];const x=22+NW+j*cw;if(v){doc.setFillColor(...COL[v]);doc.rect(x+1,y+1,cw-2,13,'F');doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.text(v,x+cw/2,y+10.5,{align:'center'});}doc.setDrawColor(222);doc.setLineWidth(.4);doc.rect(x,y,cw,15);});
         doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.text(String(r.work),tx+6,y+10);doc.text(String(r.hold||''),tx+40,y+10);doc.text(pdfSafe(r.start.slice(0,8)),tx+68,y+10);doc.text(pdfSafe(r.finish.slice(0,8)),tx+110,y+10);y+=16;}
       if(!rows.length){doc.setFont('helvetica','normal');doc.setFontSize(11);doc.text(days.length?'Nothing tagged in the chosen categories for these days.':'No shooting days yet. In Script Desk, add days under More → Make sides (each day = its scenes).',28,y+20);}
-      doc.setFont('helvetica','normal');doc.setFontSize(7.2);doc.setTextColor(110);doc.text('SW start work · W work · WF work finish · SWF start-work-finish (one day) · H hold (paid, not working, between first and last day)',28,H-30);doc.setTextColor(0);pdfFoot(doc,W,H,draft);
+      doc.setFont('helvetica','normal');doc.setFontSize(7.2);doc.setTextColor(0);doc.text('SW start work · W work · WF work finish · SWF start-work-finish (one day) · H hold (paid, not working, between first and last day)',28,H-30);doc.setTextColor(0);pdfFoot(doc,W,H,draft);
       rowStart=i;if(rowStart>=rows.length)break;}}
   return doc.output('blob');}
 
@@ -1560,22 +1590,24 @@ function locationsPDF(){const {jsPDF}=window.jspdf;const doc=brandFonts(new jsPD
   pdfHead(doc,S.title,'Locations & set needs'+(S.draft?' · '+S.draft:''),`${sets.size} sets`,W);let y=76;
   const need=n=>{if(y>H-50){pdfFoot(doc,W,H,draft);doc.addPage();pdfHead(doc,S.title,'Locations & set needs, continued','',W);y=76;}};
   byLoc.forEach((list,loc)=>{need();y+=4;doc.setFont('garamond','bold');doc.setFontSize(15);doc.text(pdfSafe(loc||'Unnamed'),28,y);y+=6;doc.setDrawColor(189,81,3);doc.setLineWidth(1);doc.line(28,y,W-28,y);y+=14;
-    list.forEach(o=>{need();const N=needsOf(o.scenes[0]);doc.setFont('helvetica','bold');doc.setFontSize(10.5);doc.text(pdfSafe(o.set),28,y);doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(100);doc.text(pdfSafe(`${[...o.ie].join('/')} · ${[...o.tod].join(', ')} · scenes ${o.scenes.map(s=>s.num).join(', ')} · ${fmt8(o.e8)} pgs`),W-28,y,{align:'right'});doc.setTextColor(0);y+=14;
+    list.forEach(o=>{need();const N=needsOf(o.scenes[0]);doc.setFont('helvetica','bold');doc.setFontSize(10.5);doc.text(pdfSafe(o.set),28,y);doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(0);doc.text(pdfSafe(`${[...o.ie].join('/')} · ${[...o.tod].join(', ')} · scenes ${o.scenes.map(s=>s.num).join(', ')} · ${fmt8(o.e8)} pgs`),W-28,y,{align:'right'});doc.setTextColor(0);y+=14;
       const lv=Math.max(1,...o.scenes.map(sceneLevel));const risks=o.scenes.flatMap(s=>riskOf(s).map(r=>({s,it:riskItem(r)})));
       const rows=[['Must have',N.map(n=>n.x).join(' · ')||'—'],['Set dressing',[...new Set(o.scenes.flatMap(s=>sceneEls(s,'setdress').map(e=>e.name)))].join(', ')],['Props',[...new Set(o.scenes.flatMap(s=>sceneEls(s,'props').map(e=>e.name)))].join(', ')],['Vehicles',[...new Set(o.scenes.flatMap(s=>sceneEls(s,'vehicles').map(e=>e.name)))].join(', ')],['Animals',[...new Set(o.scenes.flatMap(s=>sceneEls(s,'animals').map(e=>e.name)))].join(', ')],['Most cast at once',String(Math.max(0,...o.scenes.map(s=>sceneCast(s).length)))+' speaking · '+([...new Set(o.scenes.flatMap(s=>sceneEls(s,'extras').map(e=>e.name)))].join(', ')||'no background tagged')],['Special scenes',risks.map(r=>`Sc ${r.s.num}: L${r.it.lvl===23?'2-3':r.it.lvl} ${r.it.cat} — ${r.it.short}`).join(' · ')]].filter(r=>r[1]);
-      rows.forEach(([k,v])=>{const ls=doc.splitTextToSize(pdfSafe(v),W-170);need();doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(k==='Special scenes'?(lv===3?201:232):110,k==='Special scenes'?(lv===3?42:89):110,k==='Special scenes'?(lv===3?42:12):110);doc.text(k.toUpperCase(),36,y);doc.setTextColor(0);doc.setFont('helvetica',k==='Must have'?'bold':'normal');doc.setFontSize(9);ls.slice(0,4).forEach((l,i)=>{doc.text(l,140,y+i*11.5);});y+=Math.max(13,ls.slice(0,4).length*11.5+2);});y+=10;});y+=6;});
+      rows.forEach(([k,v])=>{const ls=doc.splitTextToSize(pdfSafe(v),W-170);need();doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(k==='Special scenes'?(lv===3?201:232):0,k==='Special scenes'?(lv===3?42:89):0,k==='Special scenes'?(lv===3?42:12):0);doc.text(k.toUpperCase(),36,y);doc.setTextColor(0);doc.setFont('helvetica',k==='Must have'?'bold':'normal');doc.setFontSize(9);ls.slice(0,4).forEach((l,i)=>{doc.text(l,140,y+i*11.5);});y+=Math.max(13,ls.slice(0,4).length*11.5+2);});y+=10;});y+=6;});
   pdfFoot(doc,W,H,draft);return doc.output('blob');}
 
 /* ---- dialogs + menu ---- */
-async function needPDF(){if(!(await ensureJsPDF0())){toast('The PDF maker did not load. Check your connection and try again.',5000);return false;}return true;}
+async function needPDF(){if(!(await ensureJsPDF())){toast('The PDF maker did not load. Check your connection and try again.',5000);return false;}return true;}
 function openBreakdownPDF(){if(!SC.length){toast('Import a script with scenes first');return;}let pick=null;
-  openModal(`<h3>Breakdown sheets (PDF)</h3><div class="pSub">One sheet per scene: heading info, every tagged element in its category box (cast numbered by how many scenes they’re in), special scenes, location needs and scene notes. A summary page with the project’s NYU level comes first.</div>
-    <label class="chk"><input type="checkbox" id="bdSum" checked> Summary page (scene list, cast numbers, project level)</label><label class="chk"><input type="checkbox" id="bdRisk" checked> Special scenes</label><label class="chk"><input type="checkbox" id="bdNeeds" checked> Location needs</label><label class="chk"><input type="checkbox" id="bdNotes" checked> Notes box with scene notes</label>
+  openModal(`<h3>Breakdown sheets (PDF)</h3><div class="pSub">A stripboard first, then one sheet per scene: the scene heading, every element tagged in it under its category (including categories you’ve added), special scenes, location needs and scene notes. Cast IDs are numbered by how many scenes each person is in.</div>
+    <div class="f"><label for="bdCredit">Director / Writer (printed at the top of every page)</label><input class="in" id="bdCredit" value="${esc(S.credit||'')}" placeholder="Directed by … · Written by …"></div>
+    <div class="f"><label for="bdDraft">Script version</label><input class="in" id="bdDraft" value="${esc(S.draft||'')}" placeholder="Draft 9 · 10/10/2026"></div>
+    <label class="chk"><input type="checkbox" id="bdSum" checked> Stripboard first (strips in script order, cast IDs, BG, NYU level)</label><label class="chk"><input type="checkbox" id="bdEmpty"> Show empty categories as —</label><label class="chk"><input type="checkbox" id="bdRisk" checked> Special scenes</label><label class="chk"><input type="checkbox" id="bdNeeds" checked> Location needs</label><label class="chk"><input type="checkbox" id="bdNotes" checked> Notes box with scene notes</label>
     <div class="f"><label>Scenes</label><div class="seg" id="bdScope"><button data-v="all" class="on">All ${SC.length}</button><button data-v="pick">Choose…</button></div><div id="bdPick" hidden class="pickList">${SC.map(s=>`<label class="chk"><input type="checkbox" data-bk="${esc(s.key)}" checked> ${esc(s.num)} · ${esc((s.ie?s.ie+'. ':'')+s.set)}</label>`).join('')}</div></div>
     <div class="mFoot"><button class="btn" data-close>Cancel</button><button class="btn pri" id="bdGo">Download PDF</button></div>`);
   $('#modalBox').onclick=async e=>{const b=e.target.closest('#bdScope [data-v]');if(b){$('#bdScope').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));$('#bdPick').hidden=b.dataset.v!=='pick';return;}
     if(e.target.id!=='bdGo')return;const keys=$('#bdPick').hidden?null:[...document.querySelectorAll('[data-bk]')].filter(c=>c.checked).map(c=>c.dataset.bk);if(keys&&!keys.length){toast('Tick at least one scene');return;}
-    if(!(await needPDF()))return;const blob=breakdownPDF({keys,summary:$('#bdSum').checked,risk:$('#bdRisk').checked,needs:$('#bdNeeds').checked,notes:$('#bdNotes').checked});saveFile(`${slug(S.title)}-breakdown-sheets.pdf`,blob);closeModal();};}
+    S.credit=$('#bdCredit').value.trim();S.draft=$('#bdDraft').value.trim()||S.draft;scheduleSave();if(!(await needPDF()))return;const blob=breakdownPDF({keys,empty:$('#bdEmpty').checked,summary:$('#bdSum').checked,risk:$('#bdRisk').checked,needs:$('#bdNeeds').checked,notes:$('#bdNotes').checked});saveFile(`${slug(S.title)}-breakdown-sheets.pdf`,blob);closeModal();};}
 function openDOOD(){const days=(S.days||[]).filter(d=>(d.keys||[]).length);const def=['cast'];
   openModal(`<h3>Day Out of Days (PDF)</h3><div class="pSub">Who and what works on each shooting day, with start (SW), work (W), finish (WF), one-day (SWF) and hold (H) days, plus totals. Days come from <b>Make sides</b>: each day is the scenes you put on it${days.length?` — you have <b>${days.length}</b>`:''}.</div>
     ${days.length?'':'<div class="pSub" style="color:var(--danger,#c92a2a)">No shooting days yet. Open More → Make sides, add a day and pick its scenes; then come back.</div>'}
