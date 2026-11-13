@@ -97,6 +97,8 @@ body.narrow #nav{left:0}body.narrow #side{right:0}
 #scriptWrap,#reportWrap{position:absolute;inset:0;overflow:auto;container-type:inline-size}
 #scriptWrap{padding:18px 12px 150px}
 body.narrow #scriptWrap{padding:8px 6px 170px}
+#exBar{max-width:44rem;margin:0 auto 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--accentSoft);color:var(--ink);border:1px solid var(--accent);border-left:4px solid var(--accent);border-radius:7px;padding:9px 12px}
+#exBar[hidden]{display:none}#exBar b{color:var(--accent)}#exBar .ex-t{flex:1 1 260px;min-width:0}#exBar .ex-b{display:flex;gap:6px;flex-wrap:wrap}
 #page{font-size:15px;font-size:calc(clamp(8px,(100cqw - 2px)/44.2,16.5px)*var(--z,1));font-family:var(--script);line-height:1.2;background:var(--paper);color:var(--paperInk);width:44em;margin:0 auto;padding:3.4em 4.4em 5em 3.6em;border-radius:3px;box-shadow:var(--shadow);position:relative;-webkit-user-select:text;user-select:text}
 .el{width:36em;margin-top:1.2em;white-space:pre-wrap;overflow-wrap:break-word;position:relative}
 .el.t-h{margin-top:2.4em;font-weight:700;scroll-margin-top:70px;cursor:default}
@@ -372,7 +374,7 @@ h2.rh .btn{margin-left:auto;font:500 12px var(--sans)}
     <div id="sceneList"></div>
   </aside>
   <main id="main">
-    <div id="scriptWrap"><div id="page"></div></div>
+    <div id="scriptWrap"><div id="exBar" hidden></div><div id="page"></div></div>
     <div id="reportWrap" hidden></div>
     <div id="lyPop" hidden></div>
     <div id="zoom"><button class="btn sm" id="bLayers" title="Show or hide layers of notes">Layers</button><button class="btn sm" id="zOut" title="Smaller text" aria-label="Smaller text">A−</button><button class="btn sm" id="zIn" title="Larger text" aria-label="Larger text">A+</button></div>
@@ -634,7 +636,7 @@ function renderReport(){if(V.view!=='report')return;const tot=sceneTotal();const
 function setView(v){if(V.view===v)return;V.view=v;document.querySelectorAll('#views button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$('#scriptWrap').hidden=v!=='script';$('#reportWrap').hidden=v!=='report';$('#zoom').hidden=v!=='script';if(v==='report'){hideDock();renderReport();}}
 function applyUI(){const b=document.body;b.classList.toggle('noNav',!V.nav);b.classList.toggle('noSide',!V.side);b.classList.toggle('narrow',!!V.narrow);$('#bNav').classList.toggle('on',V.nav);$('#bSide').classList.toggle('on',V.side);saveUI();}
 function onResize(){const nar=window.innerWidth<980;if(nar!==V.narrow){const first=V.narrow===null;V.narrow=nar;if(nar){V.nav=false;V.side=false;}else if(!first){V.nav=true;V.side=true;}applyUI();if(V.side)renderSide();}}
-function renderAll(keepScroll){const w=$('#scriptWrap');const st=w.scrollTop;computeScenes();reindex();renderScript();renderNav();renderSide();renderStats();renderReport();if(keepScroll)w.scrollTop=st;else w.scrollTop=0;}
+function renderAll(keepScroll){const w=$('#scriptWrap');const st=w.scrollTop;computeScenes();reindex();renderScript();renderNav();renderSide();renderStats();renderReport();renderExBar();if(keepScroll)w.scrollTop=st;else w.scrollTop=0;}
 function light(a,b){computeScenes();if(a!=null)refreshEls(a,b);refreshHeads();renderNav();renderSide();renderStats();renderReport();if(typeof renderLines==='function')renderLines();}
 
 /* ============================================================
@@ -844,7 +846,7 @@ function openImport(){if(typeof importMode!=='undefined')importMode=null;openMod
   <div id="drop"><b>Drop a script file here</b><div class="pSub" style="margin:6px 0 10px">PDF, Final Draft (.fdx), Fountain or plain text</div><button class="btn pri" id="pickFile">Choose a file</button></div>
   <div class="f"><label for="pasteIn">Or paste the script text</label><textarea class="in" id="pasteIn" style="height:120px;font:12px var(--script)" placeholder="INT. KITCHEN - NIGHT&#10;&#10;Maya drops her keys on the counter."></textarea></div>
   <div class="pSub">The script opens as a new entry in <b>My scripts</b>; the one you have open stays saved. A scanned PDF (page images) has no text to read, so use a text-based PDF or the original file.</div>
-  <div class="mFoot"><button class="btn" id="useSample">Open the sample</button><button class="btn" data-close>Cancel</button><button class="btn pri" id="pasteGo">Import pasted text</button></div>`);
+  <div class="mFoot"><button class="btn" id="useSample">Open the example</button><button class="btn" data-close>Cancel</button><button class="btn pri" id="pasteGo">Import pasted text</button></div>`);
   $('#pickFile').onclick=()=>$('#fileIn').click();$('#useSample').onclick=()=>{loadSample();closeModal();};
   $('#pasteGo').onclick=()=>{const t=$('#pasteIn').value;if(t.trim().length<20){toast('Paste the script text first');return;}finishImport(parseText(t),'Pasted script');};
   const d=$('#drop');d.ondragover=e=>{e.preventDefault();d.classList.add('over');};d.ondragleave=()=>d.classList.remove('over');d.ondrop=e=>{e.preventDefault();d.classList.remove('over');const f=e.dataTransfer.files[0];if(f)handleFile(f);};}
@@ -869,7 +871,7 @@ function setScript(o,saved){S=o;S.sc=S.sc||{};S.an=S.an||[];S.splits=S.splits||{
 const LS={get(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
 const pack=els=>els.map(e=>[e.t,e.x,e.pg,e.row,e.n,e.num||'']);
 const unpack=b=>b.map(a=>({t:a[0],x:a[1],pg:a[2],row:a[3],n:a[4],num:a[5]||''}));
-const stateOf=()=>({v:1,id:S.id,title:S.title,updated:S.updated,R:S.R,sc:S.sc,an:S.an,splits:S.splits,unhead:S.unhead,cats:S.cats,ntypes:S.ntypes,layers:S.layers,lyHidden:S.lyHidden,lyActive:S.lyActive,tagsHidden:!!S.tagsHidden,gn:S.gn,beats:S.beats,setups:S.setups,days:S.days,linesHidden:!!S.linesHidden,draft:S.draft,prev:S.prev,rev:S.rev,revHidden:!!S.revHidden,revStyle:S.revStyle||'',lost:S.lost,alias:S.alias,notCast:S.notCast||{},minors:S.minors||{},clear:S.clear||{},clearNo:S.clearNo||{},locNeeds:S.locNeeds||{},credit:S.credit||'',bdEdit:S.bdEdit||{},chunks:S.chunks||0});
+const stateOf=()=>({v:1,id:S.id,title:S.title,updated:S.updated,R:S.R,sc:S.sc,an:S.an,splits:S.splits,unhead:S.unhead,cats:S.cats,ntypes:S.ntypes,layers:S.layers,lyHidden:S.lyHidden,lyActive:S.lyActive,tagsHidden:!!S.tagsHidden,gn:S.gn,beats:S.beats,setups:S.setups,days:S.days,linesHidden:!!S.linesHidden,draft:S.draft,prev:S.prev,rev:S.rev,revHidden:!!S.revHidden,revStyle:S.revStyle||'',lost:S.lost,alias:S.alias,notCast:S.notCast||{},minors:S.minors||{},clear:S.clear||{},clearNo:S.clearNo||{},locNeeds:S.locNeeds||{},credit:S.credit||'',bdEdit:S.bdEdit||{},chunks:S.chunks||0,example:!!S.example});
 let COL=null,bodySaved=true,saveTimer=0,saving=false,dirty=false;
 function setSave(cls,txt){const s=$('#save');s.className=cls;s.querySelector('span').textContent=txt;s.title=txt;}
 function scheduleSave(){if(!S)return;S.sample=false;dirty=true;S.updated=Date.now();setSave('busy','Unsaved changes…');clearTimeout(saveTimer);saveTimer=setTimeout(doSave,1000);}
@@ -894,7 +896,7 @@ async function deleteScript(x){LS.del('sdesk.a.'+x.id);LS.del('sdesk.b.'+x.id);c
   if(COL){try{await COL.doc('m_'+x.id).delete();for(let k=0;k<(x.chunks||0);k++)await COL.doc('b_'+x.id+'_'+k).delete();}catch(e){}}}
 async function openLibrary(){openModal(`<h3>My scripts</h3><div class="pSub">Loading…</div>`);if(dirty)await doSave();const list=await listScripts();
   const draw=()=>{openModal(`<h3>My scripts</h3><div class="pSub">Each script keeps its own highlights, notes and tags.</div>${list.map(x=>`<div class="libRow ${x.id===S.id?'cur':''}"><div><b>${esc(x.title||'Untitled')}</b><small>${x.updated?new Date(x.updated).toLocaleString():''} · saved in ${x.where}</small></div>${x.id===S.id?'<span class="pSub" style="margin:0">open</span>':`<button class="btn sm" data-open="${x.id}">Open</button>`}<button class="btn sm danger" data-del="${x.id}">Delete</button></div>`).join('')||'<div class="pSub">No saved scripts yet. Import one to begin.</div>'}
-    <div class="mFoot"><button class="btn" id="libSample">Open the sample</button><button class="btn" id="libImport">Import a script</button><button class="btn pri" data-close>Done</button></div>`);
+    <div class="mFoot"><button class="btn" id="libSample">Open the example</button><button class="btn" id="libImport">Import a script</button><button class="btn pri" data-close>Done</button></div>`);
     $('#libImport').onclick=openImport;$('#libSample').onclick=()=>{loadSample();closeModal();};
     $('#modalBox').onclick=async e=>{const o=e.target.closest('[data-open]'),d=e.target.closest('[data-del]');
       if(o){toast('Opening…');const ok=await openScript(o.dataset.open);if(ok){closeModal();toast('Opened '+S.title);}else toast('That script could not be opened on this device.',5000);}
@@ -1863,7 +1865,7 @@ function openClearances(){const draw=()=>{const A=clAll();const opt=(Lst,v)=>Lst
 /* ============================================================
    Sample + init
    ============================================================ */
-const SAMPLE=`Title: The Last Ferry (sample)
+const SAMPLE=`Title: The Last Ferry (example)
 
 FADE IN:
 
@@ -1944,7 +1946,13 @@ She lifts a hand without looking up.
 
 FADE OUT.
 `;
-function loadSample(){const r=parseText(SAMPLE);setScript({v:1,id:'sample',title:r.title||'Sample script',updated:0,R:54,els:r.els,sc:{},an:[],chunks:0,sample:true},false);setSave('ok','Sample script. Import your own to begin.');}
+function loadSample(){const r=parseText(SAMPLE);setScript({v:1,id:'sample',title:'Example: The Last Ferry',updated:0,R:54,els:r.els,sc:{},an:[],chunks:0,sample:true,example:true},false);exHidden=false;renderExBar();setSave('ok','Example script. Import your own to begin.');}
+let exHidden=false;
+function renderExBar(){const b=$('#exBar');if(!b)return;const on=!!(S&&S.example)&&!exHidden;b.hidden=!on;if(!on){b.innerHTML='';return;}
+  b.innerHTML=`<div class="ex-t"><b>This is an example script.</b> <i>The Last Ferry</i> is a short sample for trying Script Desk: highlight, tag, mark camera setups and see the eighths. Anything you change here saves as its own copy, separate from your scripts.</div><div class="ex-b"><button class="btn pri" id="exImport">Import your script</button><button class="btn" id="exKeep" title="Stop marking this as an example">Keep as my own</button><button class="btn" id="exHide" title="Hide this note until you reopen the example">Hide</button></div>`;
+  $('#exImport').onclick=openImport;
+  $('#exHide').onclick=()=>{exHidden=true;renderExBar();};
+  $('#exKeep').onclick=()=>{S.example=false;if(/^Example: /.test(S.title||''))S.title=S.title.replace(/^Example: /,'');const t=$('#title');if(t&&'value' in t)t.value=S.title;else if(t)t.textContent=S.title;renderExBar();scheduleSave();toast('Kept as your own script');};}
 if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='pdf.worker.min.js';
 // light / dark switch (first visit follows the device setting)
 $('#bTheme').onclick=()=>{const cur=document.documentElement.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');const t=cur==='dark'?'light':'dark';document.documentElement.dataset.theme=t;try{localStorage.setItem('sdesk.theme',t);}catch(e){}};
